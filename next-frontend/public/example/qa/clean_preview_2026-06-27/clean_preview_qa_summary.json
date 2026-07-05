@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-06-27T12:20:56.463Z",
+  "url": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5_clean_preview/index.html",
+  "executablePath": "/Users/ny/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "checks": [
+    {
+      "name": "首页标题为数字教材预览",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "首页无显性研发占位/候选/门禁文案",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "项目页可打开且无硬性污染词",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "图谱页可打开且无硬性污染词",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "教师页可打开且无硬性污染词",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "资源页可打开且无硬性污染词",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "交付页可打开且无硬性污染词",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "P4-T2页面可从整书入口打开",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "P4-T2学生页无显性研发说明",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "P4-T2教师页无评审表/试看/风险栏目",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "P4-T2资源页无本地来源和研发说明",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "控制台无错误",
+      "pass": true,
+      "details": ""
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    "01-clean-home.png",
+    "02-clean-delivery.png",
+    "03-p4t2-student.png"
+  ],
+  "pass": true
+}

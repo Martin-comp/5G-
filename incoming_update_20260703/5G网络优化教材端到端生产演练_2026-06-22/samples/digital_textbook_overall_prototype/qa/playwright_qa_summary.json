@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-06-24T01:44:23.407Z",
+  "fileUrl": "file:///Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype/index.html",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 960,
+      "overflow": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "页面标题包含数字教材整体原型",
+      "pass": true
+    },
+    {
+      "name": "课程首页显示6个项目和18个任务",
+      "pass": true
+    },
+    {
+      "name": "项目视图可进入P4并显示深样章入口",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱节点可点击并显示关联任务",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱显示四任务关系层和V2.1入口",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱节点邻域显示关系类型和评价产出",
+      "pass": true
+    },
+    {
+      "name": "教师视图显示外部门禁",
+      "pass": true
+    },
+    {
+      "name": "资源中心显示审核状态",
+      "pass": true
+    },
+    {
+      "name": "出版视图显示平台接口未接入",
+      "pass": true
+    },
+    {
+      "name": "深样章目标文件存在",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

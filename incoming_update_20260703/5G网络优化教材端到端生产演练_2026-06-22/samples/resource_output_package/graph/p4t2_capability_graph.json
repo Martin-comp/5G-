@@ -1,0 +1,400 @@
+{
+  "graph_id": "P4T2-5G-optimization-result-verification",
+  "version": "0.1",
+  "status": "draft_for_expert_review",
+  "nodes": [
+    {
+      "id": "STD-ZK-510301-2025",
+      "type": "program_standard",
+      "label": "现代通信技术专业教学标准（高职专科，2025）",
+      "source": "教育部"
+    },
+    {
+      "id": "STD-BK-310301-2025",
+      "type": "program_standard",
+      "label": "现代通信工程专业教学标准（职教本科，2025）",
+      "source": "教育部"
+    },
+    {
+      "id": "OCC-4-04-04-01",
+      "type": "occupation_standard",
+      "label": "信息通信网络运行管理员国家职业技能标准（2019）",
+      "source": "人社部/工信部"
+    },
+    {
+      "id": "COURSE-5G-OPT",
+      "type": "course_goal",
+      "label": "5G网络优化高级能力"
+    },
+    {
+      "id": "TASK-P4T2",
+      "type": "job_task",
+      "label": "5G网络优化结果验证"
+    },
+    {
+      "id": "CAP-COVERAGE",
+      "type": "capability",
+      "label": "验证覆盖优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-HO",
+      "type": "capability",
+      "label": "验证切换优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-LATENCY",
+      "type": "capability",
+      "label": "验证时延优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-RATE",
+      "type": "capability",
+      "label": "验证速率优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-CAPACITY",
+      "type": "capability",
+      "label": "验证容量优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-DROP",
+      "type": "capability",
+      "label": "验证掉线优化结果",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "CAP-EVIDENCE",
+      "type": "capability",
+      "label": "形成优化证据链与报告",
+      "review_status": "AI初提，需通信专家审核"
+    },
+    {
+      "id": "K-SS-RSRP",
+      "type": "knowledge",
+      "label": "SS-RSRP/SS-SINR覆盖评估"
+    },
+    {
+      "id": "K-COVERAGE-ISSUE",
+      "type": "knowledge",
+      "label": "弱覆盖、越区覆盖、导频污染"
+    },
+    {
+      "id": "K-AEVENT",
+      "type": "knowledge",
+      "label": "A1/A2/A3/A4/A5/A6/B1/B2测量事件"
+    },
+    {
+      "id": "K-SA-NSA",
+      "type": "knowledge",
+      "label": "SA/NSA切换流程"
+    },
+    {
+      "id": "K-LATENCY",
+      "type": "knowledge",
+      "label": "端到端时延与帧结构"
+    },
+    {
+      "id": "K-THROUGHPUT",
+      "type": "knowledge",
+      "label": "速率与吞吐量影响因素"
+    },
+    {
+      "id": "K-KPI",
+      "type": "knowledge",
+      "label": "关键KPI与优化前后对比"
+    },
+    {
+      "id": "S-READ-METRIC",
+      "type": "skill",
+      "label": "读取并解释测试/仿真指标"
+    },
+    {
+      "id": "S-LOCATE-PROBLEM",
+      "type": "skill",
+      "label": "定位优化问题类型"
+    },
+    {
+      "id": "S-PARAM-CHECK",
+      "type": "skill",
+      "label": "核查工程参数和无线参数"
+    },
+    {
+      "id": "S-COMPARE",
+      "type": "skill",
+      "label": "比较优化前后结果"
+    },
+    {
+      "id": "S-REPORT",
+      "type": "skill",
+      "label": "输出验证结论和优化报告"
+    },
+    {
+      "id": "RES-P4T2-MD",
+      "type": "resource",
+      "label": "结构化任务正文",
+      "resource_type": "text"
+    },
+    {
+      "id": "RES-COVERAGE-TABLE",
+      "type": "resource",
+      "label": "覆盖评估指标表",
+      "resource_type": "table"
+    },
+    {
+      "id": "RES-HO-FLOW",
+      "type": "resource",
+      "label": "SA/NSA切换流程图组",
+      "resource_type": "image"
+    },
+    {
+      "id": "RES-SIM-STEPS",
+      "type": "resource",
+      "label": "仿真软件验证步骤截图组",
+      "resource_type": "image"
+    },
+    {
+      "id": "RES-INTERACTIVE-CHECK",
+      "type": "resource",
+      "label": "优化结果判定交互卡",
+      "resource_type": "interactive"
+    },
+    {
+      "id": "RES-ASSESSMENT",
+      "type": "resource",
+      "label": "随堂测试与任务测评题库",
+      "resource_type": "assessment"
+    },
+    {
+      "id": "A-Q1",
+      "type": "assessment",
+      "label": "解释参数集µ与时频资源关系"
+    },
+    {
+      "id": "A-Q2",
+      "type": "assessment",
+      "label": "简述覆盖优化基本原则"
+    },
+    {
+      "id": "A-Q3",
+      "type": "assessment",
+      "label": "描述不带SN的NSA切换流程"
+    },
+    {
+      "id": "A-PRACTICE",
+      "type": "assessment",
+      "label": "登录仿真软件修改参数并验证性能指标"
+    }
+  ],
+  "edges": [
+    {
+      "source": "COURSE-5G-OPT",
+      "target": "STD-ZK-510301-2025",
+      "relation": "aligns_to"
+    },
+    {
+      "source": "COURSE-5G-OPT",
+      "target": "STD-BK-310301-2025",
+      "relation": "aligns_to"
+    },
+    {
+      "source": "COURSE-5G-OPT",
+      "target": "OCC-4-04-04-01",
+      "relation": "aligns_to"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "COURSE-5G-OPT",
+      "relation": "supports"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-COVERAGE",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-HO",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-LATENCY",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-RATE",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-CAPACITY",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-DROP",
+      "relation": "contains"
+    },
+    {
+      "source": "TASK-P4T2",
+      "target": "CAP-EVIDENCE",
+      "relation": "contains"
+    },
+    {
+      "source": "CAP-COVERAGE",
+      "target": "K-SS-RSRP",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-COVERAGE",
+      "target": "K-COVERAGE-ISSUE",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-HO",
+      "target": "K-AEVENT",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-HO",
+      "target": "K-SA-NSA",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-LATENCY",
+      "target": "K-LATENCY",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-RATE",
+      "target": "K-THROUGHPUT",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-CAPACITY",
+      "target": "K-KPI",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-DROP",
+      "target": "K-KPI",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-EVIDENCE",
+      "target": "S-READ-METRIC",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-EVIDENCE",
+      "target": "S-LOCATE-PROBLEM",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-EVIDENCE",
+      "target": "S-PARAM-CHECK",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-EVIDENCE",
+      "target": "S-COMPARE",
+      "relation": "requires"
+    },
+    {
+      "source": "CAP-EVIDENCE",
+      "target": "S-REPORT",
+      "relation": "requires"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "教材原文",
+      "target": "TASK-P4T2",
+      "relation": "generated_from"
+    },
+    {
+      "source": "RES-COVERAGE-TABLE",
+      "target": "CAP-COVERAGE",
+      "relation": "supports"
+    },
+    {
+      "source": "RES-HO-FLOW",
+      "target": "CAP-HO",
+      "relation": "supports"
+    },
+    {
+      "source": "RES-SIM-STEPS",
+      "target": "CAP-EVIDENCE",
+      "relation": "supports"
+    },
+    {
+      "source": "RES-INTERACTIVE-CHECK",
+      "target": "CAP-EVIDENCE",
+      "relation": "supports"
+    },
+    {
+      "source": "RES-ASSESSMENT",
+      "target": "A-Q1",
+      "relation": "contains"
+    },
+    {
+      "source": "RES-ASSESSMENT",
+      "target": "A-Q2",
+      "relation": "contains"
+    },
+    {
+      "source": "RES-ASSESSMENT",
+      "target": "A-Q3",
+      "relation": "contains"
+    },
+    {
+      "source": "RES-ASSESSMENT",
+      "target": "A-PRACTICE",
+      "relation": "contains"
+    },
+    {
+      "source": "A-Q2",
+      "target": "CAP-COVERAGE",
+      "relation": "assesses"
+    },
+    {
+      "source": "A-Q3",
+      "target": "CAP-HO",
+      "relation": "assesses"
+    },
+    {
+      "source": "A-PRACTICE",
+      "target": "CAP-EVIDENCE",
+      "relation": "assesses"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+﻿relation_review_id,source_relation_id,source_node_id,target_node_id,current_relation_type,recommended_relation_type,chain_role,visibility_scope,student_visible_explanation,teacher_use_note,review_status,next_action
+P6REL-V04-001,EV03-0149,P6-T1,P6T2-N01,支撑判断,概括支撑,overview_support,overview_only,P6-T1整体支撑P6-T2的问题分析入口；学生路径中应看更具体的工具证据入口节点。,用于项目总览，不作为学生逐步学习路径的唯一入口。,内部试拆,mark_as_overview_only
+P6REL-V04-002,EV03-0159,P6-T1,P6T2-N03,支撑判断,概括支撑,overview_support,overview_only,P6-T1整体支撑接入类问题排查；学生路径中应展开到注册流程、注册消息和PDU会话。,用于总览概括，详细教学走P6T1-N02/N03/N04。,内部试拆,mark_as_overview_only
+P6REL-V04-003,EV03-0165,P6-T1,P6T2-N04,支撑判断,概括支撑,overview_support,overview_only,P6-T1整体支撑切换类证据链；学生路径中应展开到RRC重配节点。,用于总览概括，详细教学走P6T1-N06。,内部试拆,mark_as_overview_only
+P6REL-V04-004,EV038-INC-P6T1-024,P6T1-N02,P6T2-N03,支撑判断,前置基础,prerequisite_basis,student_path,先看懂5G SA注册流程，再进入接入类问题排查。,接入排查前需要确认学生知道注册流程基本顺序。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-005,EV038-INC-P6T1-025,P6T1-N03,P6T2-N03,支撑判断,前置基础,prerequisite_basis,student_path,先会识读注册关键消息，再判断接入失败证据。,用于连接消息字段识读与接入排查。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-006,EV038-INC-P6T1-026,P6T1-N04,P6T2-N03,支撑判断,前置基础,prerequisite_basis,student_path,先理解PDU会话建立和用户面开通，再判断业务接入问题。,用于说明接入成功不等于业务面已经正常。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-007,EV038-INC-P6T1-027,P6T1-N05,P6T2-N02,支撑判断,支撑判断,classification_support,student_path,系统消息和驻留入口帮助区分覆盖、接入、切换和掉线问题。,用于问题分类前的低门槛支撑。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-008,EV038-INC-P6T1-028,P6T1-N06,P6T2-N04,支撑判断,前置基础,prerequisite_basis,student_path,RRC重配场景是建立切换类信令证据链的先修基础。,用于切换类证据链前置复习。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-009,EV038-INC-P6T1-029,P6T1-N07,P6T2-N01,支撑判断,支撑判断,evidence_entry,student_path,先知道从哪里进入信令分析界面，再明确P6-T2的问题分析数据来源。,用于引导学生从工具入口进入复杂问题分析。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-010,EV038-INC-P6T1-030,P6T1-N08,P6T2-N02,支撑判断,边界过渡,transition_boundary,student_path,重选小案例只帮助你进入问题分类，不替代完整复杂复盘。,课堂上不要在P6T1-N08展开完整复盘。,待专业复核,keep_as_student_path_with_professional_review
+P6REL-V04-011,EV038-INC-P6T1-031,P6T1-N08,P6T2-N07,支撑判断,边界过渡,transition_boundary,teacher_review,小案例证据链可以作为报告表达的入口，但完整报告仍在P6-T2完成。,教师可用它解释承上启下关系，但评价产出归P6-T2。,待专业复核,keep_as_student_path_with_professional_review

@@ -1,0 +1,5 @@
+asset_id,asset_name,asset_type,source_or_output,governance_role,graph_binding,review_status,current_use,next_action,path
+A-V03A-INC-P2T2-001,P2-T2增量补拆内部评审报告,governance_report,output,评审旧版P2-T2六节点过碎问题并提出V0.3A四节点修订版,P2-T2,internal_review,作为P2-T2增量修订依据,人工确认是否采用V0.3A作为当前推荐表,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2增量补拆内部评审报告.md
+A-V03A-INC-P2T2-002,P2-T2详细能力节点主数据增量样表V0.3A,structured_data,output,P2-T2四节点修订版主数据增量样表,P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04,internal_review,作为当前推荐评审表,通过评审后再考虑合并V0.3.1,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2详细能力节点主数据增量样表V0.3A.csv
+A-V03A-INC-P2T2-003,P2-T2关系增量样表V0.3A,structured_data,output,P2-T2四节点修订版关系增量样表,P2-T2;P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04,internal_review,作为当前推荐评审表,通过评审后再考虑合并V0.3.1,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2关系增量样表V0.3A.csv
+A-V03A-INC-P2T2-004,P2-T2资源活动评价挂接增量样表V0.3A,structured_data,output,P2-T2四节点修订版资源活动评价挂接样表,P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04,internal_review,作为当前推荐评审表,通过评审后再考虑合并V0.3.1,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2资源活动评价挂接增量样表V0.3A.csv

@@ -1,0 +1,74 @@
+{
+  "generatedAt": "2026-06-26T14:46:10.369Z",
+  "fileUrl": "file:///Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_phase3_p2_loop/index.html",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 960,
+      "overflow": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "页面标题包含阶段3项目二闭环复制验证原型",
+      "pass": true
+    },
+    {
+      "name": "课程首页显示项目二闭环状态",
+      "pass": true
+    },
+    {
+      "name": "项目视图显示项目二三任务闭环",
+      "pass": true
+    },
+    {
+      "name": "项目视图显示正常主线和异常分支",
+      "pass": true
+    },
+    {
+      "name": "项目视图不伪造P2-T3深样章入口",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱显示项目二19个详细节点",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱节点可点击并显示关联任务",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱显示四任务关系层和V2.1入口",
+      "pass": true
+    },
+    {
+      "name": "课程能力图谱节点邻域显示关系类型和评价产出",
+      "pass": true
+    },
+    {
+      "name": "教师视图显示P2-T2进入条件和P2-T3直达条件",
+      "pass": true
+    },
+    {
+      "name": "资源中心显示项目二三任务资源和审核状态",
+      "pass": true
+    },
+    {
+      "name": "出版视图显示平台接口未接入和数据门禁",
+      "pass": true
+    },
+    {
+      "name": "项目二内容样稿和内部评审文件存在",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

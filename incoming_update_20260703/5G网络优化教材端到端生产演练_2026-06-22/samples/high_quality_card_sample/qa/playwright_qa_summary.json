@@ -1,0 +1,63 @@
+{
+  "url": "file:///Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/high_quality_card_sample/index.html",
+  "generatedAt": "2026-06-22T12:40:50.368Z",
+  "results": [
+    {
+      "viewport": "desktop",
+      "screenshot": "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/high_quality_card_sample/qa/desktop.png",
+      "title": "5G网络优化结果验证｜卡片式数字教材样章",
+      "cardTitle": "视频卡顿是不是优化没做好？",
+      "navCount": 11,
+      "progressText": "0 / 11",
+      "evidenceTitle": "我的证据链",
+      "missionTitle": "课堂模式：视频卡顿是不是优化没做好？",
+      "imageCount": 0,
+      "badImages": [],
+      "overflowX": false,
+      "studentActive": true,
+      "selfStudyMode": {
+        "active": true,
+        "panelText": "\n    自学模式补充\n    自学时请按“先判断问题类型 -> 再看证据 -> 说明证据边界 -> 写结论”的顺序完成。每张卡做完后，应能说清这张卡解决什么问题、支持什么结论、还不能证明什么。\n    \n      \n        为什么学：识别优化验证场景 是完成最终验证结论的一部分。\n        怎么看：先找本卡能支持的判断，再找它不能证明的边界。\n        做完如何判断：能否把本卡内容写进“我的证据链”。\n        常见误区：只看局部数据或截图，就直接推出整体达标。\n        下一步：先把业务投诉转成可验证问题，不急着下最终结论。\n      \n    \n  "
+      },
+      "imageCard": {
+        "cardTitle": "仿真截图能说明什么",
+        "imageCount": 7,
+        "badImages": []
+      },
+      "secondTitle": "问题可能属于哪一类？",
+      "feedbackVisible": true,
+      "teacherVisible": true,
+      "traceRows": 12,
+      "consoleErrors": []
+    },
+    {
+      "viewport": "mobile",
+      "screenshot": "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/high_quality_card_sample/qa/mobile.png",
+      "title": "5G网络优化结果验证｜卡片式数字教材样章",
+      "cardTitle": "视频卡顿是不是优化没做好？",
+      "navCount": 11,
+      "progressText": "0 / 11",
+      "evidenceTitle": "我的证据链",
+      "missionTitle": "课堂模式：视频卡顿是不是优化没做好？",
+      "imageCount": 0,
+      "badImages": [],
+      "overflowX": false,
+      "studentActive": true,
+      "selfStudyMode": {
+        "active": true,
+        "panelText": "\n    自学模式补充\n    自学时请按“先判断问题类型 -> 再看证据 -> 说明证据边界 -> 写结论”的顺序完成。每张卡做完后，应能说清这张卡解决什么问题、支持什么结论、还不能证明什么。\n    \n      \n        为什么学：识别优化验证场景 是完成最终验证结论的一部分。\n        怎么看：先找本卡能支持的判断，再找它不能证明的边界。\n        做完如何判断：能否把本卡内容写进“我的证据链”。\n        常见误区：只看局部数据或截图，就直接推出整体达标。\n        下一步：先把业务投诉转成可验证问题，不急着下最终结论。\n      \n    \n  "
+      },
+      "imageCard": {
+        "cardTitle": "仿真截图能说明什么",
+        "imageCount": 7,
+        "badImages": []
+      },
+      "secondTitle": "问题可能属于哪一类？",
+      "feedbackVisible": true,
+      "teacherVisible": true,
+      "traceRows": 12,
+      "consoleErrors": []
+    }
+  ],
+  "pass": true
+}

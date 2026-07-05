@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5G网络优化教材（高级）整书综合母版overall-0.5</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">整书综合母版 overall-0.5</p>
+      <h1>5G网络优化教材（高级）</h1>
+      <p class="subhead">V0.3.13图谱底座 + 项目二闭环 + 项目四闭环 + P4-T2深样章</p>
+    </div>
+    <nav class="view-tabs" aria-label="原型视图">
+      <button class="tab is-active" data-view="course" type="button">课程</button>
+      <button class="tab" data-view="project" type="button">项目</button>
+      <button class="tab" data-view="graph" type="button">图谱</button>
+      <button class="tab" data-view="teacher" type="button">教师</button>
+      <button class="tab" data-view="resources" type="button">资源</button>
+      <button class="tab" data-view="publish" type="button">出版</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="project-rail" aria-label="项目导航">
+      <div class="rail-title">项目链</div>
+      <div id="projectButtons" class="project-buttons"></div>
+      <div class="boundary-note">
+        <strong>当前边界</strong>
+        <span>overall-0.5是整书综合母版原型；P4-T2已接入深样章，P2-T3仍是候选。</span>
+      </div>
+    </aside>
+
+    <section id="workspace" class="workspace" aria-live="polite"></section>
+
+    <aside id="contextPanel" class="context-panel" aria-label="当前上下文"></aside>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="../course_capability_graph_v2_relation_review/data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

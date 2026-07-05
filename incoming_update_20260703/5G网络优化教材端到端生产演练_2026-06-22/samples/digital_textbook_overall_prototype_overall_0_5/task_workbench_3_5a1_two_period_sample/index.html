@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5G网络优化结果验证 - 样章3.5A-1两课时修订版</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="crumb">项目四 / 任务2</p>
+      <h1>5G网络优化结果验证样章3.5A-1</h1>
+    </div>
+    <div class="topbar-actions">
+      <a class="back-link" href="../index.html">返回整书母版</a>
+      <nav class="top-tabs" aria-label="样章视图">
+        <button type="button" class="top-tab active" data-view="student">学生学习</button>
+        <button type="button" class="top-tab" data-view="teacher">教师带教</button>
+        <button type="button" class="top-tab" data-view="resources">资源转化</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="studentView" class="view active"></section>
+    <section id="teacherView" class="view"></section>
+    <section id="resourcesView" class="view"></section>
+  </main>
+
+  <dialog id="mapDialog" class="map-dialog">
+    <div class="dialog-head">
+      <div>
+        <p class="eyebrow">课程能力图谱</p>
+        <h2>从课程主链到本任务节点</h2>
+      </div>
+      <button type="button" id="closeMap" class="icon-button" aria-label="关闭课程能力图谱">×</button>
+    </div>
+    <div id="mapBody" class="map-body"></div>
+  </dialog>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

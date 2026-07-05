@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: 5g-digital-textbook-api
+    runtime: go
+    rootDir: backend-go
+    buildCommand: go build -o server ./cmd/server
+    startCommand: ./server
+    envVars:
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: DEEPSEEK_BASE_URL
+        value: https://api.deepseek.com/v1
+      - key: DEEPSEEK_MODEL
+        value: deepseek-chat
+      - key: OPENMAIC_API_BASE
+        sync: false
+      - key: OPENMAIC_HINT_PATH
+        value: /api/ai/hint
+      - key: OPENMAIC_API_KEY
+        sync: false

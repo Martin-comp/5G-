@@ -1,0 +1,11 @@
+change_id,修订方向,V0.1现状,暴露问题,建议V0.2处理,优先级,影响任务
+V02-01,主次岗位过程字段,job_process_id记录主挂接岗位过程,P5-T3承接JP-06但主挂JP-07；P2-T3跨JP-03/JP-04,保留primary_job_process_id并新增secondary_job_process_ids,高,P2-T3;P5-T3
+V02-02,主次能力单元字段,ability_unit_id记录主能力单元且说明可多值,多值写在一个字段会影响统计和前端过滤；P5-T3主挂AU-09但连接AU-08/AU-10,保留primary_ability_unit_id并新增secondary_ability_unit_ids,高,P2-T3;P4-T2;P5-T3
+V02-03,结构化关系表,prerequisite_node_ids/next_node_ids/relation_types并列记录,无法表达某个节点与某种关系的准确对应,新增relation_records字段或独立capability_relation表,高,P2-T3;P4-T2;P5-T3
+V02-04,节点功能类型,V0.1没有跨任务功能类型字段,难以横向统计哪些节点是数据识读、问题诊断、验证、报告、补救,新增node_function_type枚举,中,P2-T3;P4-T2;P5-T3
+V02-05,跨任务角色,V0.1用related_task_ids表达关联任务,无法区分前置、支撑、深样章、后续复盘入口等角色,新增cross_task_role枚举或说明字段,中,P2-T3;P4-T2;P5-T3
+V02-06,标准条款绑定,standard_clause_id可填pending,正式出版前无法只保留pending,增加standard_binding_status和standard_clause_note；发布前必须补具体条款,高,全部任务
+V02-07,媒体治理细化,media_handling_status只有状态,无法记录是否需重绘、替换、标注的具体对象,新增media_issue_summary或media_asset_review_ids,中,P2-T3;P4-T2;P5-T3
+V02-08,专业口径风险,audit_status和review_notes记录风险但不区分阈值、案例、结论、术语,新增professional_risk_type枚举：threshold;case_logic;conclusion;terminology;procedure,中,P2-T3;P4-T2;P5-T3
+V02-09,学生端教材正文绑定,V0.1有student_title和student_learning_goal但没有教材正文段落ID,后续页面和正文稿难以稳定挂接,新增student_text_block_ids,中,P4-T2;后续页面化任务
+V02-10,教师课堂组织绑定,V0.1有teacher_use但粒度偏说明,教师端需要课时段、提问脚本、讲评材料和典型答案绑定,新增teacher_script_ids或teacher_support_asset_ids,低,P4-T2;后续深样章

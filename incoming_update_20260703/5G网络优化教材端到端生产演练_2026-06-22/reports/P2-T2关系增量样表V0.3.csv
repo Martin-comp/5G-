@@ -1,0 +1,16 @@
+v03_edge_id,source_node_id,source_node_name,target_node_id,target_node_name,relation_raw_type,relation_type,relation_summary,source_task_id,target_task_id,edge_scope,source_file,review_status,display_priority,version_status
+EV03-INC-P2T2-001,P2-T2,任务2：5G网络测试问题处理,P2T2-N01,识别测试问题类型与处理优先级,decomposes,任务拆分详细节点,P2-T2补拆进入第一个详细能力节点。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-002,P2-T1,任务1：DT/CQT测试准备和执行,P2T2-N01,识别测试问题类型与处理优先级,precedes,直接递进,测试执行中出现异常后进入问题类型判断。,P2-T1,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,待专业复核,2,current
+EV03-INC-P2T2-003,P2T2-N01,识别测试问题类型与处理优先级,P2T2-N02,排查硬件连接与供电类问题,precedes,直接递进,硬件类现象进入设备、线缆、端口和供电排查。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-004,P2T2-N01,识别测试问题类型与处理优先级,P2T2-N03,排查测试软件启动与设备连接问题,precedes,直接递进,软件或设备连接异常进入软件、驱动和授权排查。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-005,P2T2-N01,识别测试问题类型与处理优先级,P2T2-N05,处理现场协调与责任升级问题,precedes,直接递进,协调类问题进入责任人和升级路径判断。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-006,P2T2-N03,排查测试软件启动与设备连接问题,P2T2-N04,检查采集数据保存与完整性,precedes,直接递进,软件连接正常后需要确认采集数据是否能保存并可用于分析。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-007,P2T2-N02,排查硬件连接与供电类问题,P2T2-N06,形成测试问题处理记录与预案,precedes,直接递进,硬件排查结果进入问题处理记录。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-008,P2T2-N04,检查采集数据保存与完整性,P2T2-N06,形成测试问题处理记录与预案,precedes,直接递进,数据完整性检查结果进入问题处理记录。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-009,P2T2-N05,处理现场协调与责任升级问题,P2T2-N06,形成测试问题处理记录与预案,precedes,直接递进,协调处理结果进入闭环记录和预案。,P2-T2,P2-T2,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,1,current
+EV03-INC-P2T2-010,P2T2-N04,检查采集数据保存与完整性,P2T3-N02,完成LOG导入与报告导出,supports,支撑判断,数据保存完整性支撑后续LOG导入和报告导出。,P2-T2,P2-T3,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,待专业复核,2,current
+EV03-INC-P2T2-011,P2T2-N06,形成测试问题处理记录与预案,P2T3-N01,明确分析任务与数据来源,supports,支撑判断,问题处理记录可作为后续数据分析任务来源和问题背景。,P2-T2,P2-T3,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,待专业复核,2,current
+EV03-INC-P2T2-012,P2T2-N01,识别测试问题类型与处理优先级,AU-03,测试问题处理与数据分析,maps_to_ability,能力挂接,问题类型识别主挂AU-03，用于能力单元统计和资源组织。,P2-T2,,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,5,current
+EV03-INC-P2T2-013,P2T2-N04,检查采集数据保存与完整性,AU-03,测试问题处理与数据分析,maps_to_ability,能力挂接,数据完整性检查主挂AU-03，支撑后续数据分析。,P2-T2,,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,内部试拆,5,current
+EV03-INC-P2T2-014,P2T2-N05,处理现场协调与责任升级问题,AU-05,网络问题定位与方案制定,maps_to_ability,能力挂接,协调升级主挂AU-05，体现问题定位后的现场处理与闭环能力。,P2-T2,,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,待专业复核,5,current
+EV03-INC-P2T2-015,P2T2-N06,形成测试问题处理记录与预案,AU-05,网络问题定位与方案制定,maps_to_ability,能力挂接,问题处理记录主挂AU-05，用于评价问题闭环和预案形成能力。,P2-T2,,v03_increment,reports/P2-T2基于V0.3主数据补拆验证报告.md,待专业复核,5,current

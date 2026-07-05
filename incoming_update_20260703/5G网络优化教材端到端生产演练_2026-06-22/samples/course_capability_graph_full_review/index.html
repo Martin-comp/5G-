@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>完整课程能力图谱评审版</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">课程能力图谱评审版</p>
+      <h1>5G网络优化教材（高级）</h1>
+      <p>全课程框架完整呈现，项目四任务2深度展开。用于判断图谱主链、任务归属和细化方式是否需要优化。</p>
+    </div>
+    <div class="legend" aria-label="图例">
+      <span><i class="dot chain"></i>课程主链</span>
+      <span><i class="dot task"></i>任务映射</span>
+      <span><i class="dot deep"></i>已深展开</span>
+      <span><i class="dot pending"></i>待细化</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>完整课程主链</h2>
+          <p>这条主链应体现岗位工作过程，而不是简单复制教材目录。</p>
+        </div>
+        <button id="resetGraph" class="plain-button" type="button">回到结果验证</button>
+      </div>
+      <div id="courseChain" class="course-chain"></div>
+    </section>
+
+    <section class="graph-layout">
+      <div class="panel graph-panel">
+        <div class="section-head">
+          <div>
+            <h2>项目与任务映射</h2>
+            <p>点击任一任务或能力节点，右侧显示它在图谱中的位置和优化问题。</p>
+          </div>
+        </div>
+        <div id="projectColumns" class="project-columns"></div>
+      </div>
+
+      <aside id="detailPanel" class="panel detail-panel" aria-label="节点详情"></aside>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>P4-T2详细能力节点</h2>
+          <p>这是当前唯一深度展开的任务，可作为后续其他任务细化方式的样板。</p>
+        </div>
+      </div>
+      <div id="deepNodes" class="deep-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <div>
+          <h2>关键跨层关系</h2>
+          <p>这些关系决定图谱是不是数字教材的核心脉络，而不是孤立目录。</p>
+        </div>
+      </div>
+      <div id="crossLinks" class="cross-links"></div>
+    </section>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

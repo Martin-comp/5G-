@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-06-27T11:59:04.147Z",
+  "fileUrl": "file:///Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/course_capability_graph_v2_relation_review/index.html",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 980,
+      "overflow": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "显示4个任务列",
+      "pass": true
+    },
+    {
+      "name": "显示30个详细节点",
+      "pass": true
+    },
+    {
+      "name": "默认显示核心关系筛选",
+      "pass": true
+    },
+    {
+      "name": "默认进入节点邻域视图",
+      "pass": true
+    },
+    {
+      "name": "默认只绘制少量当前节点关系线",
+      "pass": true
+    },
+    {
+      "name": "箭头使用固定小尺寸",
+      "pass": true
+    },
+    {
+      "name": "默认图谱说明给出可见线数量",
+      "pass": true
+    },
+    {
+      "name": "点击P5T3-N06显示进入AU-10的回流关系",
+      "pass": true
+    },
+    {
+      "name": "节点邻域视图被激活",
+      "pass": true
+    },
+    {
+      "name": "点击问题回流筛选显示关系清单",
+      "pass": true
+    },
+    {
+      "name": "点击P6T2-N07显示AU-10评价关系",
+      "pass": true
+    },
+    {
+      "name": "关系清单包含复核状态",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

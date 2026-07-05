@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-06-24T00:28:12.321Z",
+  "fileUrl": "file:///Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/course_capability_graph_v2_optimized/index.html",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 960,
+      "overflow": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "显示4个依据层节点",
+      "pass": true
+    },
+    {
+      "name": "显示7个岗位工作过程节点",
+      "pass": true
+    },
+    {
+      "name": "显示4个四任务链条节点",
+      "pass": true
+    },
+    {
+      "name": "显示10个能力单元",
+      "pass": true
+    },
+    {
+      "name": "显示30个详细能力节点",
+      "pass": true
+    },
+    {
+      "name": "显示8个P2-T3试拆节点",
+      "pass": true
+    },
+    {
+      "name": "显示8个P4-T2深节点",
+      "pass": true
+    },
+    {
+      "name": "显示7个P5-T3试拆节点",
+      "pass": true
+    },
+    {
+      "name": "显示7个P6-T2试拆节点",
+      "pass": true
+    },
+    {
+      "name": "四任务链条显示信令复盘",
+      "pass": true
+    },
+    {
+      "name": "点击AU-03显示P2-T3已试拆",
+      "pass": true
+    },
+    {
+      "name": "节点详情以固定右侧抽屉打开",
+      "pass": true
+    },
+    {
+      "name": "抽屉打开时可直接切换其他节点",
+      "pass": true
+    },
+    {
+      "name": "右侧抽屉可关闭",
+      "pass": true
+    },
+    {
+      "name": "点击AU-07显示资源活动评价审核",
+      "pass": true
+    },
+    {
+      "name": "点击AU-09显示有条件成立和待复核",
+      "pass": true
+    },
+    {
+      "name": "点击AU-10显示有条件成立和待复核",
+      "pass": true
+    },
+    {
+      "name": "点击JP-04显示岗位工作过程",
+      "pass": true
+    },
+    {
+      "name": "点击P4T2-N08显示职业表达评价",
+      "pass": true
+    },
+    {
+      "name": "点击P2T3-N08显示分析报告评价",
+      "pass": true
+    },
+    {
+      "name": "点击P5T3-N07显示全网性能提升验证报告",
+      "pass": true
+    },
+    {
+      "name": "点击P6T2-N07显示信令分析报告和高风险",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

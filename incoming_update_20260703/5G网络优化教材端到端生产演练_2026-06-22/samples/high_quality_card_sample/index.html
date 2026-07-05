@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>5G网络优化结果验证｜卡片式数字教材样章</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <p class="kicker">项目四 / 任务2</p>
+        <h1>5G网络优化结果验证</h1>
+      </div>
+      <div class="status-strip" aria-label="样章状态">
+        <span>一线教学样章</span>
+        <span>教学模拟数据</span>
+        <span>待专家审核</span>
+      </div>
+    </header>
+
+    <nav class="view-tabs" aria-label="视图切换">
+      <button class="tab-button active" data-view="student" type="button">学生学习</button>
+      <button class="tab-button" data-view="teacher" type="button">教师讲评</button>
+      <button class="tab-button" data-view="trace" type="button">资源追踪</button>
+    </nav>
+
+    <main>
+      <section id="studentView" class="view active" aria-labelledby="studentTitle">
+        <section class="mission-workbench" aria-label="任务工作台">
+          <div class="mission-main">
+            <p class="kicker">任务工作台</p>
+            <h2 id="missionTitle">判断本次5G网络优化结果是否达标</h2>
+            <p id="missionHint">先完成问题分流，再查看覆盖、切换和端到端性能证据，最后提交验证结论。</p>
+          </div>
+          <div class="mode-switch" aria-label="学习模式切换">
+            <span>学习模式</span>
+            <button id="classroomMode" class="mode-button active" type="button" data-mode="classroom">课堂模式</button>
+            <button id="selfStudyMode" class="mode-button" type="button" data-mode="selfStudy">自学模式</button>
+          </div>
+          <div class="mission-steps">
+            <button class="step-chip" type="button" data-jump-card="P4T2-C02">问题分流</button>
+            <button class="step-chip" type="button" data-jump-card="P4T2-C04">覆盖证据</button>
+            <button class="step-chip" type="button" data-jump-card="P4T2-C08">性能证据</button>
+            <button class="step-chip" type="button" data-jump-card="P4T2-C10">提交结论</button>
+          </div>
+        </section>
+
+        <div class="learning-shell">
+          <aside class="card-rail" aria-label="学习卡片列表">
+            <div class="rail-head">
+              <h2 id="studentTitle">学习资源</h2>
+              <p id="progressText">0 / 11</p>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div id="progressFill"></div>
+            </div>
+            <ol id="cardNav" class="card-nav">
+              <li><button class="active" type="button"><span class="nav-index">01</span><span class="nav-title">视频卡顿是不是优化没做好？</span><span class="nav-type">情境卡</span></button></li>
+              <li><button type="button"><span class="nav-index">02</span><span class="nav-title">问题可能属于哪一类？</span><span class="nav-type">诊断交互卡</span></button></li>
+              <li><button type="button"><span class="nav-index">03</span><span class="nav-title">覆盖验证看什么</span><span class="nav-type">知识卡</span></button></li>
+              <li><button type="button"><span class="nav-index">04</span><span class="nav-title">优化前后覆盖指标对比</span><span class="nav-type">证据卡</span></button></li>
+            </ol>
+          </aside>
+
+          <article class="lesson-card" aria-live="polite">
+            <div class="card-meta-row">
+              <span id="cardType" class="card-type">情境卡</span>
+              <span id="cardNode" class="node-pill">识别优化验证场景</span>
+              <span id="cardReview" class="review-pill">待专家审核</span>
+            </div>
+            <h2 id="cardTitle">视频卡顿是不是优化没做好？</h2>
+            <p id="cardLead" class="lead">你现在扮演网络优化助理工程师，需要判断一次5G网络优化结果是否真正达标。</p>
+            <div id="cardMedia" class="media-strip"></div>
+            <div id="cardBody" class="card-body">
+              <div class="body-block">
+                <p>某校园区域完成一轮5G网络优化后，普通网页访问恢复正常，但晚间宿舍区仍有人反馈微信视频通话偶发卡顿，直播上行时延偏高。现场已有覆盖指标、切换流程记录、端到端性能指标和仿真截图。</p>
+              </div>
+              <p>你的任务不是马上判断“优化成功”或“优化失败”，而是先判断问题更可能集中在哪类验证对象上。最终你要完成一份简短结论：本次优化结果是否达标、依据是什么、如果证据不足还需要补充什么数据。</p>
+            </div>
+            <div id="modePanel" class="mode-panel">
+              <h3>课堂模式提示</h3>
+              <p>本卡用于教师带领进入任务。自学时请切换到自学模式，查看更完整的解释、误区和下一步建议。</p>
+            </div>
+            <div id="activityBox" class="activity-box">
+              <h3>写出初步判断</h3>
+              <p>按句式填写：我认为当前问题可能主要与____有关，因为____。但我还需要查看____证据。</p>
+              <textarea placeholder="请在支持脚本运行的浏览器中填写并保存学习证据。"></textarea>
+            </div>
+            <div id="feedbackBox" class="feedback-box" hidden></div>
+            <div class="card-actions">
+              <button id="prevCard" class="secondary-button" type="button">上一张</button>
+              <button id="completeCard" class="primary-button" type="button">保存本卡学习证据</button>
+              <button id="nextCard" class="secondary-button" type="button">下一张</button>
+            </div>
+          </article>
+
+          <aside class="evidence-panel" aria-label="我的证据链">
+            <h2>我的证据链</h2>
+            <div id="evidenceSummary" class="evidence-summary">
+              <div class="empty-state">尚未保存证据。完成任一卡片后，这里会显示你的判断、依据、缺失证据和最终结论。</div>
+            </div>
+            <div class="task-status">
+              <h3>最终任务单</h3>
+              <p id="taskStatusText">尚未提交验证结论。</p>
+              <button id="jumpTask" class="text-button" type="button">跳到任务卡</button>
+            </div>
+            <div class="note-panel">
+              <h3>样章边界</h3>
+              <p>本页面使用教学模拟数据和 AI 重构内容，不能作为正式出版定稿。专业指标、阈值、结论模板仍需通信专家审核。</p>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="teacherView" class="view" aria-labelledby="teacherTitle">
+        <div class="teacher-shell">
+          <div class="section-head">
+            <p class="kicker">教师视图</p>
+            <h2 id="teacherTitle">课堂讲评与学情观察</h2>
+            <p>下列学情为样章阶段模拟数据，用于展示未来平台应支持的教师讲评能力。</p>
+          </div>
+          <div id="teacherDashboard" class="teacher-grid"></div>
+        </div>
+      </section>
+
+      <section id="traceView" class="view" aria-labelledby="traceTitle">
+        <div class="trace-shell">
+          <div class="section-head">
+            <p class="kicker">资源追踪</p>
+            <h2 id="traceTitle">卡片、能力节点与审核状态</h2>
+            <p>每张卡片都映射能力节点、来源、学习证据和审核状态，便于后续进入出版社平台编辑路径。</p>
+          </div>
+          <div id="traceTableWrap" class="trace-table-wrap"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

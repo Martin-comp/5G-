@@ -1,0 +1,803 @@
+{
+  "source": "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/extracted/textbook.md",
+  "heading_count": 137,
+  "project_count": 6,
+  "task_count": 18,
+  "projects": [
+    {
+      "id": "P1",
+      "title": "项目一：5G网络信息采集",
+      "line": 387,
+      "tasks": [
+        {
+          "id": "P1-T1",
+          "title": "任务1：室内环境信息采集",
+          "raw_title": "任务1：室内环境信息采集 {#任务1室内环境信息采集 .二级标题}",
+          "line": 400,
+          "sections": [
+            {
+              "title": "收集基站的主设备和安装方式信息包括：确认基站设备厂家、记录基站内机柜个数、每个机柜内载频数量、空余板位位置、BBU型号及数量、主控板及基带处理板型号及数量、其他单板类型及数量。",
+              "line": 515,
+              "level": 4
+            },
+            {
+              "title": "在仿真软件中点击传输机柜，操作显示如图1-1-15（登录进入仿真软件过程，参考GPS信息采集过程）：",
+              "line": 789,
+              "level": 4
+            },
+            {
+              "title": "",
+              "line": 791,
+              "level": 4
+            },
+            {
+              "title": "![](/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/assets/media/image39.png){width=\"6.375in\" height=\"3.4520833333333334in\"}",
+              "line": 793,
+              "level": 4
+            },
+            {
+              "title": "图1-1-15 传输速率",
+              "line": 795,
+              "level": 4
+            },
+            {
+              "title": "",
+              "line": 797,
+              "level": 4
+            }
+          ],
+          "end_line": 880,
+          "line_count": 481,
+          "image_count": 37,
+          "table_line_count": 74,
+          "quiz_signal_count": 5,
+          "case_signal_count": 0
+        },
+        {
+          "id": "P1-T2",
+          "title": "任务2：室外环境信息采集",
+          "raw_title": "任务2：室外环境信息采集 {#任务2室外环境信息采集 .二级标题}",
+          "line": 881,
+          "sections": [
+            {
+              "title": "",
+              "line": 1247,
+              "level": 3
+            },
+            {
+              "title": "",
+              "line": 1249,
+              "level": 3
+            },
+            {
+              "title": "",
+              "line": 1251,
+              "level": 3
+            }
+          ],
+          "end_line": 1258,
+          "line_count": 378,
+          "image_count": 37,
+          "table_line_count": 4,
+          "quiz_signal_count": 6,
+          "case_signal_count": 0
+        },
+        {
+          "id": "P1-T3",
+          "title": "任务3：投诉信息采集",
+          "raw_title": "任务3：投诉信息采集 {#任务3投诉信息采集 .二级标题}",
+          "line": 1259,
+          "sections": [],
+          "end_line": 1595,
+          "line_count": 337,
+          "image_count": 1,
+          "table_line_count": 31,
+          "quiz_signal_count": 48,
+          "case_signal_count": 1
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "项目二、5G网络测试",
+      "line": 1585,
+      "tasks": [
+        {
+          "id": "P2-T1",
+          "title": "任务1: DT/CQT测试准备和执行",
+          "raw_title": "任务1: DT/CQT测试准备和执行 {#任务1-dtcqt测试准备和执行 .二级标题}",
+          "line": 1596,
+          "sections": [],
+          "end_line": 1957,
+          "line_count": 362,
+          "image_count": 9,
+          "table_line_count": 41,
+          "quiz_signal_count": 187,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P2-T2",
+          "title": "任务2: 5G网络测试问题处理",
+          "raw_title": "任务2: 5G网络测试问题处理 {#任务2-5g网络测试问题处理 .二级标题}",
+          "line": 1958,
+          "sections": [],
+          "end_line": 2082,
+          "line_count": 125,
+          "image_count": 1,
+          "table_line_count": 21,
+          "quiz_signal_count": 72,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P2-T3",
+          "title": "任务3: 5G网络测试数据分析",
+          "raw_title": "任务3: 5G网络测试数据分析 {#任务3-5g网络测试数据分析 .二级标题}",
+          "line": 2083,
+          "sections": [],
+          "end_line": 2398,
+          "line_count": 316,
+          "image_count": 16,
+          "table_line_count": 0,
+          "quiz_signal_count": 54,
+          "case_signal_count": 2
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "项目三：5G网络信息管理",
+      "line": 2388,
+      "tasks": [
+        {
+          "id": "P3-T1",
+          "title": "任务1：5G网管架构和功能",
+          "raw_title": "**任务1：5G网管架构和功能** {#任务15g网管架构和功能 .二级标题}",
+          "line": 2399,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 2401,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 2405,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 2413,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 2510,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 2695,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 2703,
+              "level": 3
+            }
+          ],
+          "end_line": 2708,
+          "line_count": 310,
+          "image_count": 27,
+          "table_line_count": 0,
+          "quiz_signal_count": 11,
+          "case_signal_count": 0
+        },
+        {
+          "id": "P3-T2",
+          "title": "任务2：5G网络运行监控",
+          "raw_title": "**任务2：5G网络运行监控** {#任务25g网络运行监控 .二级标题}",
+          "line": 2709,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 2711,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 2715,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 2725,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 3514,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 3669,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 3681,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 3814,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 3826,
+              "level": 3
+            }
+          ],
+          "end_line": 3833,
+          "line_count": 1125,
+          "image_count": 27,
+          "table_line_count": 343,
+          "quiz_signal_count": 4,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P3-T3",
+          "title": "任务3：5G网络参数检查",
+          "raw_title": "**任务3：5G网络参数检查** {#任务35g网络参数检查 .二级标题}",
+          "line": 3834,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 3836,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 3840,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 3852,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 4673,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 4755,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 4765,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 4781,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 4793,
+              "level": 3
+            }
+          ],
+          "end_line": 4800,
+          "line_count": 967,
+          "image_count": 39,
+          "table_line_count": 79,
+          "quiz_signal_count": 6,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P3-T4",
+          "title": "任务4：5G网络参数设置",
+          "raw_title": "任务4：5G网络参数设置 {#任务45g网络参数设置 .二级标题}",
+          "line": 4801,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 4803,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 4807,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 4815,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 5008,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 5092,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 5100,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 5139,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 5149,
+              "level": 3
+            }
+          ],
+          "end_line": 5187,
+          "line_count": 387,
+          "image_count": 23,
+          "table_line_count": 0,
+          "quiz_signal_count": 6,
+          "case_signal_count": 2
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "项目四：5G端到端网络优化",
+      "line": 5177,
+      "tasks": [
+        {
+          "id": "P4-T1",
+          "title": "任务1：5G网络优化方案实施",
+          "raw_title": "任务1：5G网络优化方案实施",
+          "line": 5188,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 5190,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 5194,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 5206,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 5686,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 5734,
+              "level": 3
+            },
+            {
+              "title": "重点难点",
+              "line": 5742,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 5750,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 5758,
+              "level": 3
+            }
+          ],
+          "end_line": 5800,
+          "line_count": 613,
+          "image_count": 38,
+          "table_line_count": 78,
+          "quiz_signal_count": 13,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P4-T2",
+          "title": "任务2：5G网络优化结果验证",
+          "raw_title": "任务2：5G网络优化结果验证",
+          "line": 5801,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 5803,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 5807,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 5823,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 6914,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 6971,
+              "level": 3
+            },
+            {
+              "title": "重点难点",
+              "line": 6979,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 6985,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 6995,
+              "level": 3
+            }
+          ],
+          "end_line": 7052,
+          "line_count": 1252,
+          "image_count": 63,
+          "table_line_count": 28,
+          "quiz_signal_count": 12,
+          "case_signal_count": 3
+        },
+        {
+          "id": "P4-T3",
+          "title": "任务3：5G网络优化报告输出",
+          "raw_title": "任务3：5G网络优化报告输出",
+          "line": 7053,
+          "sections": [
+            {
+              "title": "课前导入",
+              "line": 7055,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 7059,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 7071,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 7097,
+              "level": 3
+            },
+            {
+              "title": "随堂练习",
+              "line": 7316,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 7322,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 7328,
+              "level": 3
+            }
+          ],
+          "end_line": 7360,
+          "line_count": 308,
+          "image_count": 3,
+          "table_line_count": 17,
+          "quiz_signal_count": 16,
+          "case_signal_count": 6
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "项目五：5G全网性能提升",
+      "line": 7342,
+      "tasks": [
+        {
+          "id": "P5-T1",
+          "title": "任务1 5G全网性能指标采集",
+          "raw_title": "任务1 5G全网性能指标采集",
+          "line": 7361,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 7363,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 7367,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 7377,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 8496,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 8537,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 8545,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 8571,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 8577,
+              "level": 3
+            }
+          ],
+          "end_line": 8584,
+          "line_count": 1224,
+          "image_count": 15,
+          "table_line_count": 0,
+          "quiz_signal_count": 14,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P5-T2",
+          "title": "任务2 5G全网性能提升实施",
+          "raw_title": "任务2 5G全网性能提升实施",
+          "line": 8585,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 8587,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 8591,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 8603,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 9155,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 9176,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 9182,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 9282,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 9288,
+              "level": 3
+            }
+          ],
+          "end_line": 9293,
+          "line_count": 709,
+          "image_count": 7,
+          "table_line_count": 4,
+          "quiz_signal_count": 8,
+          "case_signal_count": 2
+        },
+        {
+          "id": "P5-T3",
+          "title": "任务3 5G全网性能提升验证",
+          "raw_title": "任务3 5G全网性能提升验证",
+          "line": 9294,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 9296,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 9300,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 9312,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 9341,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 9354,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 9360,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 9609,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 9615,
+              "level": 3
+            }
+          ],
+          "end_line": 9637,
+          "line_count": 344,
+          "image_count": 20,
+          "table_line_count": 0,
+          "quiz_signal_count": 26,
+          "case_signal_count": 12
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "项目六：5G信令分析",
+      "line": 9625,
+      "tasks": [
+        {
+          "id": "P6-T1",
+          "title": "任务1 5G关键信令流程及解析",
+          "raw_title": "任务1 5G关键信令流程及解析",
+          "line": 9638,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 9640,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 9645,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 9653,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 9979,
+              "level": 3
+            },
+            {
+              "title": "随堂测试",
+              "line": 10018,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 10026,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 10052,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 10058,
+              "level": 3
+            }
+          ],
+          "end_line": 10065,
+          "line_count": 428,
+          "image_count": 25,
+          "table_line_count": 0,
+          "quiz_signal_count": 3,
+          "case_signal_count": 1
+        },
+        {
+          "id": "P6-T2",
+          "title": "任务2 5G信令问题分析及优化",
+          "raw_title": "任务2 5G信令问题分析及优化",
+          "line": 10066,
+          "sections": [
+            {
+              "title": "任务导入",
+              "line": 10068,
+              "level": 3
+            },
+            {
+              "title": "任务要求",
+              "line": 10072,
+              "level": 3
+            },
+            {
+              "title": "知识准备",
+              "line": 10080,
+              "level": 3
+            },
+            {
+              "title": "任务实施",
+              "line": 10264,
+              "level": 3
+            },
+            {
+              "title": "经典案例",
+              "line": 10291,
+              "level": 3
+            },
+            {
+              "title": "直击难点",
+              "line": 10363,
+              "level": 3
+            },
+            {
+              "title": "任务测评",
+              "line": 10369,
+              "level": 3
+            }
+          ],
+          "end_line": 10373,
+          "line_count": 308,
+          "image_count": 15,
+          "table_line_count": 0,
+          "quiz_signal_count": 5,
+          "case_signal_count": 1
+        }
+      ]
+    }
+  ]
+}

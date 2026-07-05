@@ -1,0 +1,6 @@
+asset_id,asset_name,asset_type,source_or_output,governance_role,graph_binding,review_status,current_use,next_action,path
+A-V03-INC-P2T2-001,P2-T2教材原文片段,input_excerpt,input,P2-T2补拆来源,P2-T2,source_extracted,作为详细能力节点拆分依据，原文范围为textbook.md第1958至2082行,后续需要专业教师复核硬件、软件和协调处理口径,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/extracted/textbook.md
+A-V03-INC-P2T2-002,P2-T2基于V0.3主数据补拆验证报告,governance_report,output,说明P2-T2补拆选择、节点结构、回写验证和边界,P2-T2,internal_trial,作为V0.3增量验证说明,人工评审是否可合并进入V0.3.1,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2基于V0.3主数据补拆验证报告.md
+A-V03-INC-P2T2-003,P2-T2详细能力节点主数据增量样表V0.3,structured_data,output,新增详细能力节点增量样表,P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04;P2T2-N05;P2T2-N06,internal_trial,用于验证V0.3节点表能承接新增任务细化,通过评审后再考虑合并主表,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2详细能力节点主数据增量样表V0.3.csv
+A-V03-INC-P2T2-004,P2-T2关系增量样表V0.3,structured_data,output,新增关系边增量样表,P2-T2;P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04;P2T2-N05;P2T2-N06,internal_trial,用于验证新增节点关系能接入既有图谱,通过评审后再考虑合并主表,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2关系增量样表V0.3.csv
+A-V03-INC-P2T2-005,P2-T2资源活动评价挂接增量样表V0.3,structured_data,output,新增资源活动评价挂接增量样表,P2T2-N01;P2T2-N02;P2T2-N03;P2T2-N04;P2T2-N05;P2T2-N06,internal_trial,用于验证新增资源和评价产出能挂接到节点,通过评审后再考虑合并主表,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P2-T2资源活动评价挂接增量样表V0.3.csv

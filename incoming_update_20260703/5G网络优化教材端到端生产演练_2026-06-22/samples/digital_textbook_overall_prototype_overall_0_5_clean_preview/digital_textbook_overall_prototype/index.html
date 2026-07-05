@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5G网络优化教材（高级）数字教材整体原型</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">数字教材整体原型</p>
+      <h1>5G网络优化教材（高级）</h1>
+      <p class="subhead">横向整书框架 + 项目四任务2纵向深样章</p>
+    </div>
+    <nav class="view-tabs" aria-label="原型视图">
+      <button class="tab is-active" data-view="course" type="button">课程</button>
+      <button class="tab" data-view="project" type="button">项目</button>
+      <button class="tab" data-view="graph" type="button">图谱</button>
+      <button class="tab" data-view="teacher" type="button">教师</button>
+      <button class="tab" data-view="resources" type="button">资源</button>
+      <button class="tab" data-view="publish" type="button">出版</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <aside class="project-rail" aria-label="项目导航">
+      <div class="rail-title">项目链</div>
+      <div id="projectButtons" class="project-buttons"></div>
+      <div class="boundary-note">
+        <strong>当前边界</strong>
+        <span>除P4-T2外，其余任务仅用于验证整书结构和流转。</span>
+      </div>
+    </aside>
+
+    <section id="workspace" class="workspace" aria-live="polite"></section>
+
+    <aside id="contextPanel" class="context-panel" aria-label="当前上下文"></aside>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="../course_capability_graph_v2_relation_review/data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

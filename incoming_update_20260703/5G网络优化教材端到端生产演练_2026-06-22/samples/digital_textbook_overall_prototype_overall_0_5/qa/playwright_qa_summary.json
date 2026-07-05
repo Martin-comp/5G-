@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-06-27T11:43:50.388Z",
+  "fileUrl": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/index.html",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 960,
+      "overflow": false
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844,
+      "overflow": false
+    }
+  ],
+  "consoleErrors": [],
+  "checks": [
+    {
+      "name": "页面显示overall-0.5整书综合母版定位",
+      "pass": true
+    },
+    {
+      "name": "课程首页显示两个已接入闭环和深样章状态",
+      "pass": true
+    },
+    {
+      "name": "Safari file预览下深样章入口改走同目录镜像路径",
+      "pass": true
+    },
+    {
+      "name": "课程首页深样章入口可点击打开",
+      "pass": true
+    },
+    {
+      "name": "项目二视图显示正常主线和异常分支",
+      "pass": true
+    },
+    {
+      "name": "项目四视图显示P4-T2深样章入口",
+      "pass": true
+    },
+    {
+      "name": "项目四任务链深样章入口可点击打开",
+      "pass": true
+    },
+    {
+      "name": "版本入口链接到旧原型和深样章",
+      "pass": true
+    },
+    {
+      "name": "版本入口深样章可点击打开",
+      "pass": true
+    },
+    {
+      "name": "图谱页显示项目二19节点和项目四20节点",
+      "pass": true
+    },
+    {
+      "name": "V2.1关系评审入口可点击打开",
+      "pass": true
+    },
+    {
+      "name": "图谱节点可点击并显示评价产出",
+      "pass": true
+    },
+    {
+      "name": "教师视图说明两个课堂入口",
+      "pass": true
+    },
+    {
+      "name": "教师视图深样章入口可点击打开",
+      "pass": true
+    },
+    {
+      "name": "资源中心合并项目二和项目四资源",
+      "pass": true
+    },
+    {
+      "name": "出版视图显示平台接口和候选深样章边界",
+      "pass": true
+    },
+    {
+      "name": "被挂接的旧原型和深样章文件存在",
+      "pass": true
+    }
+  ],
+  "pass": true
+}

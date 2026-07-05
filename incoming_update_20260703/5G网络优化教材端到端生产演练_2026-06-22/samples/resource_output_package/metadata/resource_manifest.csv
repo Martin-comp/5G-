@@ -1,0 +1,16 @@
+resource_id,file,type,source,copyright_status,review_status
+IMG-236,resources/images/image236.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-245,resources/images/image245.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-246,resources/images/image246.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-249,resources/images/image249.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-287,resources/images/image287.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-288,resources/images/image288.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-289,resources/images/image289.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-290,resources/images/image290.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-291,resources/images/image291.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-292,resources/images/image292.png,image,extracted_from_docx,待确认,待编辑审核
+IMG-293,resources/images/image293.png,image,extracted_from_docx,待确认,待编辑审核
+TXT-P4T2-CONTENT,content/p4t2_content_blocks.md,text,ai_structured_from_textbook,派生内容，待确认,待专家审核
+GRAPH-P4T2,graph/p4t2_capability_graph.json,capability_graph,ai_generated_from_textbook_and_standards,自生成结构化数据,待专家审核
+ASSESS-P4T2,assessment/p4t2_assessment_bank.json,assessment,textbook_questions_structured_by_ai,派生结构化题库，待确认,待命题审核
+CARD-CONTENT-P4T2,content/p4t2_card_contents.md,text,ai_structured_from_textbook_and_card_design,派生内容，待确认,待专家审核

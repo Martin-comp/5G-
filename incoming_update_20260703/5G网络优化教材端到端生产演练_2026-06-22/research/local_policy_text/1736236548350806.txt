@@ -1,0 +1,444 @@
+ICS 01.140.40
+CCS A19
+
+
+
+                                     CADPA
+中国音像与数字出版协会团体标准
+                                                              T/CADPA 57—2024
+
+
+
+
+                高等教育数字教材封装要求
+         Encapsulation requirements of digital textbook for higher education
+
+
+
+
+2024 - 12 - 25 发布                                               2025 - 01 - 24 实施
+
+
+
+                     中国音像与数字出版协会                      发 布
+                                                                       T/CADPA 57—2024
+
+
+
+
+                                     目        次
+
+前言 ................................................................................. II
+1 范围 ............................................................................... 1
+2 规范性引用文件 ..................................................................... 1
+3 术语和定义 ......................................................................... 1
+4 封装结构 ........................................................................... 1
+      结构模型 ....................................................................... 1
+      数字教材标识文件 ............................................................... 2
+      内容清单文件 ................................................................... 2
+      元数据文件 ..................................................................... 2
+      版权文件 ....................................................................... 3
+      封面文件 ....................................................................... 3
+      组织结构集文件 ................................................................. 3
+      内容文件集 ..................................................................... 3
+      辅文文件集 ..................................................................... 4
+       扩展文件集 .................................................................... 4
+5 封装规则 ........................................................................... 4
+6 安全规则 ........................................................................... 4
+7 扩展规则 ........................................................................... 4
+附录 A（资料性） 数字教材封装内容清单文件示例 ......................................... 5
+附录 B（资料性） 数字教材封装元数据文件示例 ........................................... 7
+附录 C（资料性） 数字教材封装版权文件示例 ............................................. 8
+附录 D（资料性） 数字教材封装组织结构集文件示例 ....................................... 9
+
+
+
+
+                                                                                    I
+                                         T/CADPA 57—2024
+
+
+                       前    言
+
+  本文件按照GB/T 1.1—2020《标准化工作导则 第1部分：标准化文件的结构和起草规则》的规定
+起草。
+  请注意本文件的某些内容可能涉及专利。本文件的发布机构不承担识别专利的责任。
+  本文件由中国音像与数字出版协会数字教育出版工作委员会提出。
+  本文件由中国音像与数字出版协会归口。
+  本文件起草单位：高等教育数字教材创新发展联盟、人民卫生出版社有限公司、高等教育出版社有
+限公司、重庆大学出版社有限公司、人民邮电出版社有限公司、中国科技出版传媒股份有限公司、电子
+工业出版社有限公司、机械工业出版社有限公司、清华大学出版社有限公司、中国人民大学出版社有限
+公司、上海交通大学出版社有限公司、外语教学与研究出版社有限责任公司、浙江大学出版社有限责任
+公司。
+  本文件主要起草人：杨晋、陈永刚、姚念龙、徐瑾、毛芳、李秀艳、雷少波、刘海溧、钱俊、白楠、
+冯冀轩、温韫辉、廖熠、张文景、商其坤、傅宏梁。
+
+
+
+
+                                                    II
+                                                       T/CADPA 57—2024
+
+
+                   高等教育数字教材封装要求
+
+1 范围
+
+   本文件描述了高等教育数字教材的封装结构模型、封装规则、安全规则和扩展规则。
+   本文件适用于高等教育数字教材的出版、发行、管理及应用。
+
+2 规范性引用文件
+
+  下列文件中的内容通过文中的规范性引用而构成本文件必不可少的条款。其中，注日期的引用文件，
+仅该日期对应的版本适用于本文件；不注日期的引用文件，其最新版本（包括所有的修改单）适用于本
+文件。
+  GB/T 4894—2009 信息与文献 术语
+  GB/T 36098 信息技术 学习、教育和培训 虚拟实验构建封装
+  GB/T 42146 政府网站网页电子文件封装要求
+  IETF RFC 1951—1996 DEFLATE压缩数据格式规范[DEFLATE Compressed Data Format]
+
+3 术语和定义
+
+   下列术语和定义适用于本文件。
+
+   包 package
+   一个逻辑目录，包含一个特定名称的内容清单文件及内容清单文件中引用的数字教材资源。
+   [来源：GB/T 36098—2018, 3.1]
+
+   封装 encapsulation
+   将数字教材资源及其元数据等内容按照指定结构进行打包的过程。
+   [来源：GB/T 42146—2022，3.4]
+
+   数字教材 digital textbook
+   按照国家教材管理办法和出版规范编写、开发、审核、封装，具有中国标准书号的数字出版产品。
+   [来源：T/CADPA 55—2024，3.1]
+
+   组织结构 organizational structure
+   内容清单文件中一种数字教材资源的组织方法。
+   [来源：GB/T 36098—2018，3.4，有修改]
+
+4 封装结构
+
+   结构模型
+  数字教材结构模型是描述数字教材内容组织、封装和呈现的模型，涉及数字教材文件中的所有元素，
+以及这些元素之间的组织结构和呈现方式。封装的文件后缀名为“.dtb”（采用 digital textbook 的
+首字母简写）。
+  数字教材封装结构模型如图1。
+
+
+
+
+                                                                   1
+                                                                T/CADPA 57—2024
+
+
+
+
+                            图1 数字教材封装结构模型
+   注： M表示必备，O表示可选
+
+
+    数字教材标识文件
+  数字教材标识文件（mimetype文件）      是一个MIME类型，mimetype(Application/DigitalTextBook+zip)
+是数字教材必备文件，用于标识一个数字教材文件，该文件采用压缩为dtb格式。
+  application中DTB+zip文件为.dtb格式，采用标准压缩。
+    内容清单文件
+  内容清单文件（manifest文件）是配置文件，是数字教材必备项，用于描述数字教材文件包中的内
+容清单。根目录下为全书的manifest文件（必备），每个章节还可以有章节的cmanifest文件（可选）。
+  附录A给出了数字教材封装内容清单文件以xml格式的示例。
+    元数据文件
+
+
+
+
+                                                                            2
+                                             T/CADPA 57—2024
+
+  元数据文件（metadata文件）是数字教材必备项，用于存储元数据的文件。这些元数据描述了数字
+教材的基本信息，如书名、作者、出版日期、ISBN 号、版本、简介、关键词等。metadata文件为必备
+文件，通常位于数字教材的根目录，并遵循一定的结构或模式来存储这些信息。
+  附录B给出了数字教材封装元数据文件以xml格式的示例。
+  版权文件
+  版权文件（copyright文件）是数字教材必备项，用于描述版权信息的文件。这些文件包含了关于
+数字教材版权归属、使用许可、版权保护声明等重要的法律信息。
+  附录C给出了数字教材封装版权文件以xml格式的示例。
+  封面文件
+  封面文件（cover文件）以及封面缩略图文件是数字教材必备项，用于描述数字教材封面信息。这
+些文件放在数字教材的根目录下。
+  组织结构集文件
+  组织结构集文件（catalog文件）是数字教材必备项，用于描述内容组织结构信息的文件。数字教
+材组织结构集模型描述数字教材内容是如何相互关联和组织的，相当于数字教材的大纲。在内容清单文
+件结构模型中我们可以看到，组织结构集是一对多关系，一本数字教材允许多个组织结构（即多种组织
+方式），有一个默认组织结构。
+  数字教材组织结构集的基本单位为“节点”，节点的描述方式如表1。
+               表1 数字教材组织结构集的节点描述方式
+    序号                 名称                     标签
+     1                 版本                  <version>
+     2               修订版本号                <revision>
+     3                章节名称                  <title>
+     4                英文名称                  <nameEn>
+     5               该章节价格                  <price>
+     6                是否免费                  <isFree>
+     7                 级别                   <level>
+     8                 序号                   <order>
+     9                内容文件                 <content>
+     10         章节类型（如正文，附录，后记）              <type>
+     11               父节点                   <parent>
+     12               章节主图                  <cover>
+     13               章节模版               <coverType>
+     14              章节资源数                <resTotal>
+     15     章节资源类型（如图片、视频、PPT、音频、试题）       <resType>
+     16              章节正文字数                  <word>
+     17               创建者                  <creator>
+     18               创建时间               <createdAt>
+     19              最后修改时间              <updatedAt>
+  附录D给出了数字教材封装组织结构集文件以xml格式的示例。
+  内容文件集
+  内容文件集（content文件夹）包含数字教材主要内容。
+  ——章文件夹（section 文件夹）是数字教材必备项，包含该章节（部分）的所有内容。可包含
+    子文件夹，数字教材中可以拆分的每一级目录应当单独放置在一个文件夹中。
+  ——子内容清单文件（cmanifest 文件）是数字教材可选项，用于描述数字教材章文件夹中的内
+    容清单。
+  ——教材内容文件（section**文件）是数字教材必备项，存储于 section 文件夹中，为该章节
+    的主内容，可以是 xml、html、json、pdf 或者 svg 格式。
+                                                         3
+                                           T/CADPA 57—2024
+
+  ——资源文件夹(resourceFiles 文件夹)是数字教材可选项，存储数字教材资源以及资源描述信
+    息的文件夹。
+  辅文文件集
+  辅文文件集（auxiliary文件夹）是数字教材可选项，用于存放有助于丰富数字教材内容的额外文
+章或资料的辅文内容。
+  ——文前辅文文件夹(frontmatter 文件夹)是数字教材可选项，存放文前辅文，如前言、编者按
+    等。该文件夹可包含辅文部分所有的内容。
+  ——文后辅文文件夹(backmatter 文件夹)是数字教材可选项，存放文后辅文，如参考文献、附录
+    等。该文件夹可包含辅文部分所有的内容。
+   扩展文件集
+  扩展文件集（external文件夹）是数字教材的可选项，用于存放教材内容之外的文件，如js文件、
+样式表文件、图标文件等。
+
+5 封装规则
+
+  一个包为了传输而组合成单独的一个文件时，该文件称为封装包或包交换文件、封装文件。数字教
+材封装包应采用压缩算法压缩的包方式进行封装，压缩文件格式应与IETF RFC 1951—1996定义一致。
+封装包的后缀为“.dtb”。
+  数字教材包并不一定要压缩成一个包交换文件，也可以通过光盘或移动硬盘等进行传输或发布。
+  数字教材封装包内应包含供阅读系统使用的所有内容资源。压缩完成后进行完整性和可用性测试，
+确保无误后，在合规的平台发布。
+
+6 安全规则
+
+  数字教材应在信息安全方面得到保障,具体信息安全的策略和实现取决于数字教材和所要承载的学
+习内容的特定需求。数字教材封装文件包可使用数字签名技术进行版权保护。
+
+7 扩展规则
+
+  若实际使用中需定义更多的封装支持项时，本文件支持扩展，可在扩展项中进行自定义。
+
+
+
+
+                                                       4
+                                                                                     T/CADPA 57—2024
+                                                   A
+                                                       A
+
+
+
+
+                                        附 录 A
+                                       （资料性）
+                                   数字教材封装内容清单文件示例
+    数字教材封装内容清单文件（manifest/cmanifest文件）以xml格式的示例为：
+<manifest>
+    <item id="item1" href="cover.jpg " media-type="image/jpg" page-id="a_pre01"/>
+    <item id="item2" href="catalog.xml " media-type="catalog/xml"/>
+    <item id="item3" href=" copyright.xml " media-type="copyright/xml"/>
+    <item id="a_pre01" SN="1" href="auxiliary/preface/prelude/page.xml" media-type="page/xml"/>
+    <item id="a_pre02" SN="2" href="auxiliary/preface/EditorsNote/page.xml" media-type="page/xml "/>
+    <item id="p_ch00" SN="3" href="content/Introduction/page.xml" media-type="page/xml"/>
+    <item id="p_ch01" SN="4" href="content/section01/page.xml" media-type="page/xml"/>
+    <item id="p_ch02_1" SN="5" href="content/section02/page1.xml" media-type="page/xml"/>
+    <item id="p_ch02_2" SN="6" href="content/section02/page2.xml" media-type="page/xml"/>
+    <item id="p_ch03" SN="7" href="content/section03/page.xml" media-type="page/xml"/>
+    <item id="p_ch04" SN="8" href="content/section04/page.xml" media-type="page/xml"/>
+    <item id="p_ch05_1" SN="9" href="content/section05/page1.xml" media-type="page/xml"/>
+    <item id="p_ch05_2" SN="10" href="content/section05/page2.xml" media-type="page/xml"/>
+    <item id="a_bac01" SN="11" href="auxiliary/backmatter/literature/page.xml" media-type="page/xml"/>
+    <item id="a_back02" SN="12" href="auxiliary/backmatter/literature/page.xml" media-type="page/xml"/>
+    <item id="item4" href="auxiliary/preface/prelude/resourceFiles/image00001.jpg" media-
+type="image/jpg" page-id="a_pre01"/>
+    <item id="item5" href="auxiliary/preface/prelude/resourceFiles/image00001.xml" media-
+type="image/jpg" page-id="item4"/>
+    <item id="item6" href="auxiliary/preface/EditorsNote/resourceFiles/image00002.jpeg" media-
+type="image/jpeg" page-id="a_pre01"/>
+    <item id="item7" href="auxiliary/preface/EditorsNote/resourceFiles/image00002.xml" media-
+type="image/jpeg" page-id="item6"/>
+    <item id="item8" href="content/section01/resourceFiles/video00003.mp4" media-type="video/mp4" page-
+id="p_ch01"/>
+    <item id="item9" href="content/section01/resourceFiles/video00003.xml" media-type="video/xml"
+media-id="item8"/>
+    <item id="item10" href="content/section01/resourceFiles/audio00004.mp3" media-type="audio/mp3"
+page-id="p_ch02_1"/>
+    <item id="item11" href="content/section01/resourceFiles/audio00004.xml"media-type="audio/xml"
+media-id="item10" />
+    <item id="item12" href="content/section01/resourceFiles/3D00005.unityweb" media-type="3D/unityweb"
+page-id="p_ch02_1"/>
+    <item id="item13" href="content/section01/resourceFiles/3D00005.xml"media-type="3D/xml" media-
+id="item12" />
+    <item id="item14" href="auxiliary/backmatter/literature/resourceFiles/image00006.png" media-
+type="image/png" page-id="a_back01"/>
+    <item id="item15" href="auxiliary/backmatter/literature/resourceFiles/image00006.xml" media-
+type="image/xml" page-id="item14"/>
+    <item id="item16" href="auxiliary/backmatter/literature/resourceFiles/image00007.jpg" media-
+type="image/jpg" page-id="a_back02"/>
+    <item id="item17" href="auxiliary/backmatter/literature/resourceFiles/image00007.xml" media-
+type="image/xml" page-id="item16"/>
+    <item id="item18" href="external/common.css" media-type="text/css"/>
+    <item id="item19" href="external/tabs.css" media-type="text/css"/>
+    <item id="item20" href="external/cover.js" media-type="text/js"/>
+    <item id="item21" href=" external/jr_360.css" media-type="text/css"/>
+    <item id="item22" href=" external/jr_3dmodel.js" media-type="text/js"/>
+    <item id="item23" href="external/logo.ico" media-type="image/ico"/>
+                                                                                                    5
+              T/CADPA 57—2024
+
+</manifest>
+
+
+
+
+                          6
+                                                       T/CADPA 57—2024
+                                               B
+                                                   B
+
+
+
+
+                                   附 录 B
+                                   （资料性）
+                               数字教材封装元数据文件示例
+   数字教材封装元数据文件（metadata文件）以xml格式的示例为：
+<?xml version="1.0" encoding="UTF-8"?>
+<Metadata>
+    <namedata>数字教材书名</namedata >
+    <author>作者姓名</author>
+    <publisher>出版社名称</publisher>
+    <publicationDate>出版日期</publicationDate>
+    <isbn>ISBN 号</isbn>
+    <version>版本信息</version>
+    <description>教材简介</description>
+    <keywords>关键词 1, 关键词 2, 关键词 3</keywords>
+    <!-- 其他元数据 -->
+</Metadata>
+
+
+
+
+                                                                   7
+                                                    T/CADPA 57—2024
+                                            C
+                                                C
+
+
+
+
+                                      附 录 C
+                                     （资料性）
+                                  数字教材封装版权文件示例
+    数字教材封装版权文件（copyright文件）以xml格式的示例为：
+<?xml version="1.0" encoding="UTF-8"?>
+<copyrightInfo>
+    <title>版权信息</title>
+    <owner>版权所有者名称</owner>
+    <license>
+        <type>使用许可类型</type>
+        <url>许可协议链接</url>
+    </license>
+    <protection>
+        <notice>版权保护声明</notice>
+    </protection>
+    <restrictions>
+        <use>使用限制</use>
+        <distribution>分发限制</distribution>
+        <modification>修改限制</modification>
+    </restrictions>
+    <!-- 其他版权相关信息 -->
+    </copyrightInfo>
+
+
+
+
+                                                                8
+                                                          T/CADPA 57—2024
+                                                  D
+                                                      D
+
+
+
+
+                                     附 录 D
+                                     （资料性）
+                                数字教材封装组织结构集文件示例
+    数字教材封装组织结构集文件（catalog文件）以xml格式的示例为：
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog >
+    <front_of_catalog>
+      <item>
+         <id>1</id>
+         <layer>1</layer>
+         <str><![CDATA[封面 cover]]></str>
+      </item>
+      <item>
+         <id>2</id>
+         <layer>1</layer>
+         <str><![CDATA[前言 preface]]></str>
+       </item>
+       <!-- item -->
+    </front_of_catalog>
+    <body_of_catalog>
+      <item>
+         <id>1</id>
+         <layer>1</layer>
+         <str><![CDATA[第一章 section1]]></str>
+      </item>
+      <item>
+         <id>1-1</id>
+         <layer>2</layer>
+         <str><![CDATA[第一节 section1]]></str>
+      </item>
+      <item>
+         <id>1-1-1</id>
+         <layer>3</layer>
+         <str><![CDATA[一、part1]]></str>
+      </item>
+      <item>
+         <id>1-1-2</id>
+         <layer>3</layer>
+         <str><![CDATA[二、part2]]></str>
+      </item>
+      <!-- item -->
+    </body_of_catalog>
+    <back_of_catalog>
+      <item>
+         <id>1</id>
+         <layer>1</layer>
+         <str><![CDATA[参考文献 references]]></str>
+      </item>
+      <item>
+         <id>2</id>
+         <layer>1</layer>
+         <str><![CDATA[索引 index]]></str>
+      </item>
+    </back_of_catalog>
+                                                                      9
+             T/CADPA 57—2024
+
+</catalog>
+
+
+
+
+                        10
+

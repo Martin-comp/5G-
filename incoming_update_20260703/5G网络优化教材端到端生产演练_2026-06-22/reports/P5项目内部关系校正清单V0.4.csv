@@ -1,0 +1,14 @@
+﻿relation_review_id,source_relation_id,source_node_id,target_node_id,current_relation_type,recommended_relation_type,chain_role,visibility_scope,student_visible_explanation,teacher_use_note,review_status,next_action
+P5REL-V04-001,EV039-INC-P5T1-036,P5T1-N08,P5-T2,任务级预留递进,概括主链,overview_chain,overview_only,P5-T1采集包总体进入P5-T2；学生路径中应看P5T1-N08到P5T2-N01的细化关系。,用于项目总览，不作为学生逐步学习路径的唯一入口。,内部试拆,mark_as_overview_only
+P5REL-V04-002,EV03-0094,P5-T2,P5T3-N01,直接递进,概括主链,overview_chain,overview_only,P5-T2整体支撑P5-T3验证入口；学生路径中应看P5T2-N09到P5T3-N01的细化关系。,用于项目总览，详细教学走P5T2-N09。,内部试拆,mark_as_overview_only
+P5REL-V04-003,EV0310-INC-P5T2-021,P5T1-N08,P5T2-N01,前置支撑,输入交接,input_handoff,student_path,先形成全网指标采集包，再进入性能提升任务。,检查学生是否能把采集包作为P5-T2输入。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-004,EV0310-INC-P5T2-022,P5T1-N02,P5T2-N02,前置支撑,输入交接,input_handoff,student_path,先确认指标口径和统计周期，再用8维5步法分析短板。,强调口径不一致会导致短板判断错误。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-005,EV0310-INC-P5T2-023,P5T1-N03,P5T2-N03,前置支撑,方案支撑,scheme_support,student_path,接入类指标采集结果支撑接入类提升方案。,用于接入类案例的任务衔接。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-006,EV0310-INC-P5T2-024,P5T1-N04,P5T2-N04,前置支撑,方案支撑,scheme_support,student_path,保持性指标采集结果支撑掉线和保持类提升方案。,用于保持类案例的任务衔接。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-007,EV0310-INC-P5T2-025,P5T1-N04,P5T2-N05,前置支撑,方案支撑,scheme_support,student_path,移动性指标采集结果支撑切换和邻区类提升方案。,用于移动性案例的任务衔接。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-008,EV0310-INC-P5T2-026,P5T1-N05,P5T2-N06,前置支撑,方案支撑,scheme_support,student_path,资源和可用类指标采集结果支撑资源瓶颈、扩容分流和可用性方案。,用于资源/可用类案例的任务衔接。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-009,EV0310-INC-P5T2-029,P5T2-N09,P5T3-N01,验证支撑,验证支撑,verification_support,student_path,实施交接单进入验证任务和验证口径确认。,要求学生带着实施证据进入验证。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-010,EV0310-INC-P5T2-031,P5T2-N09,P5T3-N03,验证支撑,验证支撑,verification_support,student_path,实施动作和时间点支撑优化前后KPI对比基线。,强调KPI对比必须对应实施时间点。,待专业复核,keep_as_student_path_with_professional_review
+P5REL-V04-011,EV0310-INC-P5T2-033,P5T2-N07,P5T3-N06,验证支撑,验证支撑,verification_support,teacher_review,未闭环风险和回退边界支撑二次分析入口。,教师讲评时提醒未闭环不等于失败，而是进入二次分析。,内部试拆,keep_with_teacher_review
+P5REL-V04-012,EV03-0147,P5T3-N06,P6T2-N01,前置基础,问题回流边界,loopback_boundary,teacher_review,未闭环问题进入复杂问题分析入口，但P6-T2负责完整复盘。,用于解释P5到P6的回流，不在P5内展开完整信令复盘。,待专业复核,keep_with_professional_review
+P5REL-V04-013,EV03-0177,P6T2-N06,P5T3-N03,问题回流,问题回流边界,loopback_boundary,teacher_review,P6提出建议后，需要回到P5的KPI基线重新复测。,用于解释复盘建议不是终点，仍需回到P5验证效果。,待专业复核,keep_with_professional_review

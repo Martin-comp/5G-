@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>课程能力图谱V2.1关系可视化评审版</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">课程能力图谱V2.1关系可视化评审版</p>
+      <h1>看清节点之间怎么连起来</h1>
+      <p>本页只解决关系呈现：哪些节点前后递进、哪些节点支撑判断、哪些未闭环问题回流到信令复盘。</p>
+    </div>
+    <div class="status-box">
+      <strong>当前定位</strong>
+      <span>关系评审样本，不是专家复核定稿</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar panel">
+      <div>
+        <h2>关系筛选</h2>
+        <p>默认从一个关键节点开始，只显示它的核心邻域关系；需要看全局时再切换总览。</p>
+      </div>
+      <div class="toolbar-controls">
+        <div id="modeControls" class="segmented"></div>
+        <div id="relationFilters" class="filter-row"></div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <section class="panel graph-panel">
+        <div class="section-title">
+          <h2>四任务关系图</h2>
+          <p id="graphHint">线条只显示当前筛选后的可视关系；完整关系见下方关系清单。</p>
+        </div>
+        <div id="graphStage" class="graph-stage">
+          <svg id="edgeLayer" class="edge-layer" aria-hidden="true"></svg>
+          <div id="taskColumns" class="task-columns"></div>
+        </div>
+      </section>
+
+      <aside class="panel detail-panel">
+        <div class="section-title">
+          <h2>节点邻域</h2>
+          <p>当前节点相关的前置、支撑、递进和回流关系。</p>
+        </div>
+        <div id="nodeDetail"></div>
+      </aside>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>关系清单</h2>
+        <p>边表来自四张V0.2字段表的关系记录，并补充详细节点到能力单元的挂接关系。</p>
+      </div>
+      <div id="edgeTable" class="edge-table"></div>
+    </section>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

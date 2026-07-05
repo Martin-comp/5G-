@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5G网络优化数字教材 · 教学闭环原型</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand"><div class="brand-mark">5G</div><div><h1>5G网络优化（高级）</h1><span>数字教材 · 教学闭环原型</span></div></div>
+      <nav class="tabs" id="topTabs"></nav>
+      <div class="top-info"><span id="modeText">学生端 · 课堂跟随</span><span class="dot"></span><span>投屏状态：已连接</span><button class="tool" id="toggleMode">转入自学自由</button><button class="tool" id="openProjector">打开投屏</button></div>
+    </header>
+    <aside class="left"><div class="left-title"><h2 id="leftTitle">P4-T2 能力节点</h2><span id="pageIndex">3 / 5</span></div><div class="lesson-list" id="leftList"></div><div class="hint" id="leftHint"></div></aside>
+    <main class="main" id="main"></main>
+    <aside class="side" id="side"></aside>
+    <footer class="bottom"><span>班级：通信2301班</span><span>课时：第18课时</span><span class="grow"></span><button id="syncBtn">同步学生端</button><button id="pushBtn">推送练习</button><button class="primary" id="teachBtn">开始讲解</button></footer>
+  </div>
+  <div class="toast" id="toast">已更新</div>
+<script src="./app.js"></script>
+</body>
+</html>

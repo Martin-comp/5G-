@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>5G网络优化结果验证 - 数字教材样本</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="toc">
+        <div class="toc-title">5G网络优化教材（高级）</div>
+        <nav aria-label="章节目录">
+          <a href="#task" class="active">任务</a>
+          <a href="#graph">能力图谱</a>
+          <a href="#knowledge">知识准备</a>
+          <a href="#practice">实训验证</a>
+          <a href="#assessment">测评</a>
+          <a href="#quality">质量门禁</a>
+        </nav>
+        <div class="toc-meta">
+          <span>项目四</span>
+          <strong>5G端到端网络优化</strong>
+        </div>
+      </aside>
+
+      <main>
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">任务2</p>
+            <h1>5G网络优化结果验证</h1>
+          </div>
+          <div class="status-strip" aria-label="学习状态">
+            <span id="progressText">0 / 4</span>
+            <span>草稿样本</span>
+          </div>
+        </header>
+
+        <section id="task" class="band task-band">
+          <div class="section-head">
+            <p class="eyebrow">学习任务</p>
+            <h2>从业务体验回到优化证据</h2>
+          </div>
+          <div class="task-grid">
+            <article class="task-copy">
+              <p>
+                当视频通话卡顿、直播时延升高或业务掉线时，学习者需要判断问题是否来自覆盖、切换、时延、速率、容量或掉线相关因素，并通过测试数据、参数记录和仿真结果验证优化是否达成。
+              </p>
+              <div class="goal-list">
+                <button data-complete="coverage">覆盖优化结果验证</button>
+                <button data-complete="handover">切换优化结果验证</button>
+                <button data-complete="performance">时延、速率、容量、掉线验证</button>
+                <button data-complete="evidence">优化证据链与报告输出</button>
+              </div>
+            </article>
+            <div class="metric-panel" aria-label="任务要求">
+              <div>
+                <span>输入</span>
+                <strong>教材原文 + 图片 + 表格 + 测评题</strong>
+              </div>
+              <div>
+                <span>输出</span>
+                <strong>能力图谱、资源包、交互页面</strong>
+              </div>
+              <div>
+                <span>状态</span>
+                <strong>专家审核前样本</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="graph" class="band">
+          <div class="section-head">
+            <p class="eyebrow">课程能力图谱</p>
+            <h2>岗位任务牵引的能力链</h2>
+          </div>
+          <div class="flow">
+            <span>读取指标</span>
+            <span>解释指标</span>
+            <span>定位问题</span>
+            <span>核查参数</span>
+            <span>对比结果</span>
+            <span>输出报告</span>
+          </div>
+          <div class="capability-table" role="table" aria-label="能力节点">
+            <div role="row" class="table-row head">
+              <span role="columnheader">能力单元</span>
+              <span role="columnheader">关键知识</span>
+              <span role="columnheader">评价证据</span>
+            </div>
+            <div role="row" class="table-row">
+              <span role="cell">验证覆盖优化结果</span>
+              <span role="cell">SS-RSRP、SS-SINR、弱覆盖、越区覆盖</span>
+              <span role="cell">覆盖指标表、优化前后截图</span>
+            </div>
+            <div role="row" class="table-row">
+              <span role="cell">验证切换优化结果</span>
+              <span role="cell">A类/B类事件、SA/NSA切换流程</span>
+              <span role="cell">切换流程说明、信令或仿真证据</span>
+            </div>
+            <div role="row" class="table-row">
+              <span role="cell">形成优化证据链</span>
+              <span role="cell">KPI、参数、测试数据、业务体验</span>
+              <span role="cell">验证报告、任务测评、操作记录</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="knowledge" class="band knowledge-band">
+          <div class="section-head">
+            <p class="eyebrow">知识准备</p>
+            <h2>覆盖、切换与端到端性能</h2>
+          </div>
+          <div class="knowledge-grid">
+            <article>
+              <h3>覆盖优化</h3>
+              <p>先优化 SSB RSRP，再优化 SSB SINR。重点消除弱覆盖、越区覆盖和交叉覆盖，并结合工程参数、功率、波束、邻区和规划改造进行验证。</p>
+              <figure>
+                <img src="../../assets/media/image236.png" alt="5G NR切换流程图" />
+                <figcaption>图示样本：切换流程资源</figcaption>
+              </figure>
+            </article>
+            <article>
+              <h3>切换优化</h3>
+              <p>围绕测量、判决、执行三个阶段，对 A1 至 A6、B1、B2 等事件进行解释，并区分 SA 与 NSA 场景下的切换流程。</p>
+              <figure>
+                <img src="../../assets/media/image245.png" alt="SA组网下的切换流程" />
+                <figcaption>图示样本：SA组网下的切换流程</figcaption>
+              </figure>
+            </article>
+            <article>
+              <h3>结果验证</h3>
+              <p>验证对象包括覆盖、切换、时延、速率、容量、掉线等场景。判断时需要保留优化前指标、参数调整记录、优化后指标和结论。</p>
+              <figure>
+                <img src="../../assets/media/image287.png" alt="仿真软件验证步骤截图" />
+                <figcaption>图示样本：仿真软件验证步骤</figcaption>
+              </figure>
+            </article>
+          </div>
+        </section>
+
+        <section id="practice" class="band">
+          <div class="section-head">
+            <p class="eyebrow">实训验证</p>
+            <h2>优化结果验证任务单</h2>
+          </div>
+          <div class="practice-layout">
+            <div class="step-list">
+              <label><input type="checkbox" data-evidence="baseline" /> 记录优化前指标</label>
+              <label><input type="checkbox" data-evidence="parameter" /> 记录参数修改</label>
+              <label><input type="checkbox" data-evidence="after" /> 记录优化后指标</label>
+              <label><input type="checkbox" data-evidence="screenshot" /> 上传截图或日志</label>
+              <label><input type="checkbox" data-evidence="conclusion" /> 写出验证结论</label>
+            </div>
+            <div class="image-strip">
+              <img src="../../assets/media/image288.png" alt="覆盖优化结果截图" />
+              <img src="../../assets/media/image289.png" alt="切换优化结果截图" />
+              <img src="../../assets/media/image290.png" alt="时延优化结果截图" />
+              <img src="../../assets/media/image291.png" alt="速率优化结果截图" />
+            </div>
+          </div>
+          <div class="evidence-result" id="evidenceResult">证据链完整度：0 / 5</div>
+        </section>
+
+        <section id="assessment" class="band assessment-band">
+          <div class="section-head">
+            <p class="eyebrow">随堂测试</p>
+            <h2>从文本题转为可评价题</h2>
+          </div>
+          <form id="quizForm" class="quiz">
+            <label>
+              <span>1. 覆盖优化的基本原则是什么？</span>
+              <textarea name="q1" rows="4"></textarea>
+            </label>
+            <label>
+              <span>2. 不带 SN 的 NSA 切换流程包括哪些关键步骤？</span>
+              <textarea name="q2" rows="4"></textarea>
+            </label>
+            <label>
+              <span>3. 优化结果验证报告至少应包含哪些证据？</span>
+              <textarea name="q3" rows="4"></textarea>
+            </label>
+            <button type="submit">提交测评</button>
+          </form>
+          <p id="quizResult" class="quiz-result"></p>
+        </section>
+
+        <section id="quality" class="band quality-band">
+          <div class="section-head">
+            <p class="eyebrow">质量门禁</p>
+            <h2>进入平台前必须补齐的审核项</h2>
+          </div>
+          <div class="quality-grid">
+            <span>专业准确性审核</span>
+            <span>版权授权确认</span>
+            <span>图片清晰度与格式转换</span>
+            <span>题库答案与评分规则</span>
+            <span>平台接口适配</span>
+            <span>学习数据回收验证</span>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>

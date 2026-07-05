@@ -1,0 +1,218 @@
+{
+  "generatedAt": "2026-06-27T11:44:04.237Z",
+  "overallUrl": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/index.html",
+  "sampleUrl": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/task_workbench_3_5a1_two_period_sample/index.html",
+  "sampleMirrorUrl": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/task_workbench_3_5a1_two_period_sample/index.html",
+  "pass": true,
+  "foundAndFixed": [
+    {
+      "issue": "深样章从整书母版打开后缺少页面内返回整书入口。",
+      "fix": "在深样章顶栏增加“返回整书母版”链接，并在角色流程中验证可返回。"
+    },
+    {
+      "issue": "深样章在学生/教师/资源页之间切换时会保留原滚动位置，教师可能落在页面中段。",
+      "fix": "顶栏视图切换后强制回到页首，并在教师流程中验证。"
+    },
+    {
+      "issue": "学生反复试看或教师演示时缺少清空学习状态的显式控制。",
+      "fix": "学生首屏增加“重新开始”按钮，清空模式、案例、图谱节点、术语和活动记录。"
+    },
+    {
+      "issue": "整书教师页说明了P4-T2但没有直接下钻按钮。",
+      "fix": "整书教师视图增加P4-T2任务级深样章入口，并纳入QA断言。"
+    }
+  ],
+  "roleFlows": [
+    {
+      "role": "学生",
+      "flow": "课堂带学",
+      "pass": true,
+      "checks": [
+        {
+          "name": "整书首页存在P4-T2深样章直达入口",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "学生可从整书入口进入任务级深样章",
+          "pass": true,
+          "detail": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/task_workbench_3_5a1_two_period_sample/index.html"
+        },
+        {
+          "name": "深样章提供返回整书母版入口",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "课堂首屏说明第一步、产出、完成标准和最终提交",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "默认进入课堂带学模式",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "课堂流程可完成5个递进案例",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "最终案例能生成四段式验收结论",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "至少前三个案例可形成学生自己的修正句",
+          "pass": true,
+          "detail": "revisionCount=3"
+        },
+        {
+          "name": "深样章可返回整书母版",
+          "pass": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "screenshots": [
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/01-student-class-overall-entry.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/02-student-class-first-screen.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/03-student-class-completed.png"
+      ],
+      "analysis": [
+        "学习闭环由“真实化疑问 -> 指标表 -> 互动判断 -> 反馈修正 -> 职业结论”组成，当前课堂路径是可走通的。",
+        "课堂模式差异主要体现在教师追问和停顿节奏，不是完全不同的页面结构；这符合带学场景，但仍依赖教师组织。",
+        "学生能在首屏看到第一步和完成标准，比早期版本更接近可自学入口。"
+      ]
+    },
+    {
+      "role": "学生",
+      "flow": "自学跟练",
+      "pass": true,
+      "checks": [
+        {
+          "name": "自学模式显示术语小卡和提交前自查",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "自学过程可查询术语字典",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "错误尝试后出现二次学习路径",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "再试一次可清空当前活动",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "自学模式可打开局部课程能力图谱",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "图谱节点显示学习任务、前置和掌握标准",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "移动端自学界面无横向溢出",
+          "pass": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "screenshots": [
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/04-student-self-first-screen.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/05-student-self-graph.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/06-student-self-mobile.png"
+      ],
+      "analysis": [
+        "自学模式能提供术语、检查清单、错误反馈和再试路径，基本能支持学生独立重做。",
+        "自学模式仍然沿用同一套案例活动，差异主要是解释支架；如果要成为正式自学教材，还需要更强的分步讲解、错因分流和学习完成确认。",
+        "局部课程能力图谱对学生有帮助，但应保持局部入口，不宜把完整评审图放到学生首屏。"
+      ]
+    },
+    {
+      "role": "教师",
+      "flow": "课堂组织与资源检查",
+      "pass": true,
+      "checks": [
+        {
+          "name": "整书教师页说明P2/P4两个课堂入口",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "整书教师页提供P4-T2深样章直达入口",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "深样章切换教师页后回到页首",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "教师页包含2课时安排、提问脚本、典型答案和模拟学情",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "教师页明确课堂模式和自学验收边界",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "资源页说明卡片、图谱节点和活动映射",
+          "pass": true,
+          "detail": ""
+        },
+        {
+          "name": "资源页保留来源边界而非默认发布",
+          "pass": true,
+          "detail": ""
+        }
+      ],
+      "consoleErrors": [],
+      "screenshots": [
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/07-teacher-overall-view.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/08-teacher-deep-sample-view.png",
+        "/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5/qa/role_flow_audit_2026-06-27/09-teacher-resource-view.png"
+      ],
+      "analysis": [
+        "教师路径已经能从整书母版进入任务样章，再查看2课时安排、讲评脚本、典型答案、模拟学情和资源映射。",
+        "当前教师页可用于试讲准备，但还不是完整课堂中控台；缺少真实学生提交、实时错误分布和可导出的课后作业收取。",
+        "资源页能说明转化方向，但尚未进入真实素材制作、版权审查和平台发布接口。"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "高",
+      "item": "正式自学模式需要从“同题不同提示”升级为“错因分流”。学生做错后不只再试一次，而是按错因进入术语补课、指标重读、案例反例或结论改写。"
+    },
+    {
+      "priority": "高",
+      "item": "教师页需要接入真实或模拟的学生提交汇总。现在有模拟学情，但没有把学生自己的修正句、错误类型和讲评优先级联动起来。"
+    },
+    {
+      "priority": "中",
+      "item": "整书母版仍偏治理/评审语言，不适合作为学生正式首屏。正式教材应按角色分入口：学生进入学习任务，教师进入课堂组织，编辑/专家进入图谱与资源治理。"
+    },
+    {
+      "priority": "中",
+      "item": "课程能力图谱在任务内表现为局部路径是合理的，但整书层仍需继续补足从P1到P6的完整节点、关系、资源、活动、评价映射。"
+    },
+    {
+      "priority": "中",
+      "item": "资源转化页目前能说明方向，后续应逐项产出真实样例：教学化重绘图、互动表、流程动画脚本、小游戏规则、评价采集字段。"
+    }
+  ]
+}

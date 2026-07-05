@@ -1,0 +1,148 @@
+{
+  "checkedAt": "2026-06-27T13:34:41.529Z",
+  "url": "file:///Users/ny/Downloads/5G%E7%BD%91%E7%BB%9C%E4%BC%98%E5%8C%96%E6%95%99%E6%9D%90%E7%AB%AF%E5%88%B0%E7%AB%AF%E7%94%9F%E4%BA%A7%E6%BC%94%E7%BB%83_2026-06-22/samples/digital_textbook_overall_prototype_overall_0_5_clean_preview/index.html",
+  "executablePath": "/Users/ny/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+  "checks": [
+    {
+      "name": "课程页左侧栏隐藏",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "课程页右侧为学习入口",
+      "pass": true,
+      "details": "学习入口"
+    },
+    {
+      "name": "课程页左侧不显示项目目录",
+      "pass": true,
+      "details": "项目目录 in left rail: 0"
+    },
+    {
+      "name": "项目页显示项目目录",
+      "pass": true,
+      "details": "项目目录"
+    },
+    {
+      "name": "项目页右侧为项目上下文",
+      "pass": true,
+      "details": "项目上下文"
+    },
+    {
+      "name": "项目页包含P1项目按钮",
+      "pass": true,
+      "details": "P1 5G网络信息采集"
+    },
+    {
+      "name": "项目页包含P6项目按钮",
+      "pass": true,
+      "details": "P6 5G信令分析"
+    },
+    {
+      "name": "图谱页左侧为图谱导航",
+      "pass": true,
+      "details": "图谱导航"
+    },
+    {
+      "name": "图谱页不显示右侧上下文栏",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "图谱页左侧不显示项目目录",
+      "pass": true,
+      "details": "项目目录 in left rail: 0"
+    },
+    {
+      "name": "图谱左侧节点点击可更新图谱主体",
+      "pass": true,
+      "details": "CG-04 优化实施"
+    },
+    {
+      "name": "教师页左侧为教师工作流",
+      "pass": true,
+      "details": "教师工作流"
+    },
+    {
+      "name": "教师页右侧为教师上下文",
+      "pass": true,
+      "details": "教师上下文"
+    },
+    {
+      "name": "教师工作流点击可更新上下文",
+      "pass": true,
+      "details": "讲评反馈"
+    },
+    {
+      "name": "资源页左侧为资源筛选",
+      "pass": true,
+      "details": "资源筛选"
+    },
+    {
+      "name": "资源页右侧为资源上下文",
+      "pass": true,
+      "details": "资源上下文"
+    },
+    {
+      "name": "资源筛选点击可更新表格",
+      "pass": true,
+      "details": "P4-T2学习任务页"
+    },
+    {
+      "name": "交付页左侧为交付路径",
+      "pass": true,
+      "details": "交付路径"
+    },
+    {
+      "name": "交付页右侧为交付上下文",
+      "pass": true,
+      "details": "交付上下文"
+    },
+    {
+      "name": "交付路径点击可更新上下文",
+      "pass": true,
+      "details": "当前交付项：质量检查"
+    },
+    {
+      "name": "任务页返回入口明确",
+      "pass": true,
+      "details": "返回整书首页"
+    },
+    {
+      "name": "任务页第三页签为任务资源",
+      "pass": true,
+      "details": "任务资源"
+    },
+    {
+      "name": "任务页不再使用资源清单页签",
+      "pass": true,
+      "details": ""
+    },
+    {
+      "name": "任务页图谱按钮为局部图谱",
+      "pass": true,
+      "details": "本任务图谱"
+    },
+    {
+      "name": "任务图谱弹窗标明局部图谱",
+      "pass": true,
+      "details": "本任务局部图谱"
+    },
+    {
+      "name": "控制台无错误",
+      "pass": true,
+      "details": ""
+    }
+  ],
+  "consoleErrors": [],
+  "screenshots": [
+    "01-course-home.png",
+    "02-project-view.png",
+    "03-graph-view.png",
+    "04-teacher-view.png",
+    "05-resources-view.png",
+    "06-publish-view.png",
+    "07-task-student.png"
+  ],
+  "pass": true
+}

@@ -1,0 +1,57 @@
+{
+  "assessment_set_id": "P4T2-ASSESSMENT-DRAFT",
+  "status": "draft_for_review",
+  "items": [
+    {
+      "id": "P4T2-Q1",
+      "type": "short_answer",
+      "stem": "请简述时频资源和参数集µ的对应关系。",
+      "capability_refs": [
+        "CAP-LATENCY",
+        "CAP-RATE"
+      ],
+      "difficulty": "medium",
+      "answer_key": "待通信专家补充标准答案",
+      "rubric": "概念准确、关系清楚、能联系5G NR帧结构。"
+    },
+    {
+      "id": "P4T2-Q2",
+      "type": "short_answer",
+      "stem": "请简述覆盖优化的基本原则。",
+      "capability_refs": [
+        "CAP-COVERAGE"
+      ],
+      "difficulty": "medium",
+      "answer_key": "待通信专家补充标准答案",
+      "rubric": "能说明先RSRP后SINR、优先弱覆盖/越区/导频污染、工程参数与参数优化顺序。"
+    },
+    {
+      "id": "P4T2-Q3",
+      "type": "short_answer",
+      "stem": "请描述不带SN的NSA切换流程。",
+      "capability_refs": [
+        "CAP-HO"
+      ],
+      "difficulty": "hard",
+      "answer_key": "待通信专家补充标准答案",
+      "rubric": "能说明SN释放、LTE切换、目标侧SN添加及触发条件。"
+    },
+    {
+      "id": "P4T2-P1",
+      "type": "performance_task",
+      "stem": "登录仿真软件，修改参数完成端到端网络优化，并提高覆盖、切换、时延、速率、容量或掉线相关指标。",
+      "capability_refs": [
+        "CAP-EVIDENCE"
+      ],
+      "difficulty": "hard",
+      "evidence_required": [
+        "优化前指标",
+        "参数修改记录",
+        "优化后指标",
+        "截图或日志",
+        "验证结论"
+      ],
+      "rubric": "按指标改善、参数选择合理性、证据完整性、结论表达四项评分。"
+    }
+  ]
+}

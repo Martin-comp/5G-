@@ -1,0 +1,214 @@
+v03_edge_id,source_node_id,source_node_name,target_node_id,target_node_name,relation_raw_type,relation_type,relation_summary,source_task_id,target_task_id,edge_scope,source_file,review_status,display_priority,version_status
+EV03-0001,CG-01,信息采集,CG-02,网络测试,precedes,课程主链递进,信息采集进入网络测试,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0002,CG-02,网络测试,CG-03,信息管理,precedes,课程主链递进,网络测试进入信息管理,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0003,CG-03,信息管理,CG-04,优化实施,precedes,课程主链递进,信息管理进入优化实施,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0004,CG-04,优化实施,CG-05,结果验证,precedes,课程主链递进,优化实施进入结果验证,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0005,CG-05,结果验证,CG-06,性能提升,precedes,课程主链递进,结果验证进入性能提升,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0006,CG-06,性能提升,CG-07,信令分析,precedes,课程主链递进,性能提升进入信令分析,,,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,1,current
+EV03-0007,CG-01,信息采集,P1,项目一：5G网络信息采集,contains,主链挂接项目,项目一：5G网络信息采集挂接到CG-01,,P1-T1;P1-T2;P1-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0008,P1,项目一：5G网络信息采集,P1-T1,任务1：室内环境信息采集,contains,项目包含任务,项目一：5G网络信息采集包含任务1：室内环境信息采集,,P1-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0009,P1,项目一：5G网络信息采集,P1-T2,任务2：室外环境信息采集,contains,项目包含任务,项目一：5G网络信息采集包含任务2：室外环境信息采集,,P1-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0010,P1,项目一：5G网络信息采集,P1-T3,任务3：投诉信息采集,contains,项目包含任务,项目一：5G网络信息采集包含任务3：投诉信息采集,,P1-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0011,CG-02,网络测试,P2,项目二：5G网络测试,contains,主链挂接项目,项目二：5G网络测试挂接到CG-02,,P2-T1;P2-T2;P2-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0012,P2,项目二：5G网络测试,P2-T1,任务1：DT/CQT测试准备和执行,contains,项目包含任务,项目二：5G网络测试包含任务1：DT/CQT测试准备和执行,,P2-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0013,P2,项目二：5G网络测试,P2-T2,任务2：5G网络测试问题处理,contains,项目包含任务,项目二：5G网络测试包含任务2：5G网络测试问题处理,,P2-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0014,P2,项目二：5G网络测试,P2-T3,任务3：5G网络测试数据分析,contains,项目包含任务,项目二：5G网络测试包含任务3：5G网络测试数据分析,,P2-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0015,CG-03,信息管理,P3,项目三：5G网络信息管理,contains,主链挂接项目,项目三：5G网络信息管理挂接到CG-03,,P3-T1;P3-T2;P3-T3;P3-T4,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0016,P3,项目三：5G网络信息管理,P3-T1,任务1：5G网管架构和功能,contains,项目包含任务,项目三：5G网络信息管理包含任务1：5G网管架构和功能,,P3-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0017,P3,项目三：5G网络信息管理,P3-T2,任务2：5G网络运行监控,contains,项目包含任务,项目三：5G网络信息管理包含任务2：5G网络运行监控,,P3-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0018,P3,项目三：5G网络信息管理,P3-T3,任务3：5G网络参数检查,contains,项目包含任务,项目三：5G网络信息管理包含任务3：5G网络参数检查,,P3-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0019,P3,项目三：5G网络信息管理,P3-T4,任务4：5G网络参数设置,contains,项目包含任务,项目三：5G网络信息管理包含任务4：5G网络参数设置,,P3-T4,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0020A,CG-04,优化实施,P4,项目四：5G端到端网络优化,contains,主链挂接项目,项目四：5G端到端网络优化承接优化实施环节,,P4-T1;P4-T2;P4-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0020B,CG-05,结果验证,P4,项目四：5G端到端网络优化,contains,主链挂接项目,项目四：5G端到端网络优化承接结果验证环节,,P4-T1;P4-T2;P4-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0021,P4,项目四：5G端到端网络优化,P4-T1,任务1：5G网络优化方案实施,contains,项目包含任务,项目四：5G端到端网络优化包含任务1：5G网络优化方案实施,,P4-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0022,P4,项目四：5G端到端网络优化,P4-T2,任务2：5G网络优化结果验证,contains,项目包含任务,项目四：5G端到端网络优化包含任务2：5G网络优化结果验证,,P4-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0023,P4,项目四：5G端到端网络优化,P4-T3,任务3：5G网络优化报告输出,contains,项目包含任务,项目四：5G端到端网络优化包含任务3：5G网络优化报告输出,,P4-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0024,CG-06,性能提升,P5,项目五：5G全网性能提升,contains,主链挂接项目,项目五：5G全网性能提升挂接到CG-06,,P5-T1;P5-T2;P5-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0025,P5,项目五：5G全网性能提升,P5-T1,任务1：5G全网性能指标采集,contains,项目包含任务,项目五：5G全网性能提升包含任务1：5G全网性能指标采集,,P5-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0026,P5,项目五：5G全网性能提升,P5-T2,任务2：5G全网性能提升实施,contains,项目包含任务,项目五：5G全网性能提升包含任务2：5G全网性能提升实施,,P5-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0027,P5,项目五：5G全网性能提升,P5-T3,任务3：5G全网性能提升验证,contains,项目包含任务,项目五：5G全网性能提升包含任务3：5G全网性能提升验证,,P5-T3,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0028,CG-07,信令分析,P6,项目六：5G信令分析,contains,主链挂接项目,项目六：5G信令分析挂接到CG-07,,P6-T1;P6-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0029,P6,项目六：5G信令分析,P6-T1,任务1：5G关键信令流程及解析,contains,项目包含任务,项目六：5G信令分析包含任务1：5G关键信令流程及解析,,P6-T1,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0030,P6,项目六：5G信令分析,P6-T2,任务2：5G信令问题分析及优化,contains,项目包含任务,项目六：5G信令分析包含任务2：5G信令问题分析及优化,,P6-T2,course_skeleton,samples/digital_textbook_overall_prototype/data.js,内部试拆,2,current
+EV03-0031,P2T3-N01,明确分析任务与数据来源,P2T3-N02,完成LOG导入与报告导出,precedes,直接递进,先明确分析对象、LOG来源和测试场景，才能进入导入与字段确认。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0032,P2T3-N01,明确分析任务与数据来源,P2-T3,P2-T3,maps_to_task,能力挂接,作为本任务的数据分析入口。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0033,P2T3-N02,完成LOG导入与报告导出,P2T3-N01,明确分析任务与数据来源,requires,前置基础,导入前必须知道要分析哪类LOG和业务场景。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0034,P2T3-N02,完成LOG导入与报告导出,P2T3-N03,识读关键指标与判断边界,precedes,直接递进,导出字段后才能解释关键指标。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0035,P2T3-N03,识读关键指标与判断边界,P2T3-N02,完成LOG导入与报告导出,requires,前置基础,只有取得字段后才能识读指标。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0036,P2T3-N03,识读关键指标与判断边界,P2T3-N04,判断覆盖类异常,precedes,直接递进,覆盖异常判断依赖RSRP/SINR等指标读法。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0037,P2T3-N03,识读关键指标与判断边界,P4T2-N03,读覆盖指标,supports,支撑判断,结果验证时需要复用关键指标边界。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0038,P2T3-N03,识读关键指标与判断边界,P4T2-N05,读体验与容量指标,supports,支撑判断,验证结论依赖指标变化解释。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0039,P2T3-N04,判断覆盖类异常,P2T3-N03,识读关键指标与判断边界,requires,前置基础,覆盖判断依赖关键指标边界。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0040,P2T3-N04,判断覆盖类异常,P2T3-N06,归纳问题类型与原因链,precedes,直接递进,覆盖异常证据进入原因链归纳。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0041,P2T3-N04,判断覆盖类异常,P4T2-N03,读覆盖指标,supports,支撑判断,复测时可验证覆盖改善是否达成。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0042,P2T3-N05,判断移动性/邻区异常,P2T3-N03,识读关键指标与判断边界,requires,前置基础,移动性和邻区异常判断依赖指标与日志字段识读。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0043,P2T3-N05,判断移动性/邻区异常,P2T3-N06,归纳问题类型与原因链,precedes,直接递进,邻区或切换异常证据进入原因链归纳。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0044,P2T3-N05,判断移动性/邻区异常,P4T2-N04,读移动性指标,supports,支撑判断,复测时需要验证切换或邻区配置调整效果。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0045,P2T3-N06,归纳问题类型与原因链,P2T3-N04,判断覆盖类异常,requires,前置基础,覆盖异常证据是原因链输入之一。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0046,P2T3-N06,归纳问题类型与原因链,P2T3-N05,判断移动性/邻区异常,requires,前置基础,移动性或邻区异常证据是原因链输入之一。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0047,P2T3-N06,归纳问题类型与原因链,P2T3-N07,制定整改建议,precedes,直接递进,只有形成原因链后才能提出整改建议。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0048,P2T3-N06,归纳问题类型与原因链,P4T2-N06,选择判断依据,supports,支撑判断,复测解释需要回看原问题类型和原因链。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0049,P2T3-N07,制定整改建议,P2T3-N06,归纳问题类型与原因链,requires,前置基础,整改建议必须对应原因链。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0050,P2T3-N07,制定整改建议,P2T3-N08,输出分析报告并连接复测,precedes,直接递进,建议形成后才能进入报告表达。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0051,P2T3-N07,制定整改建议,P4-T1,任务 P4-T1 优化实施前置,supports,支撑判断,整改建议可连接后续方案制定或实施任务。,P2-T3,P4-T1,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0052,P2T3-N08,输出分析报告并连接复测,P2T3-N07,制定整改建议,requires,前置基础,报告结论必须包含整改建议和验证方式。,P2-T3,P2-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0053,P2T3-N08,输出分析报告并连接复测,P4T2-N07,形成验收结论,supports,支撑判断,复测报告需要引用原分析结论。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0054,P2T3-N08,输出分析报告并连接复测,P4T2-N08,修正职业表达,supports,支撑判断,结果解释需要回看原问题和建议。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0055,P2T3-N08,输出分析报告并连接复测,P4-T3,任务 P4-T3 优化报告输出,supports,支撑判断,综合优化输出需要复用分析报告表达。,P2-T3,P4-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0056,P4-T1,任务 P4-T1 优化实施前置,P4T2-N01,识别验证场景,precedes,直接递进,优化实施记录是结果验证的直接输入。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0057,P2T3-N08,输出分析报告并连接复测,P4T2-N01,识别验证场景,supports,支撑判断,测试数据分析报告帮助确定复测对象。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0058,P4T2-N01,识别验证场景,P4T2-N02,区分改善与达标,precedes,直接递进,先识别验证对象，再区分改善与达标。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0059,P4T2-N01,识别验证场景,P4T2-N03,读覆盖指标,precedes,直接递进,验证场景决定后续读取哪些指标。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0060,P4T2-N02,区分改善与达标,P4T2-N01,识别验证场景,requires,前置基础,必须先知道验证对象，才能判断改善是否等于达标。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0061,P4T2-N02,区分改善与达标,P4T2-N07,形成验收结论,supports,支撑判断,结论写作必须同时呈现已达标依据和未闭环边界。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0062,P4T2-N02,区分改善与达标,P4T2-N08,修正职业表达,supports,支撑判断,职业表达修正重点处理过度判断。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0063,P2T3-N03,识读关键指标与判断边界,P4T2-N03,读覆盖指标,supports,支撑判断,关键指标读法支撑覆盖结果验证。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0064,P4T2-N03,读覆盖指标,P4T2-N04,读移动性指标,precedes,直接递进,覆盖达标后仍需补看移动性。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0065,P4T2-N03,读覆盖指标,P4T2-N06,选择判断依据,precedes,直接递进,覆盖指标进入依据链分类。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0066,IMG-288,IMG-288 原教材媒体资源,P4T2-N03,读覆盖指标,evidenced_by,资源证据,覆盖优化结果截图需重绘或标注后才能作为教学证据。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0067,P2T3-N05,判断移动性/邻区异常,P4T2-N04,读移动性指标,supports,支撑判断,移动性异常证据链支撑切换结果验证。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0068,P4T2-N04,读移动性指标,P4T2-N03,读覆盖指标,requires,前置基础,覆盖达标后仍需补看移动路径验证。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0069,P4T2-N04,读移动性指标,P4T2-N06,选择判断依据,precedes,直接递进,移动性证据进入依据链分类。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0070,IMG-236,IMG-236 原教材媒体资源,P4T2-N04,读移动性指标,evidenced_by,资源证据,切换流程图需标注测量、判决、执行阶段。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0071,IMG-245,IMG-245 原教材媒体资源,P4T2-N04,读移动性指标,evidenced_by,资源证据,SA切换流程需重绘为教学版。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0072,IMG-289,IMG-289 原教材媒体资源,P4T2-N04,读移动性指标,evidenced_by,资源证据,切换优化结果截图需重绘或标注。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0073,P2T3-N03,识读关键指标与判断边界,P4T2-N05,读体验与容量指标,supports,支撑判断,指标读法支撑体验与容量结果验证。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0074,P4T2-N05,读体验与容量指标,P4T2-N06,选择判断依据,precedes,直接递进,体验与容量指标进入依据链分类。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0075,P4T2-N05,读体验与容量指标,P5-T3,任务 P5-T3 全网性能提升验证,supports,支撑判断,未闭环容量和尾部体验可进入全网性能提升验证。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0076,IMG-290,IMG-290 原教材媒体资源,P4T2-N05,读体验与容量指标,evidenced_by,资源证据,时延结果截图需替换为时延指标对比表。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0077,IMG-291,IMG-291 原教材媒体资源,P4T2-N05,读体验与容量指标,evidenced_by,资源证据,速率结果截图需替换为速率指标对比表。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0078,IMG-292,IMG-292 原教材媒体资源,P4T2-N05,读体验与容量指标,evidenced_by,资源证据,容量结果截图需重绘容量负荷图。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0079,IMG-293,IMG-293 原教材媒体资源,P4T2-N05,读体验与容量指标,evidenced_by,资源证据,掉线结果截图需重绘掉线率证据链图。,,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0080,P4T2-N06,选择判断依据,P4T2-N02,区分改善与达标,requires,前置基础,依据分类必须继承改善与达标边界。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0081,P4T2-N06,选择判断依据,P4T2-N03,读覆盖指标,requires,前置基础,覆盖数据是依据链输入之一。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0082,P4T2-N06,选择判断依据,P4T2-N04,读移动性指标,requires,前置基础,移动性数据是依据链输入之一。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0083,P4T2-N06,选择判断依据,P4T2-N05,读体验与容量指标,requires,前置基础,体验与容量数据是依据链输入之一。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0084,P2T3-N06,归纳问题类型与原因链,P4T2-N06,选择判断依据,supports,支撑判断,问题类型与原因链支撑证据分类。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0085,P4T2-N06,选择判断依据,P4T2-N07,形成验收结论,precedes,直接递进,整理依据链后才能形成验收结论。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0086,P4T2-N07,形成验收结论,P4T2-N06,选择判断依据,requires,前置基础,验收结论必须建立在依据链分类结果上。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0087,P2T3-N08,输出分析报告并连接复测,P4T2-N07,形成验收结论,supports,支撑判断,测试数据分析报告表达支撑验收结论写作。,P2-T3,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0088,P4T2-N07,形成验收结论,P4T2-N08,修正职业表达,precedes,直接递进,提交结论后进入职业表达修正。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0089,P4T2-N07,形成验收结论,P4-T3,任务 P4-T3 优化报告输出,supports,支撑判断,四段式验收结论可进入优化报告输出任务。,P4-T2,P4-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0090,P4T2-N08,修正职业表达,P4T2-N07,形成验收结论,requires,前置基础,必须先有学生提交的验收结论，才能进入职业表达修正。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0091,P4T2-N08,修正职业表达,P4T2-N07,形成验收结论,remediates,问题回流,针对过度判断、依据不足和边界缺失进行二次修订。,P4-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,4,current
+EV03-0092,P4T2-N08,修正职业表达,P4-T3,任务 P4-T3 优化报告输出,supports,支撑判断,修正后的职业表达可进入优化报告输出。,P4-T2,P4-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0093,P4T2-N08,修正职业表达,P5-T3,任务 P5-T3 全网性能提升验证,extends,问题回流,未闭环边界可转入全网性能提升验证。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,4,current
+EV03-0094,P5-T2,任务 P5-T2 性能提升实施,P5T3-N01,确认性能提升方案与验证口径,precedes,直接递进,性能提升方案实施后才能确认验证口径。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0095,P4T2-N07,形成验收结论,P5T3-N01,确认性能提升方案与验证口径,supports,支撑判断,验收结论提供持续提升入口。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0096,P4T2-N08,修正职业表达,P5T3-N01,确认性能提升方案与验证口径,supports,支撑判断,职业表达修正经验支撑验证口径表达。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0097,P5T3-N01,确认性能提升方案与验证口径,P5T3-N02,选择验证数据源与复测路径,precedes,直接递进,先确认验证对象、范围、基线和达成口径，再选择数据源。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0098,P5T3-N02,选择验证数据源与复测路径,P5T3-N01,确认性能提升方案与验证口径,requires,前置基础,数据源选择必须服从验证目标和范围。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0099,P2T3-N01,明确分析任务与数据来源,P5T3-N02,选择验证数据源与复测路径,supports,支撑判断,数据来源确认能力支撑复测路径选择。,P2-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0100,P5T3-N02,选择验证数据源与复测路径,P5T3-N03,建立优化前后KPI对比基线,precedes,直接递进,先确定网管、大数据、路测或回访来源，再建立KPI对比。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0101,IMG-325,IMG-325 原教材媒体资源,P5T3-N02,选择验证数据源与复测路径,evidenced_by,资源证据,性能验证数据源图需重绘为教学化选择图。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0102,P5T3-N03,建立优化前后KPI对比基线,P5T3-N02,选择验证数据源与复测路径,requires,前置基础,KPI对比基线必须基于已确认的数据源。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0103,P2T3-N03,识读关键指标与判断边界,P5T3-N03,建立优化前后KPI对比基线,supports,支撑判断,关键指标读法支撑优化前后KPI解释。,P2-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0104,P5T3-N03,建立优化前后KPI对比基线,P5T3-N04,验证接入与保持类提升效果,precedes,直接递进,接入与保持类效果判断依赖前后KPI基线。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0105,P5T3-N03,建立优化前后KPI对比基线,P5T3-N05,验证移动性、资源与可用类提升效果,precedes,直接递进,移动性、资源和可用类效果判断依赖前后KPI基线。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0106,IMG-326,IMG-326 原教材媒体资源,P5T3-N03,建立优化前后KPI对比基线,evidenced_by,资源证据,数据中心界面需重绘为教学化KPI对比表。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0107,P5T3-N04,验证接入与保持类提升效果,P5T3-N03,建立优化前后KPI对比基线,requires,前置基础,接入与保持类效果判断必须基于优化前后KPI。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0108,P2T3-N05,判断移动性/邻区异常,P5T3-N04,验证接入与保持类提升效果,supports,支撑判断,移动性/邻区异常证据链支撑接入和保持问题解释。,P2-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0109,P4T2-N04,读移动性指标,P5T3-N04,验证接入与保持类提升效果,supports,支撑判断,移动性验证经验支撑掉线和保持类复测。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0110,P5T3-N04,验证接入与保持类提升效果,P5T3-N06,判断未闭环指标与二次分析入口,precedes,直接递进,接入与保持类未闭环问题进入二次分析入口。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0111,IMG-327,IMG-327 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,未下发A2重配截图需标注或重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0112,IMG-328,IMG-328 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,问题分析截图需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0113,IMG-329,IMG-329 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,A2重配正常截图需重绘对照。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0114,IMG-330,IMG-330 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,PDU会话未完全建立截图需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0115,IMG-331,IMG-331 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,网络配置图需版权和清晰度审核。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0116,IMG-332,IMG-332 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,配置截图需重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0117,IMG-333,IMG-333 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,优化过程截图需重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0118,IMG-334,IMG-334 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,PDU会话建立正常截图需重绘对照。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0119,IMG-335,IMG-335 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,弱覆盖导致掉线截图需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0120,IMG-336,IMG-336 原教材媒体资源,P5T3-N04,验证接入与保持类提升效果,evidenced_by,资源证据,掉线效果验证截图需重绘为复测对比图。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0121,P5T3-N05,验证移动性、资源与可用类提升效果,P5T3-N03,建立优化前后KPI对比基线,requires,前置基础,移动性、资源和可用类效果判断必须基于优化前后KPI。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0122,P4T2-N03,读覆盖指标,P5T3-N05,验证移动性、资源与可用类提升效果,supports,支撑判断,覆盖指标读法支撑资源类低速率验证。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0123,P4T2-N05,读体验与容量指标,P5T3-N05,验证移动性、资源与可用类提升效果,supports,支撑判断,体验与容量指标读法支撑资源类和可用类验证。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0124,P5T3-N05,验证移动性、资源与可用类提升效果,P5T3-N06,判断未闭环指标与二次分析入口,precedes,直接递进,移动性、资源和可用类未闭环问题进入二次分析入口。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0125,IMG-337,IMG-337 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,乒乓切换测试图示需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0126,IMG-338,IMG-338 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,乒乓切换效果验证图需重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0127,IMG-339,IMG-339 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,低速率问题截图需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0128,IMG-340,IMG-340 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,低速率复测图需重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0129,IMG-341,IMG-341 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,可用类问题路测图需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0130,IMG-342,IMG-342 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,光链路故障证据需标注。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0131,IMG-343,IMG-343 原教材媒体资源,P5T3-N05,验证移动性、资源与可用类提升效果,evidenced_by,资源证据,可用类复测图需重绘。,,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待媒体审查,7,current
+EV03-0132,P5T3-N06,判断未闭环指标与二次分析入口,P5T3-N04,验证接入与保持类提升效果,requires,前置基础,接入与保持类验证结果是未闭环判断输入之一。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0133,P5T3-N06,判断未闭环指标与二次分析入口,P5T3-N05,验证移动性、资源与可用类提升效果,requires,前置基础,移动性、资源和可用类验证结果是未闭环判断输入之一。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0134,P2T3-N06,归纳问题类型与原因链,P5T3-N06,判断未闭环指标与二次分析入口,supports,支撑判断,问题类型与原因链支撑未闭环分类。,P2-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0135,P5T3-N06,判断未闭环指标与二次分析入口,P5T3-N07,输出全网性能提升验证报告,precedes,直接递进,未闭环清单进入验证报告。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0136,P5T3-N06,判断未闭环指标与二次分析入口,AU-10,AU-10 信令分析与复杂问题复盘,extends,问题回流,需复杂复盘的问题进入信令分析与复杂问题复盘能力。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,1,current
+EV03-0137,P5T3-N06,判断未闭环指标与二次分析入口,P6-T1,任务 P6-T1 关键信令流程及解析,extends,问题回流,后续可用P6任务验证复杂信令问题定位。,P5-T3,P6-T1,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,1,current
+EV03-0138,P5T3-N07,输出全网性能提升验证报告,P5T3-N01,确认性能提升方案与验证口径,requires,前置基础,报告必须包含验证目标和口径。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0139,P5T3-N07,输出全网性能提升验证报告,P5T3-N02,选择验证数据源与复测路径,requires,前置基础,报告必须说明数据来源。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0140,P5T3-N07,输出全网性能提升验证报告,P5T3-N03,建立优化前后KPI对比基线,requires,前置基础,KPI对比基线是报告证据基础。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0141,P5T3-N07,输出全网性能提升验证报告,P5T3-N04,验证接入与保持类提升效果,requires,前置基础,接入与保持类判断进入报告。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0142,P5T3-N07,输出全网性能提升验证报告,P5T3-N05,验证移动性、资源与可用类提升效果,requires,前置基础,移动性、资源和可用类判断进入报告。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0143,P5T3-N07,输出全网性能提升验证报告,P5T3-N06,判断未闭环指标与二次分析入口,requires,前置基础,未闭环问题和后续入口进入报告。,P5-T3,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0144,P4T2-N08,修正职业表达,P5T3-N07,输出全网性能提升验证报告,supports,支撑判断,职业表达修正经验支撑验证报告表达。,P4-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0145,P5T3-N07,输出全网性能提升验证报告,P6-T1,任务 P6-T1 关键信令流程及解析,extends,问题回流,未闭环复杂问题可进入P6复盘。,P5-T3,P6-T1,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,1,current
+EV03-0146,P5T3-N07,输出全网性能提升验证报告,AU-10,AU-10 信令分析与复杂问题复盘,extends,问题回流,验证报告中的复杂问题清单连接信令分析与复杂问题复盘。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,1,current
+EV03-0147,P5T3-N06,判断未闭环指标与二次分析入口,P6T2-N01,明确信令问题分析任务与数据来源,requires,前置基础,未闭环指标进入信令复盘前需明确分析任务。,P5-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0148,P2T3-N01,明确分析任务与数据来源,P6T2-N01,明确信令问题分析任务与数据来源,supports,支撑判断,测试数据来源识别支撑信令分析任务界定。,P2-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0149,P6-T1,任务 P6-T1 关键信令流程及解析,P6T2-N01,明确信令问题分析任务与数据来源,supports,支撑判断,关键信令流程为问题分析提供先修支撑。,,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0150,P6T2-N01,明确信令问题分析任务与数据来源,P6T2-N02,区分覆盖、接入、切换、掉线类问题,precedes,直接递进,先确认问题和材料再分类。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0151,P6T2-N01,明确信令问题分析任务与数据来源,P6T2-N02,区分覆盖、接入、切换、掉线类问题,requires,前置基础,先明确材料再进行问题分类。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0152,P2T3-N06,归纳问题类型与原因链,P6T2-N02,区分覆盖、接入、切换、掉线类问题,supports,支撑判断,问题类型归纳经验支撑四类信令问题分类。,P2-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0153,P4T2-N03,读覆盖指标,P6T2-N02,区分覆盖、接入、切换、掉线类问题,supports,支撑判断,覆盖指标读法支撑覆盖类问题判断。,P4-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0154,P4T2-N04,读移动性指标,P6T2-N02,区分覆盖、接入、切换、掉线类问题,supports,支撑判断,移动性指标读法支撑切换类问题判断。,P4-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0155,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N03,建立接入类问题排查链,precedes,直接递进,接入类问题进入接入排查链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0156,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N04,建立切换类问题信令证据链,precedes,直接递进,切换类问题进入切换证据链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0157,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N05,建立掉线类问题复盘链,precedes,直接递进,掉线类问题进入掉线复盘链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0158,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N03,建立接入类问题排查链,requires,前置基础,接入类问题分类后进入接入排查链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0159,P6-T1,任务 P6-T1 关键信令流程及解析,P6T2-N03,建立接入类问题排查链,supports,支撑判断,注册流程和PDU会话流程支撑接入类问题分析。,,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0160,P5T3-N04,验证接入与保持类提升效果,P6T2-N03,建立接入类问题排查链,supports,支撑判断,接入与保持类验证中未闭环问题可进入接入排查。,P5-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0161,P6T2-N03,建立接入类问题排查链,P6T2-N06,提出优化建议并说明适用边界,precedes,直接递进,排查链完成后提出优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0162,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N04,建立切换类问题信令证据链,requires,前置基础,切换类问题分类后进入切换证据链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0163,P4T2-N04,读移动性指标,P6T2-N04,建立切换类问题信令证据链,supports,支撑判断,移动性指标读法支撑切换类问题证据判断。,P4-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0164,P5T3-N05,验证移动性、资源与可用类提升效果,P6T2-N04,建立切换类问题信令证据链,supports,支撑判断,移动性验证中未闭环问题可进入切换信令复盘。,P5-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0165,P6-T1,任务 P6-T1 关键信令流程及解析,P6T2-N04,建立切换类问题信令证据链,supports,支撑判断,RRCReconfiguration解析支撑切换命令识别。,,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,3,current
+EV03-0166,P6T2-N04,建立切换类问题信令证据链,P6T2-N06,提出优化建议并说明适用边界,precedes,直接递进,切换证据链完成后提出优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0167,P6T2-N02,区分覆盖、接入、切换、掉线类问题,P6T2-N05,建立掉线类问题复盘链,requires,前置基础,掉线类问题分类后进入掉线复盘链。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0168,P4T2-N06,选择判断依据,P6T2-N05,建立掉线类问题复盘链,supports,支撑判断,初步验收结论中的掉线异常可进入信令复盘。,P4-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0169,P5T3-N06,判断未闭环指标与二次分析入口,P6T2-N05,建立掉线类问题复盘链,supports,支撑判断,未闭环掉线指标进入复杂复盘。,P5-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0170,P6T2-N05,建立掉线类问题复盘链,P6T2-N06,提出优化建议并说明适用边界,precedes,直接递进,复盘原因后提出优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0171,P6T2-N03,建立接入类问题排查链,P6T2-N06,提出优化建议并说明适用边界,requires,前置基础,接入问题排查结论支撑优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0172,P6T2-N04,建立切换类问题信令证据链,P6T2-N06,提出优化建议并说明适用边界,requires,前置基础,切换证据链支撑优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0173,P6T2-N05,建立掉线类问题复盘链,P6T2-N06,提出优化建议并说明适用边界,requires,前置基础,掉线复盘结论支撑优化建议。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0174,P2T3-N07,制定整改建议,P6T2-N06,提出优化建议并说明适用边界,supports,支撑判断,整改建议表达经验支撑复杂问题建议。,P2-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0175,P6T2-N06,提出优化建议并说明适用边界,P6T2-N07,输出信令问题分析与复盘报告,precedes,直接递进,先形成建议再写复盘报告。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,1,current
+EV03-0176,P6T2-N06,提出优化建议并说明适用边界,P4T2-N07,形成验收结论,remediates,问题回流,复杂问题建议可反哺优化验收。,P6-T2,P4-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,4,current
+EV03-0177,P6T2-N06,提出优化建议并说明适用边界,P5T3-N03,建立优化前后KPI对比基线,extends,问题回流,建议实施后需要回到性能对比基线复测。,P6-T2,P5-T3,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,4,current
+EV03-0178,P6T2-N06,提出优化建议并说明适用边界,P6T2-N07,输出信令问题分析与复盘报告,requires,前置基础,优化建议完成后才能形成复盘报告。,P6-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0179,P2T3-N08,输出分析报告并连接复测,P6T2-N07,输出信令问题分析与复盘报告,supports,支撑判断,分析报告表达经验支撑信令报告。,P2-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0180,P4T2-N08,修正职业表达,P6T2-N07,输出信令问题分析与复盘报告,supports,支撑判断,职业表达修正经验支撑复盘报告。,P4-T2,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0181,P5T3-N07,输出全网性能提升验证报告,P6T2-N07,输出信令问题分析与复盘报告,supports,支撑判断,全网性能验证报告支撑信令复盘报告结构。,P5-T3,P6-T2,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,待专业复核,2,current
+EV03-0182,P6T2-N07,输出信令问题分析与复盘报告,AU-10,AU-10 信令分析与复杂问题复盘,assesses,能力挂接,信令复盘报告作为AU-10阶段性评价产出。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0183,P2T3-N01,明确分析任务与数据来源,AU-03,AU-03,maps_to_ability,能力挂接,明确分析任务与数据来源主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0184,P2T3-N02,完成LOG导入与报告导出,AU-03,AU-03,maps_to_ability,能力挂接,完成LOG导入与报告导出主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0185,P2T3-N03,识读关键指标与判断边界,AU-03,AU-03,maps_to_ability,能力挂接,识读关键指标与判断边界主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0186,P2T3-N04,判断覆盖类异常,AU-03,AU-03,maps_to_ability,能力挂接,判断覆盖类异常主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0187,P2T3-N05,判断移动性/邻区异常,AU-03,AU-03,maps_to_ability,能力挂接,判断移动性/邻区异常主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0188,P2T3-N06,归纳问题类型与原因链,AU-05,AU-05,maps_to_ability,能力挂接,归纳问题类型与原因链主挂AU-05，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0189,P2T3-N07,制定整改建议,AU-05,AU-05,maps_to_ability,能力挂接,制定整改建议主挂AU-05，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0190,P2T3-N08,输出分析报告并连接复测,AU-03,AU-03,maps_to_ability,能力挂接,输出分析报告并连接复测主挂AU-03，用于能力单元统计、资源组织和评价归集。,P2-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0191,P4T2-N01,识别验证场景,AU-07,AU-07,maps_to_ability,能力挂接,识别验证场景主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0192,P4T2-N02,区分改善与达标,AU-07,AU-07,maps_to_ability,能力挂接,区分改善与达标主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0193,P4T2-N03,读覆盖指标,AU-07,AU-07,maps_to_ability,能力挂接,读覆盖指标主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0194,P4T2-N04,读移动性指标,AU-07,AU-07,maps_to_ability,能力挂接,读移动性指标主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0195,P4T2-N05,读体验与容量指标,AU-07,AU-07,maps_to_ability,能力挂接,读体验与容量指标主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0196,P4T2-N06,选择判断依据,AU-07,AU-07,maps_to_ability,能力挂接,选择判断依据主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0197,P4T2-N07,形成验收结论,AU-07,AU-07,maps_to_ability,能力挂接,形成验收结论主挂AU-07，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0198,P4T2-N08,修正职业表达,AU-08,AU-08,maps_to_ability,能力挂接,修正职业表达主挂AU-08，用于能力单元统计、资源组织和评价归集。,P4-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0199,P5T3-N01,确认性能提升方案与验证口径,AU-09,AU-09,maps_to_ability,能力挂接,确认性能提升方案与验证口径主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0200,P5T3-N02,选择验证数据源与复测路径,AU-09,AU-09,maps_to_ability,能力挂接,选择验证数据源与复测路径主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0201,P5T3-N03,建立优化前后KPI对比基线,AU-09,AU-09,maps_to_ability,能力挂接,建立优化前后KPI对比基线主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0202,P5T3-N04,验证接入与保持类提升效果,AU-09,AU-09,maps_to_ability,能力挂接,验证接入与保持类提升效果主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0203,P5T3-N05,验证移动性、资源与可用类提升效果,AU-09,AU-09,maps_to_ability,能力挂接,验证移动性、资源与可用类提升效果主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0204,P5T3-N06,判断未闭环指标与二次分析入口,AU-09,AU-09,maps_to_ability,能力挂接,判断未闭环指标与二次分析入口主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0205,P5T3-N07,输出全网性能提升验证报告,AU-09,AU-09,maps_to_ability,能力挂接,输出全网性能提升验证报告主挂AU-09，用于能力单元统计、资源组织和评价归集。,P5-T3,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0206,P6T2-N01,明确信令问题分析任务与数据来源,AU-10,AU-10,maps_to_ability,能力挂接,明确信令问题分析任务与数据来源主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0207,P6T2-N02,区分覆盖、接入、切换、掉线类问题,AU-10,AU-10,maps_to_ability,能力挂接,区分覆盖、接入、切换、掉线类问题主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0208,P6T2-N03,建立接入类问题排查链,AU-10,AU-10,maps_to_ability,能力挂接,建立接入类问题排查链主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0209,P6T2-N04,建立切换类问题信令证据链,AU-10,AU-10,maps_to_ability,能力挂接,建立切换类问题信令证据链主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0210,P6T2-N05,建立掉线类问题复盘链,AU-10,AU-10,maps_to_ability,能力挂接,建立掉线类问题复盘链主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0211,P6T2-N06,提出优化建议并说明适用边界,AU-10,AU-10,maps_to_ability,能力挂接,提出优化建议并说明适用边界主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current
+EV03-0212,P6T2-N07,输出信令问题分析与复盘报告,AU-10,AU-10,maps_to_ability,能力挂接,输出信令问题分析与复盘报告主挂AU-10，用于能力单元统计、资源组织和评价归集。,P6-T2,,v2_1_relation_review,reports/课程能力图谱V2关系边表.csv,内部试拆,5,current

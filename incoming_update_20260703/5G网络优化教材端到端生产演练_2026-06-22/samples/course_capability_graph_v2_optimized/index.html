@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>课程能力图谱V2优化版</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">课程能力图谱V2优化版</p>
+      <h1>从目录映射升级为岗位工作过程图谱</h1>
+      <p>显式连接课程标准、岗位任务、能力单元、项目任务、资源活动和评价审核，并加入P2-T3、P4-T2、P5-T3、P6-T2四任务链条验证。</p>
+    </div>
+    <div class="status-box">
+      <strong>当前定位</strong>
+      <span>评审优化版，不是专家复核最终版</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel">
+      <div class="section-title">
+        <h2>依据层</h2>
+        <p>图谱不从教材目录开始，而从课程标准、岗位任务和数字教材要求开始。</p>
+      </div>
+      <div id="basisLayer" class="basis-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>岗位工作过程主链</h2>
+        <p>主链改为真实工作过程：明确需求、测试采集、数据识读、问题定位、优化实施、效果验证、持续复盘。</p>
+      </div>
+      <div id="jobChain" class="job-chain"></div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>四任务链条验证</h2>
+        <p>当前只证明四个代表任务的内部链条有条件成立，不代表整本教材已完成专业定稿。</p>
+      </div>
+      <div id="taskChain" class="task-chain"></div>
+    </section>
+
+    <section class="workbench">
+      <div class="panel map-panel">
+        <div class="section-title">
+          <h2>能力单元与任务映射</h2>
+          <p>项目和任务不再是主骨架，而是挂接到能力单元和岗位过程上。</p>
+        </div>
+        <div id="abilityUnits" class="ability-grid"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-title">
+        <h2>详细能力节点试拆</h2>
+        <p>P4-T2保留为深样章基线，P2-T3、P5-T3、P6-T2用于检验这套拆分方法能否迁移到数据分析、持续提升和信令复盘任务。</p>
+      </div>
+      <div id="deepNodes" class="deep-grid"></div>
+    </section>
+  </main>
+
+  <aside id="detailPanel" class="detail-panel" aria-label="节点详情" aria-hidden="true"></aside>
+
+  <script src="./data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

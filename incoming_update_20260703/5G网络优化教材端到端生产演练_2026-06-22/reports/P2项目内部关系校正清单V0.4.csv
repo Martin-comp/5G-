@@ -1,0 +1,7 @@
+﻿relation_review_id,source_relation_id,source_node_id,target_node_id,current_relation_type,recommended_relation_type,chain_role,student_visible_explanation,teacher_use_note,review_status,next_action
+P2REL-V04-001,EV04-INC-P2T1-027,P2T1-N03,P2T2-N02,支撑判断,问题回流,exception_branch,如果设备或软件连通性检查没有通过，先处理问题，再继续采集或分析。,课堂中用于说明“不能带着不可用设备继续做数据分析”。,待专业复核,保留关系但按链条角色重写学生端说明，后续提交专业复核。
+P2REL-V04-002,EV04-INC-P2T1-028,P2T1-N05,P2T2-N01,问题回流,问题回流,exception_branch,如果路测采集中出现异常事件，先判断异常影响范围，再决定是否继续。,用于引导学生把异常记录转入问题处理，而不是直接跳到结论。,待专业复核,保留关系但按链条角色重写学生端说明，后续提交专业复核。
+P2REL-V04-003,EV04-INC-P2T1-029,P2T1-N07,P2T3-N01,直接递进,直接递进,normal_mainline,测试资料包整理完成后，就可以确认数据来源并开始分析任务。,这是无异常情况下从采集进入分析的主线。,内部试拆,保留关系但按链条角色重写学生端说明，后续提交专业复核。
+P2REL-V04-004,EV04-INC-P2T1-030,P2T1-N07,P2T3-N02,直接递进,直接递进,normal_mainline,LOG文件准备好后，下一步是导入并核对报告字段。,用于说明数据交付包进入LOG导入流程。,内部试拆,保留关系但按链条角色重写学生端说明，后续提交专业复核。
+P2REL-V04-005,EV03A-INC-P2T2-007,P2T2-N04,P2T3-N01,支撑判断,支撑判断,data_usability_support,问题处理记录能说明这份数据为什么这样采集、哪些异常已经处理。,用于讲解异常处理记录如何成为数据分析背景。,待专业复核,保留关系但按链条角色重写学生端说明，后续提交专业复核。
+P2REL-V04-006,EV03A-INC-P2T2-008,P2T2-N02,P2T3-N02,支撑判断,支撑判断,data_usability_support,数据保存和完整性检查通过后，LOG导入才有分析价值。,用于强调数据完整性是分析前提。,待专业复核,保留关系但按链条角色重写学生端说明，后续提交专业复核。

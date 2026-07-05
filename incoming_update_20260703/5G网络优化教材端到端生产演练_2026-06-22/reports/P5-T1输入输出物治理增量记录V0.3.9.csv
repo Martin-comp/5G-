@@ -1,0 +1,13 @@
+﻿asset_id,asset_name,asset_type,source_or_output,governance_role,graph_binding,review_status,current_use,next_action,path
+A-V039-INC-P5T1-001,P5-T1基于V0.3.9主数据补拆验证实施计划,governance_plan,output,明确P5-T1补拆边界、候选节点、关系预案和门禁,P5-T1;P5T1-N01-P5T1-N08,internal_plan,作为P5-T1受控补拆执行依据,生成补拆验证报告和增量样表,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1基于V0.3.9主数据补拆验证实施计划.md
+A-V039-INC-P5T1-002,P5-T1基于V0.3.9主数据补拆验证报告,verification_report,output,记录P5-T1补拆验证结果和边界,P5-T1;P5T1-N01-P5T1-N08,candidate_generated,作为P5-T1增量结构说明,进入结构校验和内部评审,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1基于V0.3.9主数据补拆验证报告.md
+A-V039-INC-P5T1-003,P5-T1详细能力节点主数据增量样表V0.3.9,node_increment_table,output,8个P5-T1详细能力节点候选增量,P5T1-N01-P5T1-N08,candidate_generated,作为节点增量候选,结构校验,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1详细能力节点主数据增量样表V0.3.9.csv
+A-V039-INC-P5T1-004,P5-T1关系增量样表V0.3.9,edge_increment_table,output,P5-T1内部、P5-T3支撑和外部支撑关系候选增量,P5-T1;P5-T3;AU-09,candidate_generated,作为关系增量候选,结构校验,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1关系增量样表V0.3.9.csv
+A-V039-INC-P5T1-005,P5-T1资源活动评价挂接增量样表V0.3.9,binding_increment_table,output,P5-T1资源、活动、评价候选挂接,P5T1-N01-P5T1-N08,candidate_generated,作为挂接增量候选,结构校验,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1资源活动评价挂接增量样表V0.3.9.csv
+A-V039-INC-P5T1-006,P5-T1输入输出物治理增量记录V0.3.9,asset_increment_table,output,P5-T1输入输出物治理记录,P5-T1,candidate_generated,作为资产治理候选,结构校验,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1输入输出物治理增量记录V0.3.9.csv
+A-V039-INC-P5T1-007,P5-T1风险治理扩展增量样表V0.4,risk_increment_table,output,P5-T1专业、媒体、数据安全和学生正文风险治理,P5-T1;P5T1-N01-P5T1-N08,candidate_generated,作为V0.4风险旁挂候选,结构校验,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1风险治理扩展增量样表V0.4.csv
+A-V039-INC-P5T1-008,P5-T1增量结构校验记录V0.3.9,validation_record,output,校验P5-T1增量字段、ID、关系端点、挂接和风险引用,P5-T1,planned,待生成,生成内部评审报告,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1增量结构校验记录V0.3.9.md
+A-V039-INC-P5T1-009,P5-T1增量补拆内部评审报告V0.3.9,internal_review,output,评审P5-T1节点颗粒度、链条支撑和风险门禁,P5-T1,planned,待生成,判断是否短复核或修订,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/P5-T1增量补拆内部评审报告V0.3.9.md
+A-V039-INC-P5T1-010,P5-T1原教材文本,source_textbook_section,input,P5-T1原文内容母本,P5-T1,source_received,作为原文诊断和节点拆分来源,不得直接作为学生正文,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/extracted/textbook.md
+A-V039-INC-P5T1-011,P5-T1原教材媒体image303-image317,media_source_pool,input,P5-T1涉及的原教材图片和仿真系统截图,P5-T1;media,pending_media_review,作为媒体审查和重绘来源,逐图审查、重绘或替换,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/assets/media
+A-V039-INC-P5T1-012,第十类普通任务增量验证对象选择说明V0.3.9,selection_report,input,确定P5-T1作为第十类普通任务验证对象,P5-T1,accepted_as_precondition,作为P5-T1实施计划前置依据,已接续到P5-T1实施计划,/Users/ny/Downloads/5G网络优化教材端到端生产演练_2026-06-22/reports/第十类普通任务增量验证对象选择说明V0.3.9.md

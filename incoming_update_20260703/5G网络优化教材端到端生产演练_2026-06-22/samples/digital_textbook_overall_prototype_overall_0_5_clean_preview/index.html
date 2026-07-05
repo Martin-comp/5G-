@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5G网络优化教材（高级）数字教材预览版</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">数字教材预览版</p>
+      <h1>5G网络优化教材（高级）</h1>
+      <p class="subhead">项目任务导学 · 课程能力图谱 · 多资源学习活动</p>
+    </div>
+    <nav class="view-tabs" aria-label="数字教材视图">
+      <button class="tab is-active" data-view="course" type="button">课程</button>
+      <button class="tab" data-view="project" type="button">项目</button>
+      <button class="tab" data-view="graph" type="button">图谱</button>
+      <button class="tab" data-view="teacher" type="button">教师</button>
+      <button class="support-toggle" id="platformSupportToggle" type="button">平台支持</button>
+    </nav>
+  </header>
+
+  <section id="platformSupportPanel" class="platform-support-panel" hidden aria-label="平台支持"></section>
+
+  <main class="layout" id="pageLayout" data-view="course">
+    <aside id="leftRail" class="project-rail" aria-label="二级导航">
+    </aside>
+
+    <section id="workspace" class="workspace" aria-live="polite"></section>
+
+    <aside id="contextPanel" class="context-panel" aria-label="学习上下文"></aside>
+  </main>
+
+  <script src="./data.js"></script>
+  <script src="./course_capability_graph_v2_relation_review/data.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

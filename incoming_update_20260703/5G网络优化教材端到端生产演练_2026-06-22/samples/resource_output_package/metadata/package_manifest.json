@@ -1,0 +1,167 @@
+{
+  "package_id": "P4T2_RESOURCE_OUTPUT_DRAFT_20260622",
+  "package_type": "publisher_editable_resource_package",
+  "textbook": "5G网络优化教材（高级）",
+  "scope": "项目四：5G端到端网络优化 / 任务2：5G网络优化结果验证",
+  "input_level": "L1+",
+  "excluded_basis": [
+    "1+X证书标准"
+  ],
+  "basis": [
+    {
+      "name": "现代通信技术专业教学标准（高职专科，2025）",
+      "source": "教育部"
+    },
+    {
+      "name": "现代通信工程专业教学标准（职教本科，2025）",
+      "source": "教育部"
+    },
+    {
+      "name": "信息通信网络运行管理员国家职业技能标准（2019）",
+      "source": "人社部/工信部"
+    },
+    {
+      "name": "T/CADPA 55-58、64-67 数字教材团体标准",
+      "source": "中国音像与数字出版协会"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "IMG-236",
+      "file": "resources/images/image236.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-245",
+      "file": "resources/images/image245.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-246",
+      "file": "resources/images/image246.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-249",
+      "file": "resources/images/image249.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-287",
+      "file": "resources/images/image287.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-288",
+      "file": "resources/images/image288.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-289",
+      "file": "resources/images/image289.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-290",
+      "file": "resources/images/image290.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-291",
+      "file": "resources/images/image291.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-292",
+      "file": "resources/images/image292.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "IMG-293",
+      "file": "resources/images/image293.png",
+      "type": "image",
+      "source": "extracted_from_docx",
+      "copyright_status": "待确认",
+      "review_status": "待编辑审核"
+    },
+    {
+      "resource_id": "TXT-P4T2-CONTENT",
+      "file": "content/p4t2_content_blocks.md",
+      "type": "text",
+      "source": "ai_structured_from_textbook",
+      "copyright_status": "派生内容，待确认",
+      "review_status": "待专家审核"
+    },
+    {
+      "resource_id": "GRAPH-P4T2",
+      "file": "graph/p4t2_capability_graph.json",
+      "type": "capability_graph",
+      "source": "ai_generated_from_textbook_and_standards",
+      "copyright_status": "自生成结构化数据",
+      "review_status": "待专家审核"
+    },
+    {
+      "resource_id": "ASSESS-P4T2",
+      "file": "assessment/p4t2_assessment_bank.json",
+      "type": "assessment",
+      "source": "textbook_questions_structured_by_ai",
+      "copyright_status": "派生结构化题库，待确认",
+      "review_status": "待命题审核"
+    },
+    {
+      "resource_id": "CARD-MANIFEST-P4T2",
+      "file": "metadata/card_manifest.csv",
+      "type": "card_manifest",
+      "source": "ai_structured_from_textbook_and_capability_graph",
+      "copyright_status": "自生成结构化数据",
+      "review_status": "待教学审核"
+    },
+    {
+      "resource_id": "CARD-CONTENT-P4T2",
+      "file": "content/p4t2_card_contents.md",
+      "type": "card_content",
+      "source": "ai_structured_from_textbook_and_card_design",
+      "copyright_status": "派生内容，待确认",
+      "review_status": "待专家审核"
+    }
+  ],
+  "quality_status": "draft_not_for_publication",
+  "required_human_reviews": [
+    "政治方向与价值导向审核",
+    "通信专业准确性审核",
+    "版权与授权审核",
+    "编校质量审核",
+    "技术兼容性测试",
+    "平台适配审核"
+  ]
+}

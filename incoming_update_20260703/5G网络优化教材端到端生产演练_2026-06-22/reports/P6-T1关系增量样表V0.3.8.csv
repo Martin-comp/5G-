@@ -1,0 +1,47 @@
+﻿v03_edge_id,source_node_id,source_node_name,target_node_id,target_node_name,relation_raw_type,relation_type,relation_summary,source_task_id,target_task_id,edge_scope,source_file,review_status,display_priority,version_status
+EV038-INC-P6T1-001,P6-T1,任务1：5G关键信令流程及解析,P6T1-N01,明确信令流程学习任务与4G/5G关键差异,decomposes,任务拆分详细节点,P6-T1补拆进入明确信令流程学习任务与4G/5G关键差异节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-002,P6-T1,任务1：5G关键信令流程及解析,P6T1-N02,建立5G SA注册流程框架,decomposes,任务拆分详细节点,P6-T1补拆进入建立5G SA注册流程框架节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-003,P6-T1,任务1：5G关键信令流程及解析,P6T1-N03,识读注册关键消息与核心字段,decomposes,任务拆分详细节点,P6-T1补拆进入识读注册关键消息与核心字段节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-004,P6-T1,任务1：5G关键信令流程及解析,P6T1-N04,建立PDU会话建立流程与用户面开通路径,decomposes,任务拆分详细节点,P6-T1补拆进入建立PDU会话建立流程与用户面开通路径节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-005,P6-T1,任务1：5G关键信令流程及解析,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,decomposes,任务拆分详细节点,P6-T1补拆进入识读MIB/SIB1系统消息与驻留入口节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-006,P6-T1,任务1：5G关键信令流程及解析,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,decomposes,任务拆分详细节点,P6-T1补拆进入判断RRCReconfiguration在不同场景中的作用节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-007,P6-T1,任务1：5G关键信令流程及解析,P6T1-N07,使用信令分析界面定位证据入口,decomposes,任务拆分详细节点,P6-T1补拆进入使用信令分析界面定位证据入口节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-008,P6-T1,任务1：5G关键信令流程及解析,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,decomposes,任务拆分详细节点,P6-T1补拆进入分析5G重选到4G案例并连接复杂复盘节点。,,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-009,P6T1-N01,明确信令流程学习任务与4G/5G关键差异,P6T1-N02,建立5G SA注册流程框架,precedes,直接递进,明确信令流程学习任务与4G/5G关键差异之后进入建立5G SA注册流程框架。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-010,P6T1-N02,建立5G SA注册流程框架,P6T1-N03,识读注册关键消息与核心字段,precedes,直接递进,建立5G SA注册流程框架之后进入识读注册关键消息与核心字段。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-011,P6T1-N03,识读注册关键消息与核心字段,P6T1-N04,建立PDU会话建立流程与用户面开通路径,precedes,直接递进,识读注册关键消息与核心字段之后进入建立PDU会话建立流程与用户面开通路径。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-012,P6T1-N04,建立PDU会话建立流程与用户面开通路径,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,precedes,直接递进,建立PDU会话建立流程与用户面开通路径之后进入识读MIB/SIB1系统消息与驻留入口。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-013,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,precedes,直接递进,识读MIB/SIB1系统消息与驻留入口之后进入判断RRCReconfiguration在不同场景中的作用。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-014,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,P6T1-N07,使用信令分析界面定位证据入口,precedes,直接递进,判断RRCReconfiguration在不同场景中的作用之后进入使用信令分析界面定位证据入口。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-015,P6T1-N07,使用信令分析界面定位证据入口,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,precedes,直接递进,使用信令分析界面定位证据入口之后进入分析5G重选到4G案例并连接复杂复盘。,P6-T1,P6-T1,task_increment,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-016,P6T1-N01,明确信令流程学习任务与4G/5G关键差异,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,明确信令流程学习任务与4G/5G关键差异主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-017,P6T1-N02,建立5G SA注册流程框架,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,建立5G SA注册流程框架主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-018,P6T1-N03,识读注册关键消息与核心字段,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,识读注册关键消息与核心字段主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-019,P6T1-N04,建立PDU会话建立流程与用户面开通路径,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,建立PDU会话建立流程与用户面开通路径主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-020,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,识读MIB/SIB1系统消息与驻留入口主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-021,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,判断RRCReconfiguration在不同场景中的作用主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-022,P6T1-N07,使用信令分析界面定位证据入口,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,使用信令分析界面定位证据入口主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-023,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,AU-10,信令分析与复杂问题复盘,maps_to,能力挂接,分析5G重选到4G案例并连接复杂复盘主挂AU-10，用于P6-T1流程解析与P6-T2复盘支撑。,P6-T1,,ability_binding,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,内部试拆,2,candidate
+EV038-INC-P6T1-024,P6T1-N02,建立5G SA注册流程框架,P6T2-N03,建立接入类问题排查链,supports,支撑判断,注册流程支撑接入类问题排查。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-025,P6T1-N03,识读注册关键消息与核心字段,P6T2-N03,建立接入类问题排查链,supports,支撑判断,注册关键消息字段支撑接入类问题排查。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-026,P6T1-N04,建立PDU会话建立流程与用户面开通路径,P6T2-N03,建立接入类问题排查链,supports,支撑判断,PDU会话流程支撑会话建立和用户面异常分析。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-027,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,P6T2-N02,区分覆盖、接入、切换、掉线类问题,supports,支撑判断,系统消息支撑驻留、覆盖和重选类问题分类。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-028,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,P6T2-N04,建立切换类问题信令证据链,supports,支撑判断,RRC重配场景判断支撑切换命令和测量控制识别。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-029,P6T1-N07,使用信令分析界面定位证据入口,P6T2-N01,明确信令问题分析任务与数据来源,supports,支撑判断,工具证据入口支撑P6-T2问题分析材料定位。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-030,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,P6T2-N02,区分覆盖、接入、切换、掉线类问题,supports,支撑判断,重选案例支撑系统消息和异系统重选问题分类。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-031,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,P6T2-N07,输出信令问题分析与复盘报告,supports,支撑判断,小案例证据链可进入复杂复盘报告表达。,P6-T1,P6-T2,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-032,P5T3-N06,判断未闭环指标与二次分析入口,P6T1-N01,明确信令流程学习任务与4G/5G关键差异,supports,支撑判断,未闭环指标进入信令学习前需明确流程基础。,P5-T3,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-033,P5T3-N06,判断未闭环指标与二次分析入口,P6T1-N07,使用信令分析界面定位证据入口,supports,支撑判断,未闭环问题需要回到信令分析工具定位证据入口。,P5-T3,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-034,P5T3-N04,验证接入与保持类提升效果,P6T1-N02,建立5G SA注册流程框架,supports,支撑判断,接入与保持类验证需要注册流程基础。,P5-T3,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-035,P5T3-N04,验证接入与保持类提升效果,P6T1-N04,建立PDU会话建立流程与用户面开通路径,supports,支撑判断,接入与保持类验证可连接PDU会话流程。,P5-T3,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-036,P4T2-N04,读移动性指标,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,supports,支撑判断,移动性指标判断需要理解RRC重配与切换场景。,P4-T2,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-037,P4T2-N04,读移动性指标,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,supports,支撑判断,移动性异常可连接重选案例证据链。,P4-T2,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-038,P2T3-N03,识读关键指标与判断边界,P6T1-N07,使用信令分析界面定位证据入口,supports,支撑判断,指标读法支撑信令工具证据入口选择。,P2-T3,P6-T1,cross_task_support,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待专业复核,1,candidate
+EV038-INC-P6T1-039,P6T1-M01,明确信令流程学习任务与4G/5G关键差异媒体审查对象,P6T1-N01,明确信令流程学习任务与4G/5G关键差异,evidences,资源证据,明确信令流程学习任务与4G/5G关键差异相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-040,P6T1-M02,建立5G SA注册流程框架媒体审查对象,P6T1-N02,建立5G SA注册流程框架,evidences,资源证据,建立5G SA注册流程框架相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-041,P6T1-M03,识读注册关键消息与核心字段媒体审查对象,P6T1-N03,识读注册关键消息与核心字段,evidences,资源证据,识读注册关键消息与核心字段相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-042,P6T1-M04,建立PDU会话建立流程与用户面开通路径媒体审查对象,P6T1-N04,建立PDU会话建立流程与用户面开通路径,evidences,资源证据,建立PDU会话建立流程与用户面开通路径相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-043,P6T1-M05,识读MIB/SIB1系统消息与驻留入口媒体审查对象,P6T1-N05,识读MIB/SIB1系统消息与驻留入口,evidences,资源证据,识读MIB/SIB1系统消息与驻留入口相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-044,P6T1-M06,判断RRCReconfiguration在不同场景中的作用媒体审查对象,P6T1-N06,判断RRCReconfiguration在不同场景中的作用,evidences,资源证据,判断RRCReconfiguration在不同场景中的作用相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-045,P6T1-M07,使用信令分析界面定位证据入口媒体审查对象,P6T1-N07,使用信令分析界面定位证据入口,evidences,资源证据,使用信令分析界面定位证据入口相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
+EV038-INC-P6T1-046,P6T1-M08,分析5G重选到4G案例并连接复杂复盘媒体审查对象,P6T1-N08,分析5G重选到4G案例并连接复杂复盘,evidences,资源证据,分析5G重选到4G案例并连接复杂复盘相关媒体需审查、重绘或标注后才能进入学生端。,,P6-T1,resource_evidence,reports/P6-T1基于V0.3.8主数据补拆验证实施计划.md,待媒体审查,3,candidate
