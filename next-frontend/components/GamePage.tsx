@@ -55,13 +55,13 @@ const projectGames: Record<string, ProjectGame> = {
   P1: {
     projectId: 'P1',
     taskId: 'P1-T3',
-    type: '线索采集配对',
-    title: '投诉线索采集闯关',
-    intro: '点击采集链路上的关键节点，选择能把投诉转化为可验证问题的材料。',
+    type: 'Deck-building 线索构筑',
+    title: '投诉线索采集卡牌闯关',
+    intro: '通过时间、位置、业务现象等线索卡，把模糊投诉构筑成可复现、可测试的问题输入。',
     correctNodeIds: ['complaint'],
     requiredEvidenceCount: 2,
-    successText: '判断正确：投诉时间、位置和业务现象能把“感觉卡”转化为可验证的网络问题线索。',
-    starterQuestions: ['投诉信息为什么要先问时间和位置？', '采集材料和后续测试有什么关系？'],
+    successText: '构筑成功：时间 + 位置 + 业务现象 + 频次 + 用户原话，形成可复现的投诉线索链。',
+    starterQuestions: ['投诉信息为什么要先问时间和位置？', '哪些线索能交给 P2 做测试任务？'],
     nodes: [
       { id: 'scene', label: '场景', x: 0.14, y: 0.52, note: '食堂/楼层', risk: false, diagnosis: '场景能帮助定位范围，但还不足以形成可验证问题。', action: '继续采集投诉发生的时间、位置和业务现象。' },
       { id: 'complaint', label: '投诉', x: 0.38, y: 0.42, note: '卡顿描述', risk: true, diagnosis: '投诉原话是问题入口，需要转成时间、位置、业务、终端等结构化线索。', action: '选择投诉时间和业务现象作为关键证据。' },
@@ -78,13 +78,13 @@ const projectGames: Record<string, ProjectGame> = {
   P2: {
     projectId: 'P2',
     taskId: 'P2-T3',
-    type: '测试异常定位',
-    title: 'DT/CQT测试数据闯关',
-    intro: '在测试链路中定位数据异常段，并选择能证明测试有效性的证据。',
+    type: 'Deck-building 测试证据构筑',
+    title: 'DT/CQT测试数据卡牌闯关',
+    intro: '通过轨迹、采样、指标和原始日志卡，构筑可交付给后续优化验证的数据证据链。',
     correctNodeIds: ['route', 'sample'],
     requiredEvidenceCount: 2,
-    successText: '判断正确：路线轨迹和采样完整率能说明测试数据是否可靠，异常点需要先复核采集过程。',
-    starterQuestions: ['为什么测试轨迹比单个截图更重要？', '采样完整率低会影响什么判断？'],
+    successText: '构筑成功：测试轨迹 + 采样完整率 + 原始日志 + 终端状态 + 点位地图，证明数据可靠。',
+    starterQuestions: ['为什么测试轨迹比单个截图更重要？', '哪些测试材料适合交给 P4 做结果验证？'],
     nodes: [
       { id: 'prepare', label: '准备', x: 0.12, y: 0.52, note: '设备校准', risk: false, diagnosis: '准备阶段影响测试基础，但当前空洞更可能出现在采集路线中。', action: '继续查看路线轨迹和采样点。' },
       { id: 'route', label: '路线', x: 0.36, y: 0.43, note: '轨迹断点', risk: true, diagnosis: '路线轨迹断点会造成数据空洞，是判断测试有效性的关键位置。', action: '选择轨迹连续性和采样完整率。' },
@@ -101,13 +101,13 @@ const projectGames: Record<string, ProjectGame> = {
   P3: {
     projectId: 'P3',
     taskId: 'P3-T3',
-    type: '参数巡检判断',
-    title: '网管参数巡检闯关',
-    intro: '在网管信息链中定位异常管理点，选择能说明运行状态的证据。',
+    type: 'Deck-building 网管证据构筑',
+    title: '网管信息管理卡牌闯关',
+    intro: '通过对象、告警、参数、变更和阈值卡，构筑能支撑巡检判断的网管证据链。',
     correctNodeIds: ['alarm', 'parameter'],
     requiredEvidenceCount: 2,
-    successText: '判断正确：告警状态和关键参数能共同说明网络信息管理中的异常来源。',
-    starterQuestions: ['告警和参数为什么要一起看？', '只看小区名称为什么不够？'],
+    successText: '构筑成功：小区对象 + 当前告警 + 关键参数 + 变更记录 + 时间对齐，形成异常来源链。',
+    starterQuestions: ['告警和参数为什么要一起看？', '邻区关系为什么会影响移动性体验？'],
     nodes: [
       { id: 'cell', label: '小区', x: 0.13, y: 0.54, note: '对象识别', risk: false, diagnosis: '小区对象是入口，但不能单独说明异常原因。', action: '继续查看告警和参数状态。' },
       { id: 'alarm', label: '告警', x: 0.38, y: 0.42, note: '状态异常', risk: true, diagnosis: '告警能直接指向运行异常，是网管巡检的优先节点。', action: '选择当前告警和发生时间。' },
@@ -147,13 +147,13 @@ const projectGames: Record<string, ProjectGame> = {
   P5: {
     projectId: 'P5',
     taskId: 'P5-T1',
-    type: '性能瓶颈归因',
-    title: '全网性能瓶颈闯关',
-    intro: '在性能提升链路中找到瓶颈节点，并选择能证明容量或体验受限的指标。',
+    type: 'Deck-building 性能瓶颈构筑',
+    title: '全网性能提升卡牌闯关',
+    intro: '通过忙小区、PRB、速率、时延和优化方案卡，构筑容量瓶颈与体验下降的判断链。',
     correctNodeIds: ['busy-cell', 'capacity'],
     requiredEvidenceCount: 2,
-    successText: '判断正确：忙小区和容量利用率能共同说明性能瓶颈，体验指标用于验证用户感知影响。',
-    starterQuestions: ['忙小区为什么会影响全网体验？', '性能提升要看哪些指标？'],
+    successText: '构筑成功：忙小区 + PRB利用率 + 用户峰值 + 体验指标 + 优化方案，支撑性能提升建议。',
+    starterQuestions: ['忙小区为什么会影响全网体验？', '容量瓶颈和覆盖问题怎么区分？'],
     nodes: [
       { id: 'overview', label: '总览', x: 0.12, y: 0.52, note: 'KPI下降', risk: false, diagnosis: '总览能发现问题，但不能定位瓶颈。', action: '继续下钻到忙小区和容量维度。' },
       { id: 'busy-cell', label: '忙小区', x: 0.38, y: 0.42, note: '负载高', risk: true, diagnosis: '忙小区是性能瓶颈的典型入口，会影响速率和时延。', action: '选择PRB利用率和用户数峰值。' },
@@ -170,13 +170,13 @@ const projectGames: Record<string, ProjectGame> = {
   P6: {
     projectId: 'P6',
     taskId: 'P6-T2',
-    type: '信令流程排序',
-    title: '异常信令定位闯关',
-    intro: '在信令流程中定位异常阶段，选择能说明交互失败的证据。',
+    type: 'Deck-building 信令链路构筑',
+    title: '信令分析卡牌闯关',
+    intro: '通过注册、会话、拒绝、重传和消息序列卡，构筑业务会话失败的信令分析链。',
     correctNodeIds: ['session', 'reject'],
     requiredEvidenceCount: 2,
-    successText: '判断正确：会话建立阶段和拒绝原因码能说明信令异常位置，重传记录用于佐证交互失败。',
-    starterQuestions: ['信令原因码为什么关键？', '重传和拒绝有什么区别？'],
+    successText: '构筑成功：PDU会话 + 拒绝原因码 + 重传记录 + 消息序列 + 核心网响应，定位信令失败。',
+    starterQuestions: ['信令原因码为什么关键？', '消息序列为什么比单条消息更可靠？'],
     nodes: [
       { id: 'register', label: '注册', x: 0.13, y: 0.54, note: '接入网络', risk: false, diagnosis: '注册成功只说明终端能入网，不一定解释会话失败。', action: '继续检查PDU会话建立阶段。' },
       { id: 'session', label: '会话', x: 0.38, y: 0.42, note: '建立失败', risk: true, diagnosis: 'PDU会话建立失败直接对应业务不可用，是优先定位阶段。', action: '选择拒绝原因码和重传记录。' },
@@ -466,6 +466,9 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
   const wrongPickedIds = allPickedIds.filter((id) => !answerSet.has(id));
   const deckScore = isDeckFinished ? Math.max(0, Math.min(100, correctPickedIds.length * 20 - wrongPickedIds.length * 20)) : 0;
   const deckPassed = isDeckFinished && deckScore === 100;
+  const assistantScore = isDeckFinished ? deckScore : Math.min(100, correctPickedIds.length * 20);
+  const assistantEvidence = allPickedIds.length > 0 ? allPickedIds : selectedEvidence;
+  const assistantEvidenceKey = assistantEvidence.join('|');
   const deckBriefing = isDeckFinished
     ? `${deckPassed ? '讲评：本轮证据选择完整。' : '讲评：这轮还有取舍问题。'}${activeQuestion.explanation}`
     : `第 ${currentRound + 1} 轮：从这 3 张牌中选择 0-3 张，也可以跳过。总能量 30，每张牌消耗 5 点，最多选 6 张。`;
@@ -712,8 +715,8 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
       taskId: game.taskId,
       question: cleanQuestion,
       selectedNode,
-      selectedEvidence,
-      score,
+      selectedEvidence: assistantEvidence,
+      score: assistantScore,
       history: chatMessages.slice(-8)
     })
       .then((result) => {
@@ -736,8 +739,8 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
       taskId: game.taskId,
       step,
       selectedNode,
-      selectedEvidence,
-      score
+      selectedEvidence: assistantEvidence,
+      score: assistantScore
     })
       .then((hint) => {
         if (!alive) return;
@@ -760,7 +763,7 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
     return () => {
       alive = false;
     };
-  }, [game.projectId, game.taskId, score, selectedEvidence, selectedNode, step]);
+  }, [assistantEvidenceKey, assistantScore, game.projectId, game.taskId, selectedNode, step]);
 
   const node = game.nodes.find((item) => item.id === selectedNode);
   const judgementTitle = judgement === 'correct' ? '判断正确' : judgement === 'wrong' ? '判断还不完整' : '等待提交判断';
