@@ -36,6 +36,9 @@ GET  /api/graph/course?project=P2
 GET  /api/teacher/suggestions?project=P4
 GET  /api/teacher/tasks/P4T2-N04/suggestions?project=P4
 POST /api/submissions
+POST /api/ai/hint
+POST /api/ai/chat
+POST /api/tts
 ```
 
 提交示例：
@@ -84,3 +87,23 @@ go run ./cmd/server
 - 后端会自动读取 `backend-go/.env`。
 
 未配置 OpenMAIC 时，后端会返回本地规则提示，前端仍显示为 OpenMAIC 代理/降级模式。
+
+## 云端 TTS 播报
+
+前端“云端男声播报”会调用：
+
+```text
+POST /api/tts
+```
+
+后端默认按 OpenAI 兼容接口 `/v1/audio/speech` 生成 mp3。部署到 Render 时至少配置：
+
+```text
+TTS_API_KEY=your_tts_key
+TTS_BASE_URL=https://api.openai.com/v1
+TTS_MODEL=tts-1
+TTS_VOICE=onyx
+TTS_FORMAT=mp3
+```
+
+如果已经有 `OPENAI_API_KEY`，也可以不填 `TTS_API_KEY`，后端会自动读取 `OPENAI_API_KEY`。

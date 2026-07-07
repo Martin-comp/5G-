@@ -98,6 +98,10 @@ export type AIChatResult = {
   answer: string;
 };
 
+export type TTSPayload = {
+  text: string;
+};
+
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
 async function requestJSON<T>(path: string, init?: RequestInit): Promise<T> {
@@ -117,6 +121,23 @@ async function requestJSON<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+async function requestBlob(path: string, init?: RequestInit): Promise<Blob> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(init?.headers || {})
+    }
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`API ${response.status}: ${message}`);
+  }
+
+  return response.blob();
+}
+
 export const textbookApi = {
   health: () => requestJSON<{ status: string; service: string; time: string }>('/api/health'),
   courseOverview: () => requestJSON<CourseOverviewDTO>('/api/course/overview'),
@@ -133,6 +154,10 @@ export const textbookApi = {
     body: JSON.stringify(payload)
   }),
   aiChat: (payload: AIChatPayload) => requestJSON<AIChatResult>('/api/ai/chat', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  tts: (payload: TTSPayload) => requestBlob('/api/tts', {
     method: 'POST',
     body: JSON.stringify(payload)
   })

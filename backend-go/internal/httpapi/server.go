@@ -35,6 +35,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /api/submissions", s.createSubmission)
 	s.mux.HandleFunc("POST /api/ai/hint", s.aiHint)
 	s.mux.HandleFunc("POST /api/ai/chat", s.aiChat)
+	s.mux.HandleFunc("POST /api/tts", s.textToSpeech)
 }
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
