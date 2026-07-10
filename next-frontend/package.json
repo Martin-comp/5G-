@@ -10,13 +10,17 @@
     "export": "next build"
   },
   "dependencies": {
+    "@pixi/react": "^8.0.5",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "next": "latest",
+    "pixi.js": "^8.19.0",
     "react": "latest",
     "react-dom": "latest",
+    "three": "^0.185.1",
     "typescript": "latest"
-  },
-  "devDependencies": {}
+  }
 }

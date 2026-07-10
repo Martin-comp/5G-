@@ -12,10 +12,11 @@ import (
 
 type Server struct {
 	mux *http.ServeMux
+	hub *classroomHub
 }
 
 func NewServer() *Server {
-	server := &Server{mux: http.NewServeMux()}
+	server := &Server{mux: http.NewServeMux(), hub: newClassroomHub()}
 	server.routes()
 	return server
 }
@@ -33,6 +34,22 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/teacher/tasks/{taskId}/suggestions", s.teacherSuggestions)
 	s.mux.HandleFunc("GET /api/teacher/suggestions", s.teacherSuggestions)
 	s.mux.HandleFunc("POST /api/submissions", s.createSubmission)
+	s.mux.HandleFunc("GET /api/classroom/session", s.classroomSession)
+	s.mux.HandleFunc("POST /api/classroom/session", s.updateClassroomSession)
+	s.mux.HandleFunc("GET /api/classroom/active", s.activeClassroomSession)
+	s.mux.HandleFunc("GET /api/classroom/ws", s.classroomWebSocket)
+	s.mux.HandleFunc("GET /api/classroom/tools", s.classroomTools)
+	s.mux.HandleFunc("POST /api/classroom/tools", s.updateClassroomTools)
+	s.mux.HandleFunc("GET /api/classroom/submissions", s.classroomSubmissions)
+	s.mux.HandleFunc("POST /api/classroom/submissions", s.createClassroomSubmission)
+	s.mux.HandleFunc("GET /api/classroom/analytics", s.classroomAnalytics)
+	s.mux.HandleFunc("GET /api/classroom/portfolio", s.classroomLearningPortfolio)
+	s.mux.HandleFunc("GET /api/classroom/poll", s.classroomPoll)
+	s.mux.HandleFunc("POST /api/classroom/poll", s.createClassroomPollResponse)
+	s.mux.HandleFunc("GET /api/classroom/discussion", s.classroomDiscussion)
+	s.mux.HandleFunc("POST /api/classroom/discussion", s.createClassroomDiscussionMessage)
+	s.mux.HandleFunc("GET /api/classroom/groups", s.classroomGroups)
+	s.mux.HandleFunc("POST /api/classroom/groups", s.createClassroomGroupResponse)
 	s.mux.HandleFunc("POST /api/ai/hint", s.aiHint)
 	s.mux.HandleFunc("POST /api/ai/chat", s.aiChat)
 	s.mux.HandleFunc("POST /api/tts", s.textToSpeech)
@@ -109,6 +126,132 @@ func (s *Server) createSubmission(w http.ResponseWriter, r *http.Request) {
 		Status:  "received",
 		Message: "作答已接收，等待教师讲评。",
 	}
+	writeJSON(w, http.StatusCreated, response)
+}
+
+func (s *Server) classroomSession(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomSession(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) updateClassroomSession(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomSessionUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	state := data.UpdateClassroomSession(request)
+	s.hub.broadcast(state.ClassID, classroomRealtimeEvent{Type: "classroom-session", ClassID: state.ClassID, NodeID: state.NodeID, UpdatedAt: state.UpdatedAt})
+	writeJSON(w, http.StatusOK, state)
+}
+
+func (s *Server) activeClassroomSession(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ActiveClassroomSession(r.URL.Query().Get("classId")))
+}
+
+func (s *Server) classroomWebSocket(w http.ResponseWriter, r *http.Request) {
+	s.hub.serveWS(w, r)
+}
+
+func (s *Server) classroomTools(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomTools(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) updateClassroomTools(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomToolUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	state := data.UpdateClassroomTools(request)
+	s.hub.broadcast(state.ClassID, classroomRealtimeEvent{Type: "classroom-tools", ClassID: state.ClassID, NodeID: state.NodeID, UpdatedAt: state.UpdatedAt})
+	writeJSON(w, http.StatusOK, state)
+}
+
+func (s *Server) classroomSubmissions(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomSubmissions(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createClassroomSubmission(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomSubmissionRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	if strings.TrimSpace(request.TaskID) == "" {
+		writeError(w, http.StatusBadRequest, "taskId is required")
+		return
+	}
+	if strings.TrimSpace(request.Answer) == "" && strings.TrimSpace(request.Conclusion) == "" && len(request.Evidence) == 0 {
+		writeError(w, http.StatusBadRequest, "answer, conclusion or evidence is required")
+		return
+	}
+	submission := data.CreateClassroomSubmission(request)
+	s.hub.broadcast(submission.ClassID, classroomRealtimeEvent{Type: "classroom-submission", ClassID: submission.ClassID, NodeID: submission.NodeID, UpdatedAt: submission.CreatedAt})
+	writeJSON(w, http.StatusCreated, submission)
+}
+
+func (s *Server) classroomAnalytics(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomAnalyticsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) classroomLearningPortfolio(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomLearningPortfolioData(r.URL.Query().Get("classId")))
+}
+
+func (s *Server) classroomPoll(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomPollData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createClassroomPollResponse(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomPollResponseRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	response, err := data.CreateClassroomPollResponse(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(response.ClassID, classroomRealtimeEvent{Type: "classroom-poll", ClassID: response.ClassID, NodeID: response.NodeID, UpdatedAt: response.CreatedAt})
+	writeJSON(w, http.StatusCreated, response)
+}
+
+func (s *Server) classroomDiscussion(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomDiscussionMessages(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createClassroomDiscussionMessage(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomDiscussionMessageRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	message, err := data.CreateClassroomDiscussionMessage(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(message.ClassID, classroomRealtimeEvent{Type: "classroom-discussion", ClassID: message.ClassID, NodeID: message.NodeID, UpdatedAt: message.CreatedAt})
+	writeJSON(w, http.StatusCreated, message)
+}
+
+func (s *Server) classroomGroups(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomGroupResponses(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createClassroomGroupResponse(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomGroupResponseRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	response, err := data.CreateClassroomGroupResponse(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(response.ClassID, classroomRealtimeEvent{Type: "classroom-group", ClassID: response.ClassID, NodeID: response.NodeID, UpdatedAt: response.CreatedAt})
 	writeJSON(w, http.StatusCreated, response)
 }
 

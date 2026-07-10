@@ -60,6 +60,140 @@ export type SubmissionResult = {
   message: string;
 };
 
+export type ClassroomSessionStateDTO = {
+  classId: string;
+  nodeId: string;
+  slideId: string;
+  synced: boolean;
+  practicePushed: boolean;
+  reviewMode: boolean;
+  updatedAt: number;
+  updatedBy: string;
+};
+
+export type ClassroomToolStateDTO = {
+  classId: string;
+  nodeId: string;
+  activeTool: string;
+  pollOpen: boolean;
+  discussionOpen: boolean;
+  groupTaskOpen: boolean;
+  timerRunning: boolean;
+  timerSeconds: number;
+  prompt: string;
+  pollOptions: string[];
+  updatedAt: number;
+};
+
+export type ClassroomSubmissionPayload = {
+  classId?: string;
+  nodeId: string;
+  taskId: string;
+  studentId: string;
+  studentName: string;
+  answer: string;
+  evidence: string[];
+  conclusion: string;
+  score: number;
+  selectedEvidence: string[];
+};
+
+export type ClassroomSubmissionDTO = ClassroomSubmissionPayload & {
+  id: string;
+  tags: string[];
+  createdAt: number;
+};
+
+export type ClassroomAnalyticsItemDTO = {
+  label: string;
+  count: number;
+  level: string;
+};
+
+export type ClassroomAnalyticsDTO = {
+  classId: string;
+  nodeId: string;
+  totalStudents: number;
+  submitted: number;
+  submitRate: string;
+  averageScore: number;
+  needsReview: number;
+  commonMistakes: ClassroomAnalyticsItemDTO[];
+  priorityItems: ClassroomAnalyticsItemDTO[];
+  suggestedFocus: string[];
+	updatedAt: number;
+};
+
+export type ClassroomNodePortfolioDTO = {
+	nodeId: string;
+	submitted: number;
+	averageScore: number;
+	needsReview: number;
+	lastSubmittedAt: number;
+};
+
+export type ClassroomLearningPortfolioDTO = {
+	classId: string;
+	totalSubmissions: number;
+	uniqueStudents: number;
+	activeNodes: number;
+	averageScore: number;
+	nodes: ClassroomNodePortfolioDTO[];
+	recent: ClassroomSubmissionDTO[];
+	updatedAt: number;
+};
+
+export type ClassroomPollResponsePayload = {
+  classId?: string;
+  nodeId: string;
+  studentId: string;
+  studentName: string;
+  option: string;
+};
+
+export type ClassroomPollResponseDTO = ClassroomPollResponsePayload & {
+  id: string;
+  createdAt: number;
+};
+
+export type ClassroomPollResultsDTO = {
+  classId: string;
+  nodeId: string;
+  prompt: string;
+  options: { label: string; count: number }[];
+  submitted: number;
+  totalPeople: number;
+  responses: ClassroomPollResponseDTO[];
+  updatedAt: number;
+};
+
+export type ClassroomDiscussionPayload = {
+  classId?: string;
+  nodeId: string;
+  studentId: string;
+  studentName: string;
+  content: string;
+};
+
+export type ClassroomDiscussionMessageDTO = ClassroomDiscussionPayload & {
+  id: string;
+  createdAt: number;
+};
+
+export type ClassroomGroupResponsePayload = {
+  classId?: string;
+  nodeId: string;
+  studentId: string;
+  studentName: string;
+  evidence: string[];
+  conclusion: string;
+};
+
+export type ClassroomGroupResponseDTO = ClassroomGroupResponsePayload & {
+  id: string;
+  createdAt: number;
+};
+
 export type AIHintPayload = {
   projectId: string;
   taskId: string;
@@ -103,6 +237,20 @@ export type TTSPayload = {
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const DEFAULT_CLASSROOM_ID = '通信2301班';
+
+export function readClassroomId() {
+  if (typeof window === 'undefined') return DEFAULT_CLASSROOM_ID;
+  return window.localStorage.getItem('dgbook-classroom-id')?.trim() || DEFAULT_CLASSROOM_ID;
+}
+
+function classroomQuery(nodeId: string, classId = readClassroomId()) {
+  return `classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}`;
+}
+
+function withClassroomId<T extends { classId?: string }>(payload: T): T & { classId: string } {
+  return { ...payload, classId: payload.classId || readClassroomId() };
+}
 
 async function requestJSON<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -148,6 +296,39 @@ export const textbookApi = {
   submitAnswer: (payload: SubmissionPayload) => requestJSON<SubmissionResult>('/api/submissions', {
     method: 'POST',
     body: JSON.stringify(payload)
+  }),
+  classroomSession: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomSessionStateDTO>(`/api/classroom/session?${classroomQuery(nodeId, classId)}`),
+  activeClassroomSession: (classId = readClassroomId()) => requestJSON<ClassroomSessionStateDTO>(`/api/classroom/active?classId=${encodeURIComponent(classId)}`),
+  updateClassroomSession: (payload: ClassroomSessionStateDTO) => requestJSON<ClassroomSessionStateDTO>('/api/classroom/session', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  classroomTools: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomToolStateDTO>(`/api/classroom/tools?${classroomQuery(nodeId, classId)}`),
+  updateClassroomTools: (payload: ClassroomToolStateDTO) => requestJSON<ClassroomToolStateDTO>('/api/classroom/tools', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  classroomSubmissions: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomSubmissionDTO[]>(`/api/classroom/submissions?${classroomQuery(nodeId, classId)}`),
+  submitClassroomWork: (payload: ClassroomSubmissionPayload) => requestJSON<ClassroomSubmissionDTO>('/api/classroom/submissions', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  classroomAnalytics: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomAnalyticsDTO>(`/api/classroom/analytics?${classroomQuery(nodeId, classId)}`),
+  classroomPortfolio: (classId = readClassroomId()) => requestJSON<ClassroomLearningPortfolioDTO>(`/api/classroom/portfolio?classId=${encodeURIComponent(classId)}`),
+  classroomPoll: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomPollResultsDTO>(`/api/classroom/poll?${classroomQuery(nodeId, classId)}`),
+  submitPollResponse: (payload: ClassroomPollResponsePayload) => requestJSON<ClassroomPollResponseDTO>('/api/classroom/poll', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  classroomDiscussion: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomDiscussionMessageDTO[]>(`/api/classroom/discussion?${classroomQuery(nodeId, classId)}`),
+  postClassroomDiscussion: (payload: ClassroomDiscussionPayload) => requestJSON<ClassroomDiscussionMessageDTO>('/api/classroom/discussion', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  classroomGroups: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomGroupResponseDTO[]>(`/api/classroom/groups?${classroomQuery(nodeId, classId)}`),
+  submitClassroomGroup: (payload: ClassroomGroupResponsePayload) => requestJSON<ClassroomGroupResponseDTO>('/api/classroom/groups', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
   }),
   aiHint: (payload: AIHintPayload) => requestJSON<AIHintResult>('/api/ai/hint', {
     method: 'POST',

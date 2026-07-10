@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { textbookApi, type ProjectDetailDTO } from '@/lib/api';
-import { p4Tasks, projectTaskMap, projects } from '@/lib/textbook-data';
+import { p4TaskFlow, p4Tasks, projectTaskMap, projects } from '@/lib/textbook-data';
 import type { Navigate } from './types';
 
 type SourceState = 'checking' | 'api' | 'local';
@@ -81,7 +82,7 @@ export function ProjectPage({ projectId, selectedTask, onSelectTask, onNavigate 
           ) : (
             <p className="muted-copy">当前先完成项目链可进入与章节概览。后续可以按老师要求，把该项目继续扩展成任务级学习页、资源卡和评价产出。</p>
           )}
-          <button className="primary-action" onClick={() => onNavigate('task')} type="button">进入P4-T2核心样章</button>
+          <button className="primary-action" onClick={() => onNavigate('task')} type="button">进入{project.id}学习样章</button>
         </section>
       </div>
     );
@@ -108,6 +109,18 @@ export function ProjectPage({ projectId, selectedTask, onSelectTask, onNavigate 
             <small>{task.desc}</small>
           </button>
         ))}
+      </section>
+      <section className="panel p4-node-entry-panel">
+        <div><p className="eyebrow">P4 任务间关系</p><h3>实施交接 → 结果验证 → 报告输出</h3><p>每个交接节点都能进入自学、课堂跟随、教师授课和投屏端，P4-T2 的 N01-N08 构成完整验收闭环。</p></div>
+        <div className="p4-task-flow-links">
+          {p4TaskFlow.map((item, index) => <Link key={item.id} href={`/learn/${item.id}`}><span>{item.task}</span><strong>{item.title}</strong><small>{item.note}</small>{index < p4TaskFlow.length - 1 && <em>→</em>}</Link>)}
+        </div>
+      </section>
+      <section className="panel p4-node-entry-panel">
+        <div><p className="eyebrow">P4-T2 节点学习闭环</p><h3>从任一节点进入自学、课堂、教师与投屏</h3></div>
+        <div className="p4-node-entry-links">
+          {p4Tasks.map((task) => <Link key={task.id} href={`/learn/P4T2-${task.id}`}>{task.id} {task.title}</Link>)}
+        </div>
       </section>
       <section className="panel evidence-panel">
         <h3>来自项目二 P2-T3 的证据输入</h3>

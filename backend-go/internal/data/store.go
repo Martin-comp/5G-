@@ -10,12 +10,12 @@ var CourseStats = []CourseStat{
 }
 
 var Projects = []Project{
-	{ID: "P1", Title: "5G网络信息采集", Status: "已完成", Note: "信息采集 · 结构占位"},
-	{ID: "P2", Title: "5G网络测试", Status: "已接入闭环", Note: "测试数据 · 证据输入"},
-	{ID: "P3", Title: "5G网络信息管理", Status: "已完成", Note: "信息管理 · 结构占位"},
+	{ID: "P1", Title: "5G网络信息采集", Status: "样章已接入", Note: "信息采集 · 线索闭环"},
+	{ID: "P2", Title: "5G网络测试", Status: "样章已接入", Note: "测试数据 · 证据输入"},
+	{ID: "P3", Title: "5G网络信息管理", Status: "样章已接入", Note: "信息管理 · 告警参数关联"},
 	{ID: "P4", Title: "5G端到端网络优化", Status: "进行中", Note: "优化实施与结果验证"},
-	{ID: "P5", Title: "5G全网性能提升", Status: "待学习", Note: "性能提升 · 后续节点"},
-	{ID: "P6", Title: "5G信令分析", Status: "待学习", Note: "信令分析 · 后续节点"},
+	{ID: "P5", Title: "5G全网性能提升", Status: "样章已接入", Note: "性能提升 · 效果评估"},
+	{ID: "P6", Title: "5G信令分析", Status: "样章已接入", Note: "信令分析 · 原因定位"},
 }
 
 var ProjectTasks = map[string][]Task{
@@ -111,10 +111,10 @@ func FindProject(id string) (Project, bool) {
 
 func CourseOverviewData() CourseOverview {
 	return CourseOverview{
-		Title: "5G网络优化教材（高级）",
-		Subtitle: "数字教材 · 项目任务导学 · 课程能力图谱",
-		Stats: CourseStats,
-		Projects: Projects,
+		Title:     "5G网络优化教材（高级）",
+		Subtitle:  "数字教材 · 项目任务导学 · 课程能力图谱",
+		Stats:     CourseStats,
+		Projects:  Projects,
 		MainRoute: []string{"课程首页", "项目四", "P4-T2结果验证", "N04读移动性指标", "图谱", "教师端"},
 	}
 }
@@ -125,10 +125,10 @@ func ProjectDetailData(projectID string) (ProjectDetail, bool) {
 		return ProjectDetail{}, false
 	}
 	return ProjectDetail{
-		Project: project,
-		CurrentTask: currentTaskForProject(project.ID),
-		Tasks: ProjectTasks[project.ID],
-		EvidenceFlow: evidenceFlowForProject(project.ID),
+		Project:       project,
+		CurrentTask:   currentTaskForProject(project.ID),
+		Tasks:         ProjectTasks[project.ID],
+		EvidenceFlow:  evidenceFlowForProject(project.ID),
 		NextProjectID: nextProjectID(project.ID),
 	}, true
 }
@@ -138,14 +138,14 @@ func TaskDetailData(taskID string) TaskDetail {
 		taskID = "P4T2-N04"
 	}
 	return TaskDetail{
-		ID: taskID,
-		Title: "读移动性指标",
-		Question: "覆盖达标后，为什么移动中仍会断？",
-		RoutePoints: []string{"电梯口", "A-B边界", "食堂入口", "就餐区"},
-		Conclusion: "覆盖已改善，但移动性未闭环",
-		Metrics: MobilityMetrics,
+		ID:             taskID,
+		Title:          "读移动性指标",
+		Question:       "覆盖达标后，为什么移动中仍会断？",
+		RoutePoints:    []string{"电梯口", "A-B边界", "食堂入口", "就餐区"},
+		Conclusion:     "覆盖已改善，但移动性未闭环",
+		Metrics:        MobilityMetrics,
 		ClassroomTasks: ClassroomTasks,
-		Resources: ResourceCards,
+		Resources:      ResourceCards,
 	}
 }
 
@@ -165,9 +165,9 @@ func GraphDetailData(projectID string) (GraphDetail, bool) {
 		localNodes = P4N04Tasks
 	}
 	return GraphDetail{
-		Nodes: nodes,
-		LocalTaskID: project.ID,
-		LocalNodes: localNodes,
+		Nodes:         nodes,
+		LocalTaskID:   project.ID,
+		LocalNodes:    localNodes,
 		ResourceCards: ResourceCards,
 	}, true
 }

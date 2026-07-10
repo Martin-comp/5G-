@@ -1,19 +1,35 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { ViewKey } from '@/lib/textbook-data';
 import type { Navigate } from './types';
 import { BackendStatus } from './BackendStatus';
+import { AuthBadge, readAuthRole, type AuthRole } from './AuthGate';
 
-const tabs: { key: ViewKey; label: string }[] = [
+const studentTabs: { key: ViewKey; label: string }[] = [
   { key: 'course', label: '课程' },
   { key: 'project', label: '项目' },
   { key: 'task', label: '学生学习' },
   { key: 'graph', label: '图谱' },
-  { key: 'teacher', label: '教师' },
   { key: 'game', label: '互动' }
 ];
 
+const teacherTabs: { key: ViewKey; label: string }[] = [
+  { key: 'course', label: '课程' },
+  { key: 'project', label: '项目' },
+  { key: 'graph', label: '图谱' },
+  { key: 'teacher', label: '教师' }
+];
+
 export function TopNav({ view, onNavigate }: { view: ViewKey; onNavigate: Navigate }) {
+  const [role, setRole] = useState<AuthRole | ''>('');
+
+  useEffect(() => {
+    setRole(readAuthRole());
+  }, []);
+
+  const tabs = role === 'teacher' ? teacherTabs : studentTabs;
+
   return (
     <header className="topbar">
       <div className="brand">
@@ -32,6 +48,7 @@ export function TopNav({ view, onNavigate }: { view: ViewKey; onNavigate: Naviga
       </nav>
       <div className="topbar-actions">
         <BackendStatus />
+        <AuthBadge />
         <a className="example-link" href="/example/index.html" target="_blank" rel="noreferrer">原始example</a>
       </div>
     </header>

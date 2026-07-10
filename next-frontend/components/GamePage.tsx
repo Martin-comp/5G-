@@ -422,7 +422,6 @@ function pickPreferredChineseVoice(voices: SpeechSynthesisVoice[]) {
 
 export function GamePage({ projectId, onNavigate }: { projectId: string; onNavigate: Navigate }) {
   const game = projectGames[projectId] ?? projectGames.P4;
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef('');
   const [selectedNode, setSelectedNode] = useState('');
@@ -521,39 +520,6 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
       }
     };
   }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const ratio = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * ratio;
-    canvas.height = rect.height * ratio;
-    ctx.scale(ratio, ratio);
-
-    drawStage(ctx, rect.width, rect.height, selectedNode, game.nodes);
-  }, [game.nodes, selectedNode, step]);
-
-  function handleCanvasClick(event: React.MouseEvent<HTMLCanvasElement>) {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const hit = game.nodes.find((node) => {
-      const nx = node.x * rect.width;
-      const ny = node.y * rect.height;
-      return Math.hypot(x - nx, y - ny) < 44;
-    });
-    if (hit) {
-      setSelectedNode(hit.id);
-      setStep('evidence');
-      setJudgement('idle');
-    }
-  }
 
   function toggleEvidence(id: string) {
     setSelectedEvidence((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
@@ -845,27 +811,12 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
           </div>
 
           {!isDeckFinished ? (
-            <div className="deck-hand">
-              {currentRoundCards.map((card) => {
-                const selected = roundPickIds.includes(card.id);
-                const disabled = !selected && allPickedIds.length >= 6;
-                return (
-                  <button
-                    type="button"
-                    key={card.id}
-                    className={`deck-card ${selected ? 'played' : ''}`}
-                    onClick={() => toggleLearningCard(card.id)}
-                    disabled={disabled}
-                  >
-                    <span>{card.category}</span>
-                    <strong>{card.title}</strong>
-                    <p>{card.detail}</p>
-                    <small>消耗 5 能量</small>
-                    <em>{selected ? '本轮已选' : disabled ? '能量已满' : '点击选择 / 取消'}</em>
-                  </button>
-                );
-              })}
-            </div>
+            <LearningCardTable
+              cards={currentRoundCards}
+              selectedIds={roundPickIds}
+              energyFull={allPickedIds.length >= 6}
+              onToggle={toggleLearningCard}
+            />
           ) : (
             <div className="deck-result-grid">
               <div className="answer-card-list">
@@ -980,64 +931,38 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
 
 }
 
-function drawStage(ctx: CanvasRenderingContext2D, width: number, height: number, selectedNode: string, nodes: GameNode[]) {
-  ctx.clearRect(0, 0, width, height);
-
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, '#f3faf7');
-  gradient.addColorStop(1, '#ffffff');
-  ctx.fillStyle = gradient;
-  roundRect(ctx, 0, 0, width, height, 24);
-  ctx.fill();
-
-  ctx.lineWidth = 10;
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = '#15917e';
-  ctx.beginPath();
-  nodes.forEach((node, index) => {
-    const x = node.x * width;
-    const y = node.y * height;
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.stroke();
-
-  nodes.forEach((node, index) => {
-    const x = node.x * width;
-    const y = node.y * height;
-    const isSelected = selectedNode === node.id;
-    ctx.beginPath();
-    ctx.fillStyle = isSelected ? '#f0b429' : node.risk ? '#1aa38b' : '#ffffff';
-    ctx.strokeStyle = isSelected ? '#9a6a1f' : '#b9dfd2';
-    ctx.lineWidth = 7;
-    ctx.arc(x, y, isSelected ? 38 : 32, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = node.risk || isSelected ? '#ffffff' : '#15917e';
-    ctx.font = '800 24px -apple-system, BlinkMacSystemFont, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(String(index + 1), x, y);
-
-    ctx.fillStyle = '#14232a';
-    ctx.font = '700 15px -apple-system, BlinkMacSystemFont, sans-serif';
-    ctx.fillText(node.label, x, y + 58);
-
-    if (node.risk) {
-      ctx.fillStyle = '#d74f4f';
-      ctx.font = '700 12px -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillText('风险', x, y - 52);
-    }
-  });
-}
-
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
+function LearningCardTable({
+  cards,
+  selectedIds,
+  energyFull,
+  onToggle
+}: {
+  cards: LearningCard[];
+  selectedIds: string[];
+  energyFull: boolean;
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <div className="deck-hand deck-card-fallback" aria-label="卡牌选择区">
+      {cards.map((card) => {
+        const selected = selectedIds.includes(card.id);
+        const disabled = !selected && energyFull;
+        return (
+          <button
+            key={card.id}
+            className={`deck-card ${selected ? 'played' : ''}`}
+            disabled={disabled}
+            onClick={() => onToggle(card.id)}
+            type="button"
+          >
+            <span>{card.category}</span>
+            <strong>{card.title}</strong>
+            <p>{card.detail}</p>
+            <small>消耗 5 能量</small>
+            <em>{selected ? '本轮已选，点击取消' : disabled ? '已达到 6 张上限' : '点击选择'}</em>
+          </button>
+        );
+      })}
+    </div>
+  );
 }
