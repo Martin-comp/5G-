@@ -39,7 +39,7 @@ const modeCopy: Record<ExperienceMode, { eyebrow: string; title: string; desc: s
   teacher: {
     eyebrow: '教师端 · 授课控制台',
     title: '组织讲解、同步学生、准备讲评',
-    desc: '教师查看讲解脚本、学生状态和任务提交情况，决定是否推送投屏或进入互动。'
+    desc: '教师查看讲解脚本、学生状态和任务提交情况，并组织互动与讲评。'
   },
   present: {
     eyebrow: '投屏端 · 大屏展示',
@@ -68,7 +68,6 @@ export function P4NodeExperience({ mode }: { mode: ExperienceMode }) {
           <Link className={mode === 'learn' ? 'is-active' : ''} href={`/learn/${data.nodeId}`}>自学</Link>
           <Link className={mode === 'classroom' ? 'is-active' : ''} href={`/classroom/${data.nodeId}`}>课堂跟随</Link>
           <Link className={mode === 'teacher' ? 'is-active' : ''} href={`/teacher/sessions/${data.nodeId}`}>教师端</Link>
-          <Link href={`/present/${data.nodeId}`}>投屏</Link>
         </nav>
       </header>
 
@@ -468,7 +467,7 @@ function ClassroomLiveTool({ toolState }: { toolState: P4ClassroomToolState }) {
     try {
       await textbookApi.submitPollResponse({ nodeId, studentId, studentName: '学生端演示', option: selectedPoll });
       setPoll(await textbookApi.classroomPoll(nodeId));
-      setStatus('投票已提交，结果会同步给教师和投屏端。');
+      setStatus('投票已提交，结果会同步给教师端。');
     } catch {
       setStatus('投票提交失败，请稍后再试。');
     }
@@ -644,7 +643,6 @@ function TeacherBody() {
       </div>
       <aside className="teacher-session-side">
         <h3>课堂控制</h3>
-        <Link href={`/present/${data.nodeId}`}>打开投屏页</Link>
         <Link href={`/classroom/${data.nodeId}`}>同步学生跟随页</Link>
         <Link href="/game/?project=P4">进入互动闯关</Link>
         <div className="teacher-side-block">

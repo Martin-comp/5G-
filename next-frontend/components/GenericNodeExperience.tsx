@@ -7,20 +7,26 @@ import {
   textbookApi,
   type ClassroomAnalyticsDTO,
   type ClassroomDiscussionMessageDTO,
+  type ClassroomExitDTO,
   type ClassroomGroupResponseDTO,
   type ClassroomPollResultsDTO,
   type ClassroomSessionStateDTO,
   type ClassroomSubmissionDTO,
-  type ClassroomToolStateDTO
+  type ClassroomToolStateDTO,
+	 type AIStudyInsightDTO,
+  type SelfStudyAnalyticsDTO
 } from '@/lib/api';
 import { CLASSROOM_REALTIME_EVENT } from '@/lib/classroom-realtime';
 import { capabilityNodes, getLearningNodeExperience, p4TaskFlow } from '@/lib/textbook-data';
+import { GuidedSelfStudy } from './GuidedSelfStudy';
+import { ListeningTutorBar } from './ListeningTutorBar';
+import { NodeActivityBoard } from './NodeActivityBoard';
 
 type GenericExperienceMode = 'learn' | 'classroom' | 'teacher' | 'present';
 
 const modeCopy: Record<GenericExperienceMode, { eyebrow: string; hint: string }> = {
   learn: { eyebrow: '学生端 · 自主学习', hint: '按案例、步骤、证据和练习完成本节点学习。' },
-  classroom: { eyebrow: '学生端 · 课堂跟随', hint: '接收教师同步后完成本页课堂作答。' },
+  classroom: { eyebrow: '学生端 · 听讲模式', hint: '接收教师同步，在受控状态下完成本页课堂作答。' },
   teacher: { eyebrow: '教师端 · 授课控制', hint: '同步学生端、推送练习并依据提交情况讲评。' },
   present: { eyebrow: '投屏端 · 大屏展示', hint: '只显示当前讲解的核心证据和结论。' }
 };
@@ -59,16 +65,15 @@ export function GenericNodeExperience({ nodeId, mode }: { nodeId: string; mode: 
   if (mode === 'present') return <GenericPresent nodeId={nodeId} />;
 
   return (
-    <main className="node-experience generic-node-experience">
+    <main className={`node-experience generic-node-experience ${mode === 'classroom' && (node.projectId === 'P1' || node.projectId === 'P2') ? 'with-listening-bar' : ''}`}>
       <header className="node-topbar">
         <Link className="node-brand" href={`/course?project=${node.projectId}`}>
           <span>5G</span><strong>5G网络优化（高级）</strong><em>数字教材</em>
         </Link>
         <nav aria-label="节点端侧导航">
           <Link className={mode === 'learn' ? 'is-active' : ''} href={`/learn/${node.nodeId}`}>自学</Link>
-          <Link className={mode === 'classroom' ? 'is-active' : ''} href={`/classroom/${node.nodeId}`}>课堂跟随</Link>
+          <Link className={mode === 'classroom' ? 'is-active' : ''} href={`/classroom/${node.nodeId}`}>听讲模式</Link>
           <Link className={mode === 'teacher' ? 'is-active' : ''} href={`/teacher/sessions/${node.nodeId}`}>教师端</Link>
-          <Link href={`/present/${node.nodeId}`}>投屏</Link>
         </nav>
       </header>
       <section className="node-hero generic-node-hero">
@@ -80,7 +85,7 @@ export function GenericNodeExperience({ nodeId, mode }: { nodeId: string; mode: 
         </div>
         <aside><strong>{node.projectId} · {node.taskId}</strong><span>{node.subtitle}</span></aside>
       </section>
-      <NodeTaskPath nodeId={nodeId} />
+      <NodeTaskPath mode={mode} nodeId={nodeId} />
       {mode === 'learn' && <GenericLearn nodeId={nodeId} />}
       {mode === 'classroom' && <GenericClassroom nodeId={nodeId} />}
       {mode === 'teacher' && <GenericTeacher nodeId={nodeId} />}
@@ -91,32 +96,47 @@ export function GenericNodeExperience({ nodeId, mode }: { nodeId: string; mode: 
 function GenericLearn({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
   return <>
+    {(node.projectId === 'P1' || node.projectId === 'P2') && <GuidedSelfStudy nodeId={nodeId} />}
     <section className="node-section two-column">
       <article className="node-card"><p className="eyebrow">案例导入</p><h3>本节先解决什么问题？</h3><p>{node.caseIntro}</p></article>
       <article className="node-card"><p className="eyebrow">学习步骤</p><div className="step-list">{node.steps.map((step, index) => <div key={step.title}><b>{index + 1}</b><strong>{step.title}</strong><span>{step.desc}</span></div>)}</div></article>
     </section>
-    <EvidencePanel nodeId={nodeId} />
+    {(node.projectId === 'P1' || node.projectId === 'P2') ? <NodeActivityBoard audience="student" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}
     <LearningRecordPanel nodeId={nodeId} />
     <section className="node-section two-column">
       <article className="node-card"><p className="eyebrow">小结</p><h3>评价产出</h3><div className="generic-output-list">{node.outputs.map((item) => <span key={item}>{item}</span>)}</div></article>
-      <article className="node-card"><p className="eyebrow">进入课堂</p><h3>完成后参与课堂跟随</h3><p>教师会同步当前节点，组织同学使用证据完成同一份边界结论。</p><Link className="node-primary-link" href={`/classroom/${node.nodeId}`}>进入课堂跟随</Link></article>
+      <article className="node-card"><p className="eyebrow">进入听讲</p><h3>完成后进入听讲模式</h3><p>教师同步后，学生端将受控进入本节点，完成统一的课堂任务与讲评。</p><Link className="node-primary-link" href={`/classroom/${node.nodeId}`}>进入听讲模式</Link></article>
     </section>
   </>;
 }
 
 function GenericClassroom({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
-  const [session, setSession] = useState<Pick<ClassroomSessionStateDTO, 'synced' | 'practicePushed' | 'reviewMode' | 'updatedAt'>>({ synced: false, practicePushed: false, reviewMode: false, updatedAt: 0 });
+  const [session, setSession] = useState<Pick<ClassroomSessionStateDTO, 'slideId' | 'synced' | 'practicePushed' | 'reviewMode' | 'updatedAt'>>({ slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0 });
+  const [locallyExited, setLocallyExited] = useState(false);
+  const [showExitNotice, setShowExitNotice] = useState(false);
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
   const [evidence, setEvidence] = useState(node.evidence.slice(0, 2).map((item) => item.label));
   const [answer, setAnswer] = useState(`我选择${node.evidence.slice(0, 2).map((item) => item.label).join('、')}作为依据，${node.headline}`);
   const [status, setStatus] = useState('');
+  const slideTotal = Math.max(node.teacherScript.length, 1);
+  const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), slideTotal);
+  const currentScript = node.teacherScript[slideNumber - 1] ?? node.headline;
+  const classroomActive = session.synced && !locallyExited;
+
+  useEffect(() => {
+    if (!showExitNotice) return;
+    const timer = window.setTimeout(() => setShowExitNotice(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [showExitNotice]);
 
   useEffect(() => {
     let alive = true;
     const refresh = () => Promise.all([textbookApi.classroomSession(nodeId), textbookApi.classroomTools(nodeId)]).then(([nextSession, nextTools]) => {
       if (!alive) return;
       setSession(nextSession);
+      const pausedAt = window.sessionStorage.getItem('dgbook-paused-classroom-sync');
+      setLocallyExited(Boolean(nextSession.updatedAt) && pausedAt === String(nextSession.updatedAt));
       setToolState(nextTools);
     }).catch(() => undefined);
     void refresh();
@@ -139,18 +159,35 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
 
   function toggle(item: string) { setEvidence((items) => items.includes(item) ? items.filter((value) => value !== item) : [...items, item]); }
 
+  function leaveListening() {
+    if (!session.updatedAt) return;
+    const syncAt = String(session.updatedAt);
+    void textbookApi.leaveClassroom({
+      nodeId,
+      studentId: getGenericStudentId(),
+      studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
+    });
+    window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
+    setLocallyExited(true);
+    setShowExitNotice(true);
+  }
+
   return <>
     <section className="node-section classroom-sync-panel">
-      <div className="classroom-sync-head"><div><p className="eyebrow">课堂同步</p><h3>{session.synced ? '正在跟随教师讲解' : '等待教师同步当前页'}</h3><p>{session.synced ? node.headline : '教师同步后，学生端会进入本节点的课堂任务。'}</p></div><span className={session.synced ? 'is-live' : ''}>{session.synced ? '已同步' : '待同步'}</span></div>
-      {session.practicePushed && <div className="classroom-practice-live"><strong>教师已推送练习</strong><span>请选取证据并提交本页结论。</span></div>}
-      {toolState.activeTool && <><div className="classroom-tool-live"><strong>课堂工具已开启：{genericToolLabels[toolState.activeTool as GenericToolKey] ?? '课堂工具'}</strong><span>{toolState.prompt}</span></div><GenericClassroomLiveTool nodeId={nodeId} toolState={toolState} /></>}
-      {session.reviewMode && <div className="classroom-tool-live review"><strong>教师正在讲评</strong><span>请对照自己的依据是否完整、结论是否有边界。</span></div>}
+      <div className="classroom-sync-head"><div><p className="eyebrow">课堂同步</p><h3>{classroomActive ? `正在跟随教师讲解 · 第 ${slideNumber} / ${slideTotal} 页` : locallyExited ? (showExitNotice ? '已退出本次听讲' : '当前内容回看') : '等待教师同步当前页'}</h3><p>{classroomActive ? currentScript : locallyExited ? '当前页面不会再接收教师控制或课堂作业推送。' : '教师同步后，学生端才会进入本节点的课堂内容与任务。'}</p></div><div className="classroom-sync-actions">{classroomActive ? <><span className="is-live">已同步</span><button onClick={leaveListening} type="button">退出听讲</button></> : showExitNotice ? <span>已退出</span> : !locallyExited ? <span>待同步</span> : null}</div></div>
+      {classroomActive ? <div className="classroom-guided-slide"><strong>教师当前讲解</strong><p>{currentScript}</p><div>{node.teacherScript.map((_, index) => <i className={index + 1 === slideNumber ? 'active' : ''} key={index}>{index + 1}</i>)}</div></div> : locallyExited ? <div className="classroom-exited-message"><strong>你已退出本次听讲</strong><span>当前内容仍可浏览；教师再次同步后会自动恢复跟随。</span></div> : <div className="classroom-locked-message"><strong>当前为受控听讲模式</strong><span>请等待教师在授课控制台同步本页。同步后可跟随讲解，教师推送练习后才能作答。</span></div>}
+      {classroomActive && session.practicePushed && <div className="classroom-practice-live"><strong>教师已推送练习</strong><span>请选取证据并提交本页结论。</span></div>}
+      {classroomActive && toolState.activeTool && <><div className="classroom-tool-live"><strong>课堂工具已开启：{genericToolLabels[toolState.activeTool as GenericToolKey] ?? '课堂工具'}</strong><span>{toolState.prompt}</span></div><GenericClassroomLiveTool nodeId={nodeId} toolState={toolState} /></>}
+      {classroomActive && session.reviewMode && <div className="classroom-tool-live review"><strong>教师正在讲评</strong><span>请对照自己的依据是否完整、结论是否有边界。</span></div>}
     </section>
-    <EvidencePanel nodeId={nodeId} />
-    <section className="node-section generic-classroom-task">
-      <article className="node-card"><p className="eyebrow">课堂小任务</p><h3>选择依据，形成一句判断</h3><div className="practice-list">{node.practice.map((item, index) => <div key={item.question}><b>{index + 1}</b><strong>{item.question}</strong><span>参考方向：{item.answer}</span></div>)}</div></article>
-      <article className="node-card classroom-submit-form"><label>选择关键依据<div className="evidence-choice-row">{node.evidence.map((item) => <button key={item.label} className={evidence.includes(item.label) ? 'active' : ''} onClick={() => toggle(item.label)} type="button">{item.label}</button>)}</div></label><label>我的判断<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><button className="primary-action full" onClick={submit} type="button">提交课堂作答</button>{status && <p className="submit-status">{status}</p>}</article>
-    </section>
+    {session.synced ? <>
+      {(node.projectId === 'P1' || node.projectId === 'P2') ? <NodeActivityBoard audience="student" enabled={classroomActive && session.practicePushed} nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}
+      {classroomActive && session.practicePushed ? <section className="node-section generic-classroom-task">
+        <article className="node-card"><p className="eyebrow">课堂小任务</p><h3>选择依据，形成一句判断</h3><div className="practice-list">{node.practice.map((item, index) => <div key={item.question}><b>{index + 1}</b><strong>{item.question}</strong><span>参考方向：{item.answer}</span></div>)}</div></article>
+        <article className="node-card classroom-submit-form"><label>选择关键依据<div className="evidence-choice-row">{node.evidence.map((item) => <button key={item.label} className={evidence.includes(item.label) ? 'active' : ''} onClick={() => toggle(item.label)} type="button">{item.label}</button>)}</div></label><label>我的判断<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><button className="primary-action full" onClick={submit} type="button">提交课堂作答</button>{status && <p className="submit-status">{status}</p>}</article>
+      </section> : <section className="node-section classroom-await-practice"><p className="eyebrow">{locallyExited ? '已退出听讲' : '跟随听讲'}</p><h3>{locallyExited ? '当前内容可回看，课堂作业已暂停' : '教师正在讲解当前页'}</h3><p>{locallyExited ? '你已主动退出本次课堂同步，仍可停留在本页阅读内容；教师再次同步后会自动恢复跟随。' : '本页证据已同步。请先跟随听讲助教和教师讲解，等待教师推送练习后再提交自己的判断。'}</p></section>}
+    </> : null}
+    {(node.projectId === 'P1' || node.projectId === 'P2') && <ListeningTutorBar nodeId={nodeId} />}
   </>;
 }
 
@@ -183,7 +220,7 @@ function GenericClassroomLiveTool({ nodeId, toolState }: { nodeId: string; toolS
     try {
       await textbookApi.submitPollResponse({ nodeId, studentId, studentName: '学生端演示', option: choice });
       setPoll(await textbookApi.classroomPoll(nodeId));
-      setStatus('投票已提交，教师端和投屏端会立即更新。');
+      setStatus('投票已提交，教师端会立即更新。');
     } catch { setStatus('投票提交失败，请稍后再试。'); }
   }
 
@@ -243,23 +280,27 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   const [session, setSession] = useState<ClassroomSessionStateDTO>({ classId: '通信2301班', nodeId, slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0, updatedBy: 'teacher' });
   const [classroomId, setClassroomId] = useState('通信2301班');
   const [analytics, setAnalytics] = useState<ClassroomAnalyticsDTO | null>(null);
+  const [selfStudyAnalytics, setSelfStudyAnalytics] = useState<SelfStudyAnalyticsDTO | null>(null);
   const [submissions, setSubmissions] = useState<ClassroomSubmissionDTO[]>([]);
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
   const [poll, setPoll] = useState<ClassroomPollResultsDTO | null>(null);
   const [messages, setMessages] = useState<ClassroomDiscussionMessageDTO[]>([]);
   const [groups, setGroups] = useState<ClassroomGroupResponseDTO[]>([]);
+  const [exits, setExits] = useState<ClassroomExitDTO[]>([]);
+  const slideTotal = Math.max(node.teacherScript.length, 1);
+  const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), slideTotal);
 
   useEffect(() => {
     setClassroomId(readClassroomId());
     let alive = true;
     async function refresh() {
       try {
-        const [nextSession, nextAnalytics, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups] = await Promise.all([
+        const [nextSession, nextAnalytics, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups, nextSelfStudy, nextExits] = await Promise.all([
           textbookApi.classroomSession(nodeId), textbookApi.classroomAnalytics(nodeId), textbookApi.classroomSubmissions(nodeId),
-          textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId)
+          textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId), textbookApi.selfStudyAnalytics(nodeId), textbookApi.classroomExits(nodeId)
         ]);
         if (!alive) return;
-        setSession(nextSession); setAnalytics(nextAnalytics); setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups);
+        setSession(nextSession); setAnalytics(nextAnalytics); setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
       } catch { /* Keep the template visible while the service wakes. */ }
     }
     void refresh();
@@ -273,6 +314,11 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
     const next = { ...session, ...overrides, classId: readClassroomId(), nodeId, updatedAt: Date.now(), updatedBy: 'teacher' };
     setSession(next);
     void textbookApi.updateClassroomSession(next);
+  }
+
+  function changeSlide(delta: number) {
+    const nextSlide = Math.min(Math.max(slideNumber + delta, 1), slideTotal);
+    publish({ synced: true, slideId: String(nextSlide), practicePushed: false, reviewMode: false });
   }
 
   function toggleTool(tool: GenericToolKey) {
@@ -297,15 +343,64 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   return <>
     <section className="generic-teacher-top panel"><div><p className="eyebrow">教师授课控制台</p><h2>{node.taskId} · {node.title}</h2><p>{node.headline}</p></div><div><span>班级：{classroomId}</span><strong className={session.synced ? 'is-live' : ''}>学生端：{session.synced ? '已同步' : '待同步'}</strong></div></section>
     <section className="generic-teacher-grid">
-      <article className="panel generic-teacher-stage"><p className="eyebrow">讲解脚本</p><h3>{node.headline}</h3><div className="teacher-script-list">{node.teacherScript.map((item, index) => <article key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div><EvidencePanel nodeId={nodeId} /></article>
-      <aside className="panel generic-teacher-side"><h3>课堂控制</h3><button className="secondary-action full" onClick={() => publish({ synced: true })} type="button">{session.synced ? '学生端已同步' : '同步学生端'}</button><button className="secondary-action full" onClick={() => publish({ synced: true, practicePushed: true })} type="button">{session.practicePushed ? '练习已推送' : '推送练习'}</button><button className="primary-action full" onClick={() => publish({ synced: true, reviewMode: true })} type="button">{session.reviewMode ? '正在讲评' : '开始讲评'}</button><div className="generic-tool-grid">{(Object.keys(genericToolLabels) as GenericToolKey[]).map((tool) => <button key={tool} className={toolState.activeTool === tool ? 'active' : ''} onClick={() => toggleTool(tool)} type="button">{genericToolLabels[tool]}</button>)}</div><div className="generic-tool-status"><strong>{toolState.activeTool ? `已开启：${genericToolLabels[toolState.activeTool as GenericToolKey]}` : '互动工具待开启'}</strong><span>{toolState.prompt}</span></div><GenericTeacherToolMonitor toolState={toolState} poll={poll} messages={messages} groups={groups} /><button className="text-action full" onClick={() => publish({ synced: false, practicePushed: false, reviewMode: false })} type="button">解除课堂控制</button><Link className="secondary-action full route-action-link" href={`/present/${nodeId}`}>打开投屏</Link><Link className="secondary-action full route-action-link" href={`/game?project=${node.projectId}`}>进入卡牌互动</Link></aside>
+      <article className="panel generic-teacher-stage"><p className="eyebrow">讲解脚本</p><h3>{node.headline}</h3><div className="teacher-script-list">{node.teacherScript.map((item, index) => <article key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div>{node.projectId === 'P1' || node.projectId === 'P2' ? <NodeActivityBoard audience="teacher" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}</article>
+      <aside className="panel generic-teacher-side">
+        <h3>课堂控制</h3>
+        <div className="teacher-slide-control"><span>讲解页 {slideNumber} / {slideTotal}</span><button aria-label="上一讲解页" disabled={slideNumber === 1} onClick={() => changeSlide(-1)} type="button">上一页</button><button aria-label="下一讲解页" disabled={slideNumber === slideTotal} onClick={() => changeSlide(1)} type="button">下一页</button></div>
+        <button className="secondary-action full" onClick={() => publish({ synced: true, slideId: String(slideNumber) })} type="button">{session.synced ? '学生端已同步' : '同步学生端'}</button>
+        <button className="secondary-action full" onClick={() => publish({ synced: true, practicePushed: true })} type="button">{session.practicePushed ? '练习已推送' : '推送练习'}</button>
+        <button className="primary-action full" onClick={() => publish({ synced: true, reviewMode: true })} type="button">{session.reviewMode ? '正在讲评' : '开始讲评'}</button>
+        <div className="generic-tool-grid">{(Object.keys(genericToolLabels) as GenericToolKey[]).map((tool) => <button key={tool} className={toolState.activeTool === tool ? 'active' : ''} onClick={() => toggleTool(tool)} type="button">{genericToolLabels[tool]}</button>)}</div>
+        <div className="generic-tool-status"><strong>{toolState.activeTool ? `已开启：${genericToolLabels[toolState.activeTool as GenericToolKey]}` : '互动工具待开启'}</strong><span>{toolState.prompt}</span></div>
+        <GenericTeacherToolMonitor toolState={toolState} poll={poll} messages={messages} groups={groups} />
+        <TeacherExitTips exits={exits} />
+        <button className="text-action full" onClick={() => publish({ synced: false, practicePushed: false, reviewMode: false })} type="button">解除课堂控制</button>
+        <Link className="secondary-action full route-action-link" href={`/game?project=${node.projectId}`}>进入卡牌互动</Link>
+      </aside>
     </section>
     <section className="generic-teacher-data">
+      <SelfStudyInsightPanel analytics={selfStudyAnalytics} nodeId={nodeId} />
       <article className="panel"><h3>学生学习证据</h3><strong>{analytics?.submitted ?? 0} / {analytics?.totalStudents ?? 42} 人</strong><p>提交率 {analytics?.submitRate ?? '0%'}，平均分 {analytics?.averageScore ?? 0}。</p></article>
       <article className="panel"><h3>讲评优先级</h3>{(analytics?.priorityItems ?? []).slice(0, 3).map((item) => <p key={item.label}><b>{item.level}</b>{item.label} · {item.count}人</p>)}{!analytics && <p>学生提交后会显示需讲评的证据缺口。</p>}</article>
       <article className="panel"><h3>最新提交</h3>{submissions.length ? submissions.slice(0, 3).map((item) => <p key={item.id}><b>{item.studentName}</b>{item.conclusion || item.answer}</p>) : <p>暂未收到真实提交。</p>}</article>
     </section>
   </>;
+}
+
+function TeacherExitTips({ exits }: { exits: ClassroomExitDTO[] }) {
+  if (!exits.length) return <div className="teacher-exit-tips empty"><strong>学生退出提示</strong><span>当前还没有学生退出听讲。</span></div>;
+  return <div className="teacher-exit-tips"><strong>学生退出提示</strong>{exits.slice(0, 3).map((item) => <span key={item.id}><b>{item.studentName}</b> 已退出听讲 · {new Date(item.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>)}</div>;
+}
+
+function SelfStudyInsightPanel({ analytics, nodeId }: { analytics: SelfStudyAnalyticsDTO | null; nodeId: string }) {
+  const supportCard = analytics?.cards.find((item) => item.abilityScore < 60) ?? analytics?.cards.find((item) => item.completedSteps.length < 4);
+  const [insight, setInsight] = useState<AIStudyInsightDTO | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const suggestion = supportCard
+    ? `优先让 ${supportCard.studentName} 回看“${supportCard.abilities.find((ability) => ability.score < 100)?.label ?? '结论表达'}”并完成未解锁小节。`
+    : analytics?.students
+      ? '本节点自学完成度较好，可在听讲阶段重点追问证据之间的关联。'
+      : '学生保存自学进度后，系统会生成能力数、薄弱点和教师建议。';
+
+  async function generateInsight() {
+    setLoading(true);
+    setError('');
+    try {
+      setInsight(await textbookApi.generateStudyInsight({ nodeId }));
+    } catch {
+      setError('AI 解读暂时不可用，请稍后重试。');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return <article className="panel generic-ai-learning-card generic-ai-insight-panel">
+    <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 自学模式</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生自学数据` : '等待学生保存自学进度'}</h3></div><span>分析依据：学习小节、能力数、完成时间</span></div>
+    <div className="ai-learning-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.completed ?? 0}</strong><span>完成本节点</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要支持</span></article></div>
+    {analytics?.cards.length ? <div className="ai-learning-student-list">{analytics.cards.slice(0, 4).map((item) => <article key={item.studentId}><div><strong>{item.studentName}</strong><span>完成 {item.completedSteps.length}/4 节</span></div><b>{item.abilityScore}</b><div className="ai-ability-bars">{item.abilities.map((ability) => <span key={ability.label}><i style={{ width: `${ability.score}%` }} /><em>{ability.label}</em></span>)}</div></article>)}</div> : null}
+    <div className="ai-learning-suggestion"><div><strong>{insight ? 'AI 学情解读' : '规则预判'}</strong><button className="text-action" disabled={!analytics?.students || loading} onClick={generateInsight} type="button">{loading ? '正在生成' : insight ? '重新生成' : '生成 AI 学情解读'}</button></div>{insight ? <><p>{insight.summary}</p><p><b>讲评重点：</b>{insight.focus}</p><p><b>下一步：</b>{insight.action}</p><small>{insight.provider} · {insight.mode === 'remote' ? '真实 AI' : '本地回退'}</small></> : <p>{suggestion}</p>}{error && <small>{error}</small>}</div>
+  </article>;
 }
 
 function GenericTeacherToolMonitor({
@@ -367,19 +462,20 @@ function GenericPresentTool({ nodeId, toolState }: { nodeId: string; toolState: 
   return <section className="present-live-tool timer"><strong>{formatGenericSeconds(remaining)}</strong><span>{toolState.prompt}</span></section>;
 }
 
-function NodeTaskPath({ nodeId }: { nodeId: string }) {
+function NodeTaskPath({ nodeId, mode }: { nodeId: string; mode: Exclude<GenericExperienceMode, 'present'> }) {
   const node = getLearningNodeExperience(nodeId)!;
+  const routePrefix = mode === 'classroom' ? '/classroom' : mode === 'teacher' ? '/teacher/sessions' : '/learn';
   const taskNodes = capabilityNodes
     .filter((item) => item.project === node.projectId && item.task === node.taskId && (item.id === 'P4T2-N04' || Boolean(getLearningNodeExperience(item.id))))
     .sort((left, right) => left.id.localeCompare(right.id));
   const p4Flow = node.projectId === 'P4' ? p4TaskFlow : [];
 
   return <section className="node-task-path" aria-label="任务节点路径">
-    <div><p className="eyebrow">任务路径</p><strong>{node.taskId}</strong><span>{node.projectId === 'P4' ? '实施、验证、报告之间可直接切换，任务内节点按顺序学习。' : '当前项目样章已接入自学、课堂、教师和投屏端。'}</span></div>
+    <div><p className="eyebrow">任务路径</p><strong>{node.taskId}</strong><span>{node.projectId === 'P4' ? '实施、验证、报告之间可直接切换，任务内节点按顺序学习。' : '当前项目样章已接入自学、课堂与教师端。'}</span></div>
     <nav>
-      {taskNodes.map((item) => <Link key={item.id} className={item.id === nodeId ? 'is-active' : ''} href={`/learn/${item.id}`}><b>{item.id.slice(-3)}</b><span>{item.label}</span></Link>)}
+      {taskNodes.map((item) => <Link key={item.id} className={item.id === nodeId ? 'is-active' : ''} href={`${routePrefix}/${item.id}/`}><b>{item.id.slice(-3)}</b><span>{item.label}</span></Link>)}
     </nav>
-    {p4Flow.length > 0 && <div className="node-task-bridges">{p4Flow.map((item) => <Link key={item.id} className={item.id === nodeId ? 'is-current' : ''} href={`/learn/${item.id}`}>{item.task} · {item.title}</Link>)}</div>}
+    {p4Flow.length > 0 && <div className="node-task-bridges">{p4Flow.map((item) => <Link key={item.id} className={item.id === nodeId ? 'is-current' : ''} href={`${routePrefix}/${item.id}/`}>{item.task} · {item.title}</Link>)}</div>}
   </section>;
 }
 

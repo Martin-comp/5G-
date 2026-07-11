@@ -129,3 +129,16 @@ type AIChatResponse struct {
 	Mode     string `json:"mode"`
 	Answer   string `json:"answer"`
 }
+
+type AIStudyInsightRequest struct {
+	ClassID string `json:"classId"`
+	NodeID  string `json:"nodeId"`
+}
+
+type AIStudyInsightResponse struct {
+	Provider string `json:"provider"`
+	Mode     string `json:"mode"`
+	Summary  string `json:"summary"`
+	Focus    string `json:"focus"`
+	Action   string `json:"action"`
+}

@@ -81,7 +81,6 @@ var GraphNodes = []GraphNode{
 var ResourceCards = []ResourceCard{
 	{Title: "N04 学生自学页", Desc: "图文讲解 · 步骤演示"},
 	{Title: "N04 教师授课页", Desc: "教学课件 · 重点提示"},
-	{Title: "N04 投屏页", Desc: "课堂投屏 · 关键步骤"},
 	{Title: "移动性指标表", Desc: "参数说明 · 参考阈值"},
 	{Title: "路线示意图", Desc: "移动轨迹 · 典型路径"},
 }

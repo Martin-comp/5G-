@@ -42,8 +42,13 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /api/classroom/tools", s.updateClassroomTools)
 	s.mux.HandleFunc("GET /api/classroom/submissions", s.classroomSubmissions)
 	s.mux.HandleFunc("POST /api/classroom/submissions", s.createClassroomSubmission)
+	s.mux.HandleFunc("GET /api/classroom/exits", s.classroomExits)
+	s.mux.HandleFunc("POST /api/classroom/exits", s.createClassroomExit)
 	s.mux.HandleFunc("GET /api/classroom/analytics", s.classroomAnalytics)
 	s.mux.HandleFunc("GET /api/classroom/portfolio", s.classroomLearningPortfolio)
+	s.mux.HandleFunc("GET /api/self-study/progress", s.selfStudyProgress)
+	s.mux.HandleFunc("POST /api/self-study/progress", s.updateSelfStudyProgress)
+	s.mux.HandleFunc("GET /api/self-study/analytics", s.selfStudyAnalytics)
 	s.mux.HandleFunc("GET /api/classroom/poll", s.classroomPoll)
 	s.mux.HandleFunc("POST /api/classroom/poll", s.createClassroomPollResponse)
 	s.mux.HandleFunc("GET /api/classroom/discussion", s.classroomDiscussion)
@@ -52,6 +57,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /api/classroom/groups", s.createClassroomGroupResponse)
 	s.mux.HandleFunc("POST /api/ai/hint", s.aiHint)
 	s.mux.HandleFunc("POST /api/ai/chat", s.aiChat)
+	s.mux.HandleFunc("POST /api/ai/study-insight", s.aiStudyInsight)
 	s.mux.HandleFunc("POST /api/tts", s.textToSpeech)
 }
 
@@ -190,12 +196,54 @@ func (s *Server) createClassroomSubmission(w http.ResponseWriter, r *http.Reques
 	writeJSON(w, http.StatusCreated, submission)
 }
 
+func (s *Server) classroomExits(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ClassroomExits(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createClassroomExit(w http.ResponseWriter, r *http.Request) {
+	var request data.ClassroomExitRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	exit, err := data.CreateClassroomExit(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(exit.ClassID, classroomRealtimeEvent{Type: "classroom-exit", ClassID: exit.ClassID, NodeID: exit.NodeID, UpdatedAt: exit.CreatedAt})
+	writeJSON(w, http.StatusCreated, exit)
+}
+
 func (s *Server) classroomAnalytics(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, data.ClassroomAnalyticsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
 }
 
 func (s *Server) classroomLearningPortfolio(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, data.ClassroomLearningPortfolioData(r.URL.Query().Get("classId")))
+}
+
+func (s *Server) selfStudyProgress(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.SelfStudyProgressData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId"), r.URL.Query().Get("studentId")))
+}
+
+func (s *Server) updateSelfStudyProgress(w http.ResponseWriter, r *http.Request) {
+	var request data.SelfStudyProgressUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	progress, err := data.UpdateSelfStudyProgress(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(progress.ClassID, classroomRealtimeEvent{Type: "self-study-progress", ClassID: progress.ClassID, NodeID: progress.NodeID, UpdatedAt: progress.UpdatedAt})
+	writeJSON(w, http.StatusOK, progress)
+}
+
+func (s *Server) selfStudyAnalytics(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.SelfStudyAnalyticsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
 }
 
 func (s *Server) classroomPoll(w http.ResponseWriter, r *http.Request) {

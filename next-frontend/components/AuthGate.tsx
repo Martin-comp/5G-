@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { textbookApi, type ClassroomSessionStateDTO } from '@/lib/api';
 import { CLASSROOM_REALTIME_EVENT, openClassroomRealtime } from '@/lib/classroom-realtime';
@@ -22,6 +22,15 @@ function formatRoles(roles: AuthRole[]) {
   return roles.map((item) => roleLabels[item]).join(' / ');
 }
 
+function classroomStudentId() {
+  const key = 'dgbook-generic-student-id';
+  const existing = window.localStorage.getItem(key);
+  if (existing) return existing;
+  const next = `student-${Date.now().toString(36)}`;
+  window.localStorage.setItem(key, next);
+  return next;
+}
+
 export function readAuthRole(): AuthRole | '' {
   if (typeof window === 'undefined') return '';
   const role = window.localStorage.getItem('dgbook-auth-role');
@@ -30,16 +39,19 @@ export function readAuthRole(): AuthRole | '' {
 
 export function AuthGate({ role, children }: { role: AuthRequirement; children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [currentRole, setCurrentRole] = useState<AuthRole | ''>('');
   const [checked, setChecked] = useState(false);
   const [activeClassroom, setActiveClassroom] = useState<ClassroomSessionStateDTO | null>(null);
+  const [pausedSyncAt, setPausedSyncAt] = useState('');
   const allowedRoles = normalizeRoles(role);
 
   useEffect(() => {
     setCurrentRole(readAuthRole());
+    setPausedSyncAt(window.sessionStorage.getItem('dgbook-paused-classroom-sync') || '');
     setChecked(true);
   }, []);
+
+  const isClassroomPaused = Boolean(activeClassroom?.updatedAt) && pausedSyncAt === String(activeClassroom?.updatedAt ?? '');
 
   useEffect(() => {
     if (currentRole !== 'student') return;
@@ -66,12 +78,32 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
   }, [checked, currentRole]);
 
   useEffect(() => {
-    if (currentRole !== 'student' || !activeClassroom?.synced || !activeClassroom.nodeId) return;
+    if (currentRole !== 'student' || isClassroomPaused || !activeClassroom?.synced || !activeClassroom.nodeId) return;
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
-    const practicePath = `/game?project=${activeClassroom.nodeId.slice(0, 2)}`;
-    const inControlledPage = pathname === classroomPath || (activeClassroom.practicePushed && pathname?.startsWith('/game'));
-    if (!inControlledPage) router.replace(activeClassroom.practicePushed ? practicePath : classroomPath);
-  }, [activeClassroom, currentRole, pathname, router]);
+    const classroomTarget = `${classroomPath}/`;
+    const practicePath = `/game/?project=${activeClassroom.nodeId.slice(0, 2)}`;
+    const normalizedPath = pathname?.replace(/\/+$/, '') || '/';
+    const inControlledPage = normalizedPath === classroomPath || (activeClassroom.practicePushed && normalizedPath.startsWith('/game'));
+    if (!inControlledPage) {
+      const target = activeClassroom.practicePushed ? practicePath : classroomTarget;
+      // A full location change is deliberate: a student tab may be sitting on a
+      // different static route when the teacher starts the classroom session.
+      window.location.assign(target);
+    }
+  }, [activeClassroom, currentRole, isClassroomPaused, pathname]);
+
+  function pauseCurrentClassroom() {
+    if (!activeClassroom?.updatedAt) return;
+    const syncAt = String(activeClassroom.updatedAt);
+    void textbookApi.leaveClassroom({
+      nodeId: activeClassroom.nodeId,
+      studentId: classroomStudentId(),
+      studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
+    });
+    window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
+    setPausedSyncAt(syncAt);
+    window.location.assign(`/classroom/${activeClassroom.nodeId}/`);
+  }
 
   if (!checked) {
     return (
@@ -100,9 +132,10 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     );
   }
 
-  if (currentRole === 'student' && activeClassroom?.synced && activeClassroom.nodeId) {
+  if (currentRole === 'student' && !isClassroomPaused && activeClassroom?.synced && activeClassroom.nodeId) {
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
-    const onClassroomPage = pathname === classroomPath || (activeClassroom.practicePushed && pathname?.startsWith('/game'));
+    const normalizedPath = pathname?.replace(/\/+$/, '') || '/';
+    const onClassroomPage = normalizedPath === classroomPath || (activeClassroom.practicePushed && normalizedPath.startsWith('/game'));
     if (!onClassroomPage) {
       return (
         <main className="role-auth-page classroom-control-wait">
@@ -110,6 +143,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
             <p className="eyebrow">课堂受控中</p>
             <h1>教师正在同步 {activeClassroom.nodeId}</h1>
             <p>学生端已锁定为课堂跟随模式，正在进入教师指定页面。</p>
+            <button className="classroom-exit-button" onClick={pauseCurrentClassroom} type="button">退出本次听讲，保留当前内容</button>
           </section>
         </main>
       );

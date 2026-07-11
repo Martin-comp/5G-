@@ -163,6 +163,22 @@ type ClassroomSubmission struct {
 	CreatedAt        int64    `json:"createdAt"`
 }
 
+type ClassroomExitRequest struct {
+	ClassID     string `json:"classId"`
+	NodeID      string `json:"nodeId"`
+	StudentID   string `json:"studentId"`
+	StudentName string `json:"studentName"`
+}
+
+type ClassroomExit struct {
+	ClassID     string `json:"classId"`
+	ID          string `json:"id"`
+	NodeID      string `json:"nodeId"`
+	StudentID   string `json:"studentId"`
+	StudentName string `json:"studentName"`
+	CreatedAt   int64  `json:"createdAt"`
+}
+
 type ClassroomAnalyticsItem struct {
 	Label string `json:"label"`
 	Count int    `json:"count"`
@@ -204,6 +220,42 @@ type ClassroomLearningPortfolio struct {
 	UpdatedAt        int64                    `json:"updatedAt"`
 }
 
+type SelfStudyAbility struct {
+	Label  string `json:"label"`
+	Score  int    `json:"score"`
+	Status string `json:"status"`
+}
+
+type SelfStudyProgressUpdateRequest struct {
+	ClassID        string   `json:"classId"`
+	NodeID         string   `json:"nodeId"`
+	StudentID      string   `json:"studentId"`
+	StudentName    string   `json:"studentName"`
+	CompletedSteps []string `json:"completedSteps"`
+}
+
+type SelfStudyProgress struct {
+	ClassID        string             `json:"classId"`
+	NodeID         string             `json:"nodeId"`
+	StudentID      string             `json:"studentId"`
+	StudentName    string             `json:"studentName"`
+	CompletedSteps []string           `json:"completedSteps"`
+	AbilityScore   int                `json:"abilityScore"`
+	Abilities      []SelfStudyAbility `json:"abilities"`
+	UpdatedAt      int64              `json:"updatedAt"`
+}
+
+type SelfStudyAnalytics struct {
+	ClassID        string              `json:"classId"`
+	NodeID         string              `json:"nodeId"`
+	Students       int                 `json:"students"`
+	Completed      int                 `json:"completed"`
+	AverageAbility int                 `json:"averageAbility"`
+	NeedsSupport   int                 `json:"needsSupport"`
+	Cards          []SelfStudyProgress `json:"cards"`
+	UpdatedAt      int64               `json:"updatedAt"`
+}
+
 var classroomMemory = struct {
 	sync.Mutex
 	sessions    map[string]ClassroomSessionState
@@ -212,7 +264,9 @@ var classroomMemory = struct {
 	polls       map[string]map[string]ClassroomPollResponse
 	messages    map[string][]ClassroomDiscussionMessage
 	groups      map[string]map[string]ClassroomGroupResponse
+	exits       map[string][]ClassroomExit
 	activeNodes map[string]string
+	selfStudy   map[string]SelfStudyProgress
 }{
 	sessions:    map[string]ClassroomSessionState{},
 	tools:       map[string]ClassroomToolState{},
@@ -220,7 +274,9 @@ var classroomMemory = struct {
 	polls:       map[string]map[string]ClassroomPollResponse{},
 	messages:    map[string][]ClassroomDiscussionMessage{},
 	groups:      map[string]map[string]ClassroomGroupResponse{},
+	exits:       map[string][]ClassroomExit{},
 	activeNodes: map[string]string{},
+	selfStudy:   map[string]SelfStudyProgress{},
 }
 
 func ClassroomSession(classID, nodeID string) ClassroomSessionState {
@@ -350,6 +406,39 @@ func ClassroomSubmissions(classID, nodeID string) []ClassroomSubmission {
 	defer classroomMemory.Unlock()
 	items := make([]ClassroomSubmission, len(classroomMemory.submissions[classroomKey(classID, nodeID)]))
 	copy(items, classroomMemory.submissions[classroomKey(classID, nodeID)])
+	sort.Slice(items, func(i, j int) bool { return items[i].CreatedAt > items[j].CreatedAt })
+	return items
+}
+
+func CreateClassroomExit(request ClassroomExitRequest) (ClassroomExit, error) {
+	classID := normalizeClassroomID(request.ClassID)
+	nodeID := normalizeClassroomNodeID(request.NodeID)
+	studentID := strings.TrimSpace(request.StudentID)
+	if studentID == "" {
+		return ClassroomExit{}, fmt.Errorf("studentId is required")
+	}
+	exit := ClassroomExit{
+		ClassID:     classID,
+		ID:          nextClassroomRecordID("EXIT"),
+		NodeID:      nodeID,
+		StudentID:   studentID,
+		StudentName: displayStudentName(request.StudentName),
+		CreatedAt:   time.Now().UnixMilli(),
+	}
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
+	key := classroomKey(classID, nodeID)
+	classroomMemory.exits[key] = append(classroomMemory.exits[key], exit)
+	return exit, nil
+}
+
+func ClassroomExits(classID, nodeID string) []ClassroomExit {
+	classID = normalizeClassroomID(classID)
+	nodeID = normalizeClassroomNodeID(nodeID)
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
+	items := make([]ClassroomExit, len(classroomMemory.exits[classroomKey(classID, nodeID)]))
+	copy(items, classroomMemory.exits[classroomKey(classID, nodeID)])
 	sort.Slice(items, func(i, j int) bool { return items[i].CreatedAt > items[j].CreatedAt })
 	return items
 }
@@ -615,6 +704,78 @@ func ClassroomLearningPortfolioData(classID string) ClassroomLearningPortfolio {
 	}
 }
 
+func SelfStudyProgressData(classID, nodeID, studentID string) SelfStudyProgress {
+	classID = normalizeClassroomID(classID)
+	nodeID = normalizeClassroomNodeID(nodeID)
+	studentID = strings.TrimSpace(studentID)
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
+	return classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)]
+}
+
+func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyProgress, error) {
+	classID := normalizeClassroomID(request.ClassID)
+	nodeID := normalizeClassroomNodeID(request.NodeID)
+	studentID := strings.TrimSpace(request.StudentID)
+	if studentID == "" {
+		return SelfStudyProgress{}, fmt.Errorf("studentId is required")
+	}
+	completedSteps := cleanSelfStudySteps(request.CompletedSteps)
+	abilities := selfStudyAbilities(completedSteps)
+	score := 0
+	for _, ability := range abilities {
+		score += ability.Score
+	}
+	if len(abilities) > 0 {
+		score /= len(abilities)
+	}
+	progress := SelfStudyProgress{
+		ClassID:        classID,
+		NodeID:         nodeID,
+		StudentID:      studentID,
+		StudentName:    displayStudentName(request.StudentName),
+		CompletedSteps: completedSteps,
+		AbilityScore:   score,
+		Abilities:      abilities,
+		UpdatedAt:      time.Now().UnixMilli(),
+	}
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
+	classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)] = progress
+	return progress, nil
+}
+
+func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
+	classID = normalizeClassroomID(classID)
+	nodeID = normalizeClassroomNodeID(nodeID)
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
+	cards := make([]SelfStudyProgress, 0)
+	prefix := classID + "::" + nodeID + "::"
+	scoreSum := 0
+	completed := 0
+	needsSupport := 0
+	for key, item := range classroomMemory.selfStudy {
+		if !strings.HasPrefix(key, prefix) {
+			continue
+		}
+		cards = append(cards, item)
+		scoreSum += item.AbilityScore
+		if len(item.CompletedSteps) >= 4 {
+			completed++
+		}
+		if item.AbilityScore < 60 {
+			needsSupport++
+		}
+	}
+	sort.Slice(cards, func(i, j int) bool { return cards[i].UpdatedAt > cards[j].UpdatedAt })
+	average := 0
+	if len(cards) > 0 {
+		average = scoreSum / len(cards)
+	}
+	return SelfStudyAnalytics{ClassID: classID, NodeID: nodeID, Students: len(cards), Completed: completed, AverageAbility: average, NeedsSupport: needsSupport, Cards: cards, UpdatedAt: time.Now().UnixMilli()}
+}
+
 func classroomSessionLocked(classID, nodeID string) ClassroomSessionState {
 	if state, ok := classroomMemory.sessions[classroomKey(classID, nodeID)]; ok {
 		return state
@@ -690,6 +851,10 @@ func classroomKey(classID, nodeID string) string {
 	return classID + "::" + nodeID
 }
 
+func selfStudyKey(classID, nodeID, studentID string) string {
+	return classID + "::" + nodeID + "::" + studentID
+}
+
 func nextClassroomRecordID(prefix string) string {
 	return fmt.Sprintf("%s-%d-%d", prefix, time.Now().UnixMilli(), atomic.AddInt64(&classroomSequence, 1))
 }
@@ -703,6 +868,48 @@ func cleanStrings(values []string) []string {
 		}
 	}
 	return cleaned
+}
+
+func cleanSelfStudySteps(values []string) []string {
+	allowed := map[string]bool{"case": true, "evidence": true, "practice": true, "summary": true}
+	steps := make([]string, 0, 4)
+	seen := map[string]bool{}
+	for _, value := range values {
+		value = strings.ToLower(strings.TrimSpace(value))
+		if allowed[value] && !seen[value] {
+			seen[value] = true
+			steps = append(steps, value)
+		}
+	}
+	return steps
+}
+
+func selfStudyAbilities(steps []string) []SelfStudyAbility {
+	completed := map[string]bool{}
+	for _, step := range steps {
+		completed[step] = true
+	}
+	ability := func(label string, requirements ...string) SelfStudyAbility {
+		count := 0
+		for _, requirement := range requirements {
+			if completed[requirement] {
+				count++
+			}
+		}
+		score := count * 100 / len(requirements)
+		status := "待开始"
+		if score == 100 {
+			status = "已达成"
+		} else if score > 0 {
+			status = "进行中"
+		}
+		return SelfStudyAbility{Label: label, Score: score, Status: status}
+	}
+	return []SelfStudyAbility{
+		ability("场景理解", "case", "evidence"),
+		ability("证据判断", "evidence", "practice"),
+		ability("结论表达", "practice", "summary"),
+	}
 }
 
 func displayStudentName(value string) string {

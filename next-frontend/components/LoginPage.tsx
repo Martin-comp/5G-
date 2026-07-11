@@ -17,8 +17,8 @@ const roleCopy: Record<AuthRole, { title: string; desc: string; points: string[]
   },
   teacher: {
     title: '教师端',
-    desc: '用于组织课堂、控制投屏、查看学生状态和进行讲评。',
-    points: ['进入授课控制台', '打开投屏和课堂跟随页', '查看学生提交与讲评建议']
+    desc: '用于组织课堂、查看学生状态和进行讲评。',
+    points: ['进入授课控制台', '同步课堂跟随页', '查看学生提交与讲评建议']
   }
 };
 
@@ -27,8 +27,8 @@ function normalizeRole(value: string | null): AuthRole {
 }
 
 function canEnterAfterLogin(role: AuthRole, path: string) {
-  const teacherOnly = ['/teacher', '/present', '/teacher/sessions'];
-  const studentOnly = ['/task', '/game', '/learn', '/classroom'];
+  const teacherOnly = ['/teacher', '/teacher/sessions'];
+  const studentOnly = ['/classroom'];
   if (role === 'student' && teacherOnly.some((prefix) => path.startsWith(prefix))) return false;
   if (role === 'teacher' && studentOnly.some((prefix) => path.startsWith(prefix))) return false;
   return true;
@@ -77,7 +77,7 @@ export function LoginPage({ initialRole = 'student' }: { initialRole?: AuthRole 
           <div className="login-logo">5G</div>
           <p className="eyebrow">DGBook · 端侧登录</p>
           <h1>5G网络优化数字教材</h1>
-          <p>学生端和教师端分开进入：学生专注学习、跟随和作答；教师负责授课控制、投屏和讲评。</p>
+          <p>学生端和教师端分开进入：学生专注学习、跟随和作答；教师负责授课控制和讲评。</p>
           <div className="login-role-cards">
             {(['student', 'teacher'] as AuthRole[]).map((item) => (
               <button key={item} className={role === item ? 'is-active' : ''} onClick={() => quickFill(item)} type="button">

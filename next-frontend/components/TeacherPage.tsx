@@ -89,7 +89,7 @@ function TeacherProjectOverview({ projectId, onNavigate }: { projectId: string; 
         <div>
           <p className="eyebrow">教师端 · 项目备课</p>
           <h2>{project.id} {project.title}</h2>
-          <p>{project.note}。该项目已接入案例讲解、课堂跟随、教师讲评、投屏与卡牌互动的一条样章闭环。</p>
+          <p>{project.note}。该项目已接入案例讲解、课堂跟随、教师讲评与卡牌互动的一条样章闭环。</p>
         </div>
         <button className="primary-action" onClick={() => onNavigate('project')} type="button">查看项目结构</button>
       </section>
@@ -112,7 +112,6 @@ function TeacherProjectOverview({ projectId, onNavigate }: { projectId: string; 
             <Link href={`/learn/${learningNode.nodeId}`}>学生自学页</Link>
             <Link href={`/classroom/${learningNode.nodeId}`}>学生课堂页</Link>
             <Link href={`/teacher/sessions/${learningNode.nodeId}`}>教师授课页</Link>
-            <Link href={`/present/${learningNode.nodeId}`}>课堂投屏页</Link>
             <Link href={`/game?project=${project.id}`}>卡牌互动与讲评</Link>
           </> : <span>正在补充端侧学习数据</span>}
         </div>
@@ -395,7 +394,6 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
       <footer className="teacher-action-bar">
         <button className="secondary-action dark" onClick={() => moveSlide(-1)} type="button">上一页</button>
         <button className="secondary-action dark" onClick={() => moveSlide(1)} type="button">下一页</button>
-        <Link className="secondary-action dark route-action-link" href="/present/P4T2-N04">打开投屏</Link>
         <button className="secondary-action dark" onClick={() => publishSession({ synced: true })} type="button">{synced ? '学生端已同步' : '同步学生端'}</button>
         <button className="secondary-action dark" onClick={() => publishSession({ practicePushed: true, synced: true })} type="button">{practicePushed ? '练习已推送' : '推送练习'}</button>
         <button className="primary-action" onClick={() => { setActiveTab('answer'); publishSession({ reviewMode: true, synced: true }); }} type="button">{reviewMode ? '正在讲评' : '开始讲评'}</button>

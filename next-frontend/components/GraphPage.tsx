@@ -108,7 +108,7 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
         <div className="graph-section-title"><div><p className="eyebrow">第四层 · 资源卡与评价产出</p><h3>{selectedNode.id} 的资源与可交付结果</h3></div><span>资源不是附件，而是为当前节点学习活动和评价产出服务的材料。</span></div>
         <div className="graph-resource-output-grid">
           {(activeResources.length ? activeResources : projectResources.slice(0, 4)).map((resource) => <article key={resource.id}><span>{resource.type}</span><strong>{resource.title}</strong><p>{resource.id} · 挂接 {resource.node}</p><em>{resource.output}</em></article>)}
-          <article className="graph-output-focus"><span>评价产出</span><strong>{selectedNode.output}</strong><p>完成节点活动后，学生端生成可被教师端讲评和投屏端展示的学习记录。</p><em>{selectedNode.status}</em></article>
+          <article className="graph-output-focus"><span>评价产出</span><strong>{selectedNode.output}</strong><p>完成节点活动后，学生端生成可被教师端讲评的学习记录。</p><em>{selectedNode.status}</em></article>
         </div>
       </section>
     </div>
@@ -121,7 +121,6 @@ function NodeEndpointLinks({ nodeId, projectId }: { nodeId?: string; projectId: 
     <Link href={`/learn/${nodeId}`}>学生自学</Link>
     <Link href={`/classroom/${nodeId}`}>课堂跟随</Link>
     <Link href={`/teacher/sessions/${nodeId}`}>教师端</Link>
-    <Link href={`/present/${nodeId}`}>投屏端</Link>
     <Link href={`/game?project=${projectId}`}>卡牌互动</Link>
   </div>;
 }

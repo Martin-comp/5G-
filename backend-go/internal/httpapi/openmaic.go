@@ -73,6 +73,29 @@ func (s *Server) aiChat(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (s *Server) aiStudyInsight(w http.ResponseWriter, r *http.Request) {
+	var request data.AIStudyInsightRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	if strings.TrimSpace(request.NodeID) == "" {
+		writeError(w, http.StatusBadRequest, "nodeId is required")
+		return
+	}
+
+	analytics := data.SelfStudyAnalyticsData(request.ClassID, request.NodeID)
+	if apiKey := strings.TrimSpace(os.Getenv("DEEPSEEK_API_KEY")); apiKey != "" {
+		response, err := requestDeepSeekStudyInsight(apiKey, request, analytics)
+		if err == nil {
+			writeJSON(w, http.StatusOK, response)
+			return
+		}
+	}
+
+	writeJSON(w, http.StatusOK, localStudyInsight(analytics))
+}
+
 func requestOpenMAICPBLChat(baseURL string, payload data.AIChatRequest) (data.AIChatResponse, error) {
 	endpoint := strings.TrimRight(baseURL, "/") + "/api/pbl/chat"
 	body, err := json.Marshal(map[string]any{
@@ -280,6 +303,85 @@ func requestDeepSeekChat(apiKey string, payload data.AIChatRequest) (data.AIChat
 		Mode:     "remote",
 		Answer:   strings.TrimSpace(content),
 	}, nil
+}
+
+func requestDeepSeekStudyInsight(apiKey string, request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) (data.AIStudyInsightResponse, error) {
+	content, err := requestDeepSeekCompletion(apiKey, []chatMessage{
+		{
+			Role:    "system",
+			Content: "你是职业教育5G网络优化数字教材的教师学情助手。仅依据给出的自学完成数据生成简洁中文学情卡。不得捏造学生行为或具体错误。只返回 JSON：{\"summary\":\"不超过45字\",\"focus\":\"不超过45字\",\"action\":\"不超过45字\"}。",
+		},
+		{Role: "user", Content: studyInsightPrompt(request, analytics)},
+	}, 0.2)
+	if err != nil {
+		return data.AIStudyInsightResponse{}, err
+	}
+	response := parseStudyInsightContent(content, analytics)
+	response.Provider = "DeepSeek"
+	response.Mode = "remote"
+	return response, nil
+}
+
+func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) string {
+	studentSnapshots := make([]string, 0, len(analytics.Cards))
+	for index, card := range analytics.Cards {
+		studentSnapshots = append(studentSnapshots, fmt.Sprintf("学生%d：能力数%d，完成%d/4节", index+1, card.AbilityScore, len(card.CompletedSteps)))
+	}
+	return fmt.Sprintf(`课程：5G网络优化（高级）
+节点：%s
+自学数据：参与%d人，完整完成%d人，平均能力数%d，需要支持%d人。
+学生概览：%s
+
+请生成给教师看的学情概览、优先讲评重点和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.NeedsSupport, emptyText(strings.Join(studentSnapshots, "；")))
+}
+
+func parseStudyInsightContent(content string, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
+	content = strings.TrimSpace(strings.Trim(content, "`"))
+	if strings.HasPrefix(content, "json") {
+		content = strings.TrimSpace(strings.TrimPrefix(content, "json"))
+	}
+	var parsed struct {
+		Summary string `json:"summary"`
+		Focus   string `json:"focus"`
+		Action  string `json:"action"`
+	}
+	if err := json.Unmarshal([]byte(content), &parsed); err == nil && strings.TrimSpace(parsed.Summary) != "" {
+		return data.AIStudyInsightResponse{Summary: parsed.Summary, Focus: parsed.Focus, Action: parsed.Action}
+	}
+	response := localStudyInsight(analytics)
+	if strings.TrimSpace(content) != "" {
+		response.Summary = content
+	}
+	return response
+}
+
+func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
+	if analytics.Students == 0 {
+		return data.AIStudyInsightResponse{
+			Provider: "local-insight", Mode: "local-fallback",
+			Summary: "暂未收到学生自学记录，暂不能形成班级学情判断。",
+			Focus:   "先让学生完成至少一个知识小节并保存进度。",
+			Action:  "学生数据进入后，再生成面向本节点的讲评建议。",
+		}
+	}
+	focus := "重点核查未完成小节，避免只看能力总分。"
+	for _, card := range analytics.Cards {
+		for _, ability := range card.Abilities {
+			if ability.Score < 100 {
+				focus = fmt.Sprintf("优先讲评“%s”，这是当前学习记录中的薄弱维度。", ability.Label)
+				break
+			}
+		}
+		if focus != "重点核查未完成小节，避免只看能力总分。" {
+			break
+		}
+	}
+	return data.AIStudyInsightResponse{
+		Provider: "local-insight", Mode: "local-fallback",
+		Summary: fmt.Sprintf("本节点已有%d人学习，%d人完成，平均能力数为%d。", analytics.Students, analytics.Completed, analytics.AverageAbility),
+		Focus:   focus,
+		Action:  "听讲阶段先展示关键证据，再让未完成学生补齐对应知识小节。",
+	}
 }
 
 func requestDeepSeekCompletion(apiKey string, messages []chatMessage, temperature float64) (string, error) {

@@ -101,7 +101,20 @@ export type ClassroomSubmissionPayload = {
 export type ClassroomSubmissionDTO = ClassroomSubmissionPayload & {
   id: string;
   tags: string[];
-  createdAt: number;
+	createdAt: number;
+};
+
+export type ClassroomExitPayload = {
+	classId?: string;
+	nodeId: string;
+	studentId: string;
+	studentName: string;
+};
+
+export type ClassroomExitDTO = ClassroomExitPayload & {
+	classId: string;
+	id: string;
+	createdAt: number;
 };
 
 export type ClassroomAnalyticsItemDTO = {
@@ -141,6 +154,51 @@ export type ClassroomLearningPortfolioDTO = {
 	nodes: ClassroomNodePortfolioDTO[];
 	recent: ClassroomSubmissionDTO[];
 	updatedAt: number;
+};
+
+export type SelfStudyAbilityDTO = {
+	label: string;
+	score: number;
+	status: string;
+};
+
+export type SelfStudyProgressPayload = {
+	classId?: string;
+	nodeId: string;
+	studentId: string;
+	studentName: string;
+	completedSteps: string[];
+};
+
+export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
+	classId: string;
+	abilityScore: number;
+	abilities: SelfStudyAbilityDTO[];
+	updatedAt: number;
+};
+
+export type SelfStudyAnalyticsDTO = {
+	classId: string;
+	nodeId: string;
+	students: number;
+	completed: number;
+	averageAbility: number;
+	needsSupport: number;
+	cards: SelfStudyProgressDTO[];
+	updatedAt: number;
+};
+
+export type AIStudyInsightPayload = {
+	classId?: string;
+	nodeId: string;
+};
+
+export type AIStudyInsightDTO = {
+	provider: string;
+	mode: string;
+	summary: string;
+	focus: string;
+	action: string;
 };
 
 export type ClassroomPollResponsePayload = {
@@ -313,8 +371,24 @@ export const textbookApi = {
     method: 'POST',
     body: JSON.stringify(withClassroomId(payload))
   }),
+  classroomExits: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomExitDTO[]>(`/api/classroom/exits?${classroomQuery(nodeId, classId)}`),
+  leaveClassroom: (payload: ClassroomExitPayload) => requestJSON<ClassroomExitDTO>('/api/classroom/exits', {
+    method: 'POST',
+    keepalive: true,
+    body: JSON.stringify(withClassroomId(payload))
+  }),
   classroomAnalytics: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomAnalyticsDTO>(`/api/classroom/analytics?${classroomQuery(nodeId, classId)}`),
   classroomPortfolio: (classId = readClassroomId()) => requestJSON<ClassroomLearningPortfolioDTO>(`/api/classroom/portfolio?classId=${encodeURIComponent(classId)}`),
+  selfStudyProgress: (nodeId: string, studentId: string, classId = readClassroomId()) => requestJSON<SelfStudyProgressDTO>(`/api/self-study/progress?classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}&studentId=${encodeURIComponent(studentId)}`),
+  updateSelfStudyProgress: (payload: SelfStudyProgressPayload) => requestJSON<SelfStudyProgressDTO>('/api/self-study/progress', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  selfStudyAnalytics: (nodeId: string, classId = readClassroomId()) => requestJSON<SelfStudyAnalyticsDTO>(`/api/self-study/analytics?classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}`),
+	generateStudyInsight: (payload: AIStudyInsightPayload) => requestJSON<AIStudyInsightDTO>('/api/ai/study-insight', {
+		method: 'POST',
+		body: JSON.stringify(withClassroomId(payload))
+	}),
   classroomPoll: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomPollResultsDTO>(`/api/classroom/poll?${classroomQuery(nodeId, classId)}`),
   submitPollResponse: (payload: ClassroomPollResponsePayload) => requestJSON<ClassroomPollResponseDTO>('/api/classroom/poll', {
     method: 'POST',

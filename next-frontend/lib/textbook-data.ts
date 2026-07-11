@@ -46,7 +46,6 @@ export const graphNodes = [
 export const resourceCards = [
   { title: 'N04 学生自学页', desc: '图文讲解 · 步骤演示' },
   { title: 'N04 教师授课页', desc: '教学课件 · 重点提示' },
-  { title: 'N04 投屏页', desc: '课堂投屏 · 关键步骤' },
   { title: '移动性指标表', desc: '参数说明 · 参考阈值' },
   { title: '路线示意图', desc: '移动轨迹 · 典型路径' }
 ];
@@ -61,6 +60,7 @@ export const capabilityNodes = [
   { id: 'P2T3-N07', label: '制定整改建议', task: 'P2-T3', project: 'P2', activity: '把建议写成可复核、不过度承诺的表达', output: '整改建议卡', status: '建议输出' },
   { id: 'P2T3-N08', label: '输出分析报告并连接复测', task: 'P2-T3', project: 'P2', activity: '形成测试数据分析报告并说明后续复测入口', output: '测试数据分析报告', status: '报告产出' },
   { id: 'P1T1-N01', label: '识别采集场景', task: 'P1-T1', project: 'P1', activity: '确认楼宇、区域、人员和业务场景', output: '场景采集记录', status: '任务入口' },
+  { id: 'P1T1-N02', label: '核对站址机房', task: 'P1-T1', project: 'P1', activity: '核对站址、机房、设备配套和照片日志证据', output: '站址机房核对记录', status: 'P1样章' },
   { id: 'P1T2-N01', label: '记录环境与站点信息', task: 'P1-T2', project: 'P1', activity: '整理站点、遮挡、楼层和道路边界', output: '环境信息表', status: '前置材料' },
   { id: 'P1T3-N01', label: '结构化投诉线索', task: 'P1-T3', project: 'P1', activity: '把用户原话转成时间、位置、业务和频次', output: '可验证投诉线索卡', status: '项目样章' },
   { id: 'P4T1-N01', label: '明确优化对象与实施边界', task: 'P4-T1', project: 'P4', activity: '填写优化实施任务单', output: '优化实施任务单', status: '实施入口' },
@@ -187,6 +187,16 @@ const authoredLearningNodeExperiences: LearningNodeExperience[] = [
   createP4TaskNode('P4T2-N07', '形成验收结论', '怎样写出真正可交付的验收结论？', '将已改善项、未闭环项、关键依据和后续动作写成结构化结论。', '结论证据完整度', '4段式', '改善、边界、依据、建议完整', '覆盖已改善，但移动性仍需优化，建议继续复核切换参数与邻区关系。'),
   createP4TaskNode('P4T2-N08', '修正职业表达', '怎样让结论专业、清晰、可追溯？', '检查术语、逻辑、量化依据与建议的可执行性。', '表达规范性', '待自评', '术语准确、结构完整', '将绝对化表述改为基于证据的边界表达，并保留后续复核动作。'),
   createP4LinkedNode('P4T3-N02', 'P4-T3', '归集实施与验证证据', '怎样把验证过程变成一份可追溯的优化报告？', '汇总实施记录、测试数据、验收结论和未闭环项，形成可被复核的报告证据链。', '报告证据链', '4类材料', '实施、测试、结论、建议齐全', '报告既要说明优化价值，也要保留未闭环问题的后续动作。'),
+  {
+    nodeId: 'P1T1-N02', projectId: 'P1', taskId: 'P1-T1', title: '核对站址机房', headline: '站址、机房、设备和照片日志怎样形成可复核证据链？',
+    subtitle: '先明确采集对象，再让站名、楼层、设备、照片、坐标和日志之间可以一一对应。',
+    caseIntro: '进入教学楼机房前，学生拿到一张站址工单和若干现场照片。任务不是简单拍照，而是确认站址、机房边界、主设备、配套和照片日志是否能相互印证。',
+    steps: [{ title: '理解对象', desc: '先确认本次采集的站址、楼层、机房边界和现场对象。' }, { title: '读取证据', desc: '核对设备配套、照片编号、坐标与采集时间。' }, { title: '听讲与判断', desc: '判断哪些材料能够组成可复核的证据链。' }, { title: '形成记录', desc: '输出字段完整、对象可定位的站址机房核对记录。' }],
+    evidence: [{ label: '站址与机房', value: '教学楼 B1', target: '站名、楼层、边界一致', status: '需核对' }, { label: '设备与配套', value: 'AAU / BBU / RRU', target: '与工单对象对应', status: '需核对' }, { label: '照片与日志', value: '编号、坐标、时间', target: '可相互复核', status: '需核对' }],
+    practice: [{ question: '为什么现场照片不能脱离站址和设备编号单独保存？', answer: '照片必须能够回到明确的采集对象', reason: '只有照片、对象、坐标与时间互相对应，后续人员才能复核现场。' }, { question: '核对完成后应形成什么交付？', answer: '站址机房核对记录', reason: '记录应写明对象、边界、证据编号和可复核信息。' }],
+    teacherScript: ['先强调：采集不是拍照，而是建立可复核的现场证据。', '让学生依次核对站址机房、设备配套、照片日志。', '最后检查每份材料能否反向定位到同一现场对象。'],
+    outputs: ['站址机房核对记录', '现场照片日志', 'P2测试前置信息'], rubric: ['现场对象清晰', '证据链可复核', '记录字段完整']
+  },
   {
     nodeId: 'P1T3-N01', projectId: 'P1', taskId: 'P1-T3', title: '结构化投诉线索', headline: '“食堂视频卡顿”怎样变成可验证的问题？',
     subtitle: '将用户原话拆成时间、位置、业务、频次和终端信息，形成可交给测试环节的线索。',

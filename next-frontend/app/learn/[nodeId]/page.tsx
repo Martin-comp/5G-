@@ -11,6 +11,6 @@ export function generateStaticParams() {
 
 export default async function LearnNodePage({ params }: { params: Promise<{ nodeId: string }> }) {
   const { nodeId } = await params;
-  if (nodeId !== p4NodeExperience.nodeId) return <AuthGate role="student"><GenericNodeExperience nodeId={nodeId} mode="learn" /></AuthGate>;
-  return <AuthGate role="student"><P4NodeExperience mode="learn" /></AuthGate>;
+  if (nodeId !== p4NodeExperience.nodeId) return <AuthGate role={['student', 'teacher']}><GenericNodeExperience nodeId={nodeId} mode="learn" /></AuthGate>;
+  return <AuthGate role={['student', 'teacher']}><P4NodeExperience mode="learn" /></AuthGate>;
 }

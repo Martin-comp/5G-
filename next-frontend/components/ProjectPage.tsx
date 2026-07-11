@@ -111,13 +111,13 @@ export function ProjectPage({ projectId, selectedTask, onSelectTask, onNavigate 
         ))}
       </section>
       <section className="panel p4-node-entry-panel">
-        <div><p className="eyebrow">P4 任务间关系</p><h3>实施交接 → 结果验证 → 报告输出</h3><p>每个交接节点都能进入自学、课堂跟随、教师授课和投屏端，P4-T2 的 N01-N08 构成完整验收闭环。</p></div>
+        <div><p className="eyebrow">P4 任务间关系</p><h3>实施交接 → 结果验证 → 报告输出</h3><p>每个交接节点都能进入自学、课堂跟随和教师授课，P4-T2 的 N01-N08 构成完整验收闭环。</p></div>
         <div className="p4-task-flow-links">
           {p4TaskFlow.map((item, index) => <Link key={item.id} href={`/learn/${item.id}`}><span>{item.task}</span><strong>{item.title}</strong><small>{item.note}</small>{index < p4TaskFlow.length - 1 && <em>→</em>}</Link>)}
         </div>
       </section>
       <section className="panel p4-node-entry-panel">
-        <div><p className="eyebrow">P4-T2 节点学习闭环</p><h3>从任一节点进入自学、课堂、教师与投屏</h3></div>
+        <div><p className="eyebrow">P4-T2 节点学习闭环</p><h3>从任一节点进入自学、课堂与教师端</h3></div>
         <div className="p4-node-entry-links">
           {p4Tasks.map((task) => <Link key={task.id} href={`/learn/P4T2-${task.id}`}>{task.id} {task.title}</Link>)}
         </div>
