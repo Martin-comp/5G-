@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { textbookApi, type ClassroomSessionStateDTO } from '@/lib/api';
-import { CLASSROOM_REALTIME_EVENT, openClassroomRealtime } from '@/lib/classroom-realtime';
+import { CLASSROOM_REALTIME_EVENT, openClassroomRealtime, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
 
 export type AuthRole = 'student' | 'teacher';
 type AuthRequirement = AuthRole | AuthRole[];
@@ -43,26 +43,40 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
   const [checked, setChecked] = useState(false);
   const [activeClassroom, setActiveClassroom] = useState<ClassroomSessionStateDTO | null>(null);
   const [pausedSyncAt, setPausedSyncAt] = useState('');
+  const [joinedSyncAt, setJoinedSyncAt] = useState('');
   const allowedRoles = normalizeRoles(role);
 
   useEffect(() => {
     setCurrentRole(readAuthRole());
     setPausedSyncAt(window.sessionStorage.getItem('dgbook-paused-classroom-sync') || '');
+    setJoinedSyncAt(window.sessionStorage.getItem('dgbook-joined-classroom-sync') || '');
     setChecked(true);
   }, []);
 
   const isClassroomPaused = Boolean(activeClassroom?.updatedAt) && pausedSyncAt === String(activeClassroom?.updatedAt ?? '');
+  const hasJoinedClassroom = Boolean(activeClassroom?.updatedAt) && joinedSyncAt === String(activeClassroom?.updatedAt ?? '');
 
   useEffect(() => {
     if (currentRole !== 'student') return;
     let alive = true;
-    const refresh = () => {
+    const refresh = (joinRealtimeSession = false) => {
       void textbookApi.activeClassroomSession().then((state) => {
-        if (alive) setActiveClassroom(state);
+        if (!alive) return;
+        setActiveClassroom(state);
+        if (joinRealtimeSession && state.synced && state.updatedAt) {
+          const syncAt = String(state.updatedAt);
+          window.sessionStorage.setItem('dgbook-joined-classroom-sync', syncAt);
+          window.sessionStorage.removeItem('dgbook-paused-classroom-sync');
+          setJoinedSyncAt(syncAt);
+          setPausedSyncAt('');
+        }
       }).catch(() => undefined);
     };
     refresh();
-    const onRealtime = () => refresh();
+    const onRealtime = (event: Event) => {
+      const detail = (event as CustomEvent<ClassroomRealtimeEvent>).detail;
+      refresh(detail?.type === 'classroom-session');
+    };
     window.addEventListener(CLASSROOM_REALTIME_EVENT, onRealtime);
     const timer = window.setInterval(refresh, 15000);
     return () => {
@@ -78,7 +92,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
   }, [checked, currentRole]);
 
   useEffect(() => {
-    if (currentRole !== 'student' || isClassroomPaused || !activeClassroom?.synced || !activeClassroom.nodeId) return;
+    if (currentRole !== 'student' || isClassroomPaused || !hasJoinedClassroom || !activeClassroom?.synced || !activeClassroom.nodeId) return;
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
     const classroomTarget = `${classroomPath}/`;
     const practicePath = `/game/?project=${activeClassroom.nodeId.slice(0, 2)}`;
@@ -90,7 +104,20 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
       // different static route when the teacher starts the classroom session.
       window.location.assign(target);
     }
-  }, [activeClassroom, currentRole, isClassroomPaused, pathname]);
+  }, [activeClassroom, currentRole, hasJoinedClassroom, isClassroomPaused, pathname]);
+
+  function joinCurrentClassroom() {
+    if (!activeClassroom?.updatedAt || !activeClassroom.nodeId) return;
+    const syncAt = String(activeClassroom.updatedAt);
+    window.sessionStorage.setItem('dgbook-joined-classroom-sync', syncAt);
+    window.sessionStorage.removeItem('dgbook-paused-classroom-sync');
+    setJoinedSyncAt(syncAt);
+    setPausedSyncAt('');
+    const target = activeClassroom.practicePushed
+      ? `/game/?project=${activeClassroom.nodeId.slice(0, 2)}`
+      : `/classroom/${activeClassroom.nodeId}/`;
+    window.location.assign(target);
+  }
 
   function pauseCurrentClassroom() {
     if (!activeClassroom?.updatedAt) return;
@@ -101,7 +128,9 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
       studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
     });
     window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
+    window.sessionStorage.removeItem('dgbook-joined-classroom-sync');
     setPausedSyncAt(syncAt);
+    setJoinedSyncAt('');
     window.location.assign(`/classroom/${activeClassroom.nodeId}/`);
   }
 
@@ -132,7 +161,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     );
   }
 
-  if (currentRole === 'student' && !isClassroomPaused && activeClassroom?.synced && activeClassroom.nodeId) {
+  if (currentRole === 'student' && !isClassroomPaused && hasJoinedClassroom && activeClassroom?.synced && activeClassroom.nodeId) {
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
     const normalizedPath = pathname?.replace(/\/+$/, '') || '/';
     const onClassroomPage = normalizedPath === classroomPath || (activeClassroom.practicePushed && normalizedPath.startsWith('/game'));
@@ -150,7 +179,25 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     }
   }
 
-  return <>{children}</>;
+  const canJoinActiveClassroom = currentRole === 'student'
+    && !isClassroomPaused
+    && !hasJoinedClassroom
+    && activeClassroom?.synced
+    && activeClassroom.nodeId;
+
+  return <>
+    {canJoinActiveClassroom && (
+      <aside className="classroom-join-notice" aria-live="polite">
+        <div>
+          <span>正在讲评</span>
+          <strong>{activeClassroom.nodeId}</strong>
+          <small>教师课堂已经开始，你可以自主加入当前听讲。</small>
+        </div>
+        <button onClick={joinCurrentClassroom} type="button">加入</button>
+      </aside>
+    )}
+    {children}
+  </>;
 }
 
 export function AuthBadge() {

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   classroomTasks,
   learningNodeExperiences,
@@ -134,6 +134,8 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
   const [discussionMessages, setDiscussionMessages] = useState<ClassroomDiscussionMessageDTO[]>([]);
   const [groupResponses, setGroupResponses] = useState<ClassroomGroupResponseDTO[]>([]);
   const [classroomId, setClassroomId] = useState('通信2301班');
+  const [publishedSlide, setPublishedSlide] = useState('3');
+  const slideHydrated = useRef(false);
   const page = p4TeacherSlides.find((item) => item.id === activeSlide) ?? p4TeacherSlides[2];
   const progress = useMemo(() => `${activeSlide} / ${p4TeacherSlides.length}`, [activeSlide]);
   const commonMistakeItems = analytics?.commonMistakes ?? commonMistakes;
@@ -151,7 +153,11 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
         fetchP4ClassroomTools()
       ]);
       if (!alive) return;
-      setActiveSlide(session.slideId);
+      setPublishedSlide(session.slideId);
+      if (!slideHydrated.current) {
+        setActiveSlide(session.slideId);
+        slideHydrated.current = true;
+      }
       setSynced(session.synced);
       setPracticePushed(session.practicePushed);
       setReviewMode(session.reviewMode);
@@ -213,7 +219,7 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
       updatedAt: Date.now(),
       updatedBy: overrides.updatedBy ?? 'teacher'
     };
-    setActiveSlide(next.slideId);
+    setPublishedSlide(next.slideId);
     setSynced(next.synced);
     setPracticePushed(next.practicePushed);
     setReviewMode(next.reviewMode);
@@ -221,12 +227,12 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
   }
 
   function selectSlide(slideId: string) {
-    publishSession({ slideId });
+    setActiveSlide(slideId);
   }
 
   function moveSlide(delta: number) {
     const next = Math.max(1, Math.min(p4TeacherSlides.length, Number(activeSlide) + delta));
-    publishSession({ slideId: String(next) });
+    setActiveSlide(String(next));
   }
 
   function toggleTool(toolKey: (typeof toolButtons)[number]['key']) {
@@ -394,7 +400,7 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
       <footer className="teacher-action-bar">
         <button className="secondary-action dark" onClick={() => moveSlide(-1)} type="button">上一页</button>
         <button className="secondary-action dark" onClick={() => moveSlide(1)} type="button">下一页</button>
-        <button className="secondary-action dark" onClick={() => publishSession({ synced: true })} type="button">{synced ? '学生端已同步' : '同步学生端'}</button>
+        <button className="secondary-action dark" onClick={() => publishSession({ synced: true, slideId: activeSlide })} type="button">同步当前页{synced ? `（已同步 ${publishedSlide}）` : ''}</button>
         <button className="secondary-action dark" onClick={() => publishSession({ practicePushed: true, synced: true })} type="button">{practicePushed ? '练习已推送' : '推送练习'}</button>
         <button className="primary-action" onClick={() => { setActiveTab('answer'); publishSession({ reviewMode: true, synced: true }); }} type="button">{reviewMode ? '正在讲评' : '开始讲评'}</button>
         <button className="secondary-action dark" onClick={() => publishSession({ synced: false, practicePushed: false, reviewMode: false })} type="button">解除课堂控制</button>

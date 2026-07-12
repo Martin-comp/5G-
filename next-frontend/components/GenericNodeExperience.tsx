@@ -16,7 +16,7 @@ import {
 	 type AIStudyInsightDTO,
   type SelfStudyAnalyticsDTO
 } from '@/lib/api';
-import { CLASSROOM_REALTIME_EVENT } from '@/lib/classroom-realtime';
+import { CLASSROOM_REALTIME_EVENT, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
 import { capabilityNodes, getLearningNodeExperience, p4TaskFlow } from '@/lib/textbook-data';
 import { GuidedSelfStudy } from './GuidedSelfStudy';
 import { ListeningTutorBar } from './ListeningTutorBar';
@@ -114,6 +114,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
   const [session, setSession] = useState<Pick<ClassroomSessionStateDTO, 'slideId' | 'synced' | 'practicePushed' | 'reviewMode' | 'updatedAt'>>({ slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0 });
   const [locallyExited, setLocallyExited] = useState(false);
+  const [joinedSyncAt, setJoinedSyncAt] = useState('');
   const [showExitNotice, setShowExitNotice] = useState(false);
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
   const [evidence, setEvidence] = useState(node.evidence.slice(0, 2).map((item) => item.label));
@@ -122,7 +123,9 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
   const slideTotal = Math.max(node.teacherScript.length, 1);
   const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), slideTotal);
   const currentScript = node.teacherScript[slideNumber - 1] ?? node.headline;
-  const classroomActive = session.synced && !locallyExited;
+  const joinedCurrentSync = Boolean(session.updatedAt) && joinedSyncAt === String(session.updatedAt);
+  const classroomActive = session.synced && !locallyExited && joinedCurrentSync;
+  const hasClassroomAccess = classroomActive || locallyExited;
 
   useEffect(() => {
     if (!showExitNotice) return;
@@ -132,15 +135,27 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
 
   useEffect(() => {
     let alive = true;
-    const refresh = () => Promise.all([textbookApi.classroomSession(nodeId), textbookApi.classroomTools(nodeId)]).then(([nextSession, nextTools]) => {
+    const refresh = (joinRealtimeSession = false) => Promise.all([textbookApi.classroomSession(nodeId), textbookApi.classroomTools(nodeId)]).then(([nextSession, nextTools]) => {
       if (!alive) return;
       setSession(nextSession);
       const pausedAt = window.sessionStorage.getItem('dgbook-paused-classroom-sync');
-      setLocallyExited(Boolean(nextSession.updatedAt) && pausedAt === String(nextSession.updatedAt));
+      const syncAt = String(nextSession.updatedAt || '');
+      if (joinRealtimeSession && nextSession.synced && nextSession.updatedAt) {
+        window.sessionStorage.setItem('dgbook-joined-classroom-sync', syncAt);
+        window.sessionStorage.removeItem('dgbook-paused-classroom-sync');
+        setJoinedSyncAt(syncAt);
+        setLocallyExited(false);
+      } else {
+        setJoinedSyncAt(window.sessionStorage.getItem('dgbook-joined-classroom-sync') || '');
+        setLocallyExited(Boolean(nextSession.updatedAt) && pausedAt === syncAt);
+      }
       setToolState(nextTools);
     }).catch(() => undefined);
     void refresh();
-    const onRealtime = () => refresh();
+    const onRealtime = (event: Event) => {
+      const detail = (event as CustomEvent<ClassroomRealtimeEvent>).detail;
+      void refresh(detail?.type === 'classroom-session');
+    };
     window.addEventListener(CLASSROOM_REALTIME_EVENT, onRealtime);
     const timer = window.setInterval(refresh, 15000);
     return () => { alive = false; window.removeEventListener(CLASSROOM_REALTIME_EVENT, onRealtime); window.clearInterval(timer); };
@@ -168,6 +183,8 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
       studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
     });
     window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
+    window.sessionStorage.removeItem('dgbook-joined-classroom-sync');
+    setJoinedSyncAt('');
     setLocallyExited(true);
     setShowExitNotice(true);
   }
@@ -180,7 +197,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
       {classroomActive && toolState.activeTool && <><div className="classroom-tool-live"><strong>课堂工具已开启：{genericToolLabels[toolState.activeTool as GenericToolKey] ?? '课堂工具'}</strong><span>{toolState.prompt}</span></div><GenericClassroomLiveTool nodeId={nodeId} toolState={toolState} /></>}
       {classroomActive && session.reviewMode && <div className="classroom-tool-live review"><strong>教师正在讲评</strong><span>请对照自己的依据是否完整、结论是否有边界。</span></div>}
     </section>
-    {session.synced ? <>
+    {hasClassroomAccess ? <>
       {(node.projectId === 'P1' || node.projectId === 'P2') ? <NodeActivityBoard audience="student" enabled={classroomActive && session.practicePushed} nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}
       {classroomActive && session.practicePushed ? <section className="node-section generic-classroom-task">
         <article className="node-card"><p className="eyebrow">课堂小任务</p><h3>选择依据，形成一句判断</h3><div className="practice-list">{node.practice.map((item, index) => <div key={item.question}><b>{index + 1}</b><strong>{item.question}</strong><span>参考方向：{item.answer}</span></div>)}</div></article>
@@ -287,8 +304,10 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   const [messages, setMessages] = useState<ClassroomDiscussionMessageDTO[]>([]);
   const [groups, setGroups] = useState<ClassroomGroupResponseDTO[]>([]);
   const [exits, setExits] = useState<ClassroomExitDTO[]>([]);
+  const [draftSlideId, setDraftSlideId] = useState('1');
+  const [draftInitialized, setDraftInitialized] = useState(false);
   const slideTotal = Math.max(node.teacherScript.length, 1);
-  const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), slideTotal);
+  const slideNumber = Math.min(Math.max(Number(draftSlideId) || 1, 1), slideTotal);
 
   useEffect(() => {
     setClassroomId(readClassroomId());
@@ -300,7 +319,12 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
           textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId), textbookApi.selfStudyAnalytics(nodeId), textbookApi.classroomExits(nodeId)
         ]);
         if (!alive) return;
-        setSession(nextSession); setAnalytics(nextAnalytics); setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
+        setSession(nextSession);
+        if (!draftInitialized) {
+          setDraftSlideId(nextSession.slideId || '1');
+          setDraftInitialized(true);
+        }
+        setAnalytics(nextAnalytics); setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
       } catch { /* Keep the template visible while the service wakes. */ }
     }
     void refresh();
@@ -308,7 +332,7 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
     window.addEventListener(CLASSROOM_REALTIME_EVENT, onRealtime);
     const timer = window.setInterval(refresh, 15000);
     return () => { alive = false; window.removeEventListener(CLASSROOM_REALTIME_EVENT, onRealtime); window.clearInterval(timer); };
-  }, [nodeId]);
+  }, [draftInitialized, nodeId]);
 
   function publish(overrides: Partial<typeof session>) {
     const next = { ...session, ...overrides, classId: readClassroomId(), nodeId, updatedAt: Date.now(), updatedBy: 'teacher' };
@@ -318,7 +342,7 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
 
   function changeSlide(delta: number) {
     const nextSlide = Math.min(Math.max(slideNumber + delta, 1), slideTotal);
-    publish({ synced: true, slideId: String(nextSlide), practicePushed: false, reviewMode: false });
+    setDraftSlideId(String(nextSlide));
   }
 
   function toggleTool(tool: GenericToolKey) {
@@ -346,8 +370,8 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
       <article className="panel generic-teacher-stage"><p className="eyebrow">讲解脚本</p><h3>{node.headline}</h3><div className="teacher-script-list">{node.teacherScript.map((item, index) => <article key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div>{node.projectId === 'P1' || node.projectId === 'P2' ? <NodeActivityBoard audience="teacher" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}</article>
       <aside className="panel generic-teacher-side">
         <h3>课堂控制</h3>
-        <div className="teacher-slide-control"><span>讲解页 {slideNumber} / {slideTotal}</span><button aria-label="上一讲解页" disabled={slideNumber === 1} onClick={() => changeSlide(-1)} type="button">上一页</button><button aria-label="下一讲解页" disabled={slideNumber === slideTotal} onClick={() => changeSlide(1)} type="button">下一页</button></div>
-        <button className="secondary-action full" onClick={() => publish({ synced: true, slideId: String(slideNumber) })} type="button">{session.synced ? '学生端已同步' : '同步学生端'}</button>
+        <div className="teacher-slide-control"><span>预览 {slideNumber} / {slideTotal}{session.synced ? ` · 已同步第 ${session.slideId} 页` : ''}</span><button aria-label="上一讲解页" disabled={slideNumber === 1} onClick={() => changeSlide(-1)} type="button">上一页</button><button aria-label="下一讲解页" disabled={slideNumber === slideTotal} onClick={() => changeSlide(1)} type="button">下一页</button></div>
+        <button className="secondary-action full" onClick={() => publish({ synced: true, slideId: draftSlideId, practicePushed: false, reviewMode: false })} type="button">同步当前页</button>
         <button className="secondary-action full" onClick={() => publish({ synced: true, practicePushed: true })} type="button">{session.practicePushed ? '练习已推送' : '推送练习'}</button>
         <button className="primary-action full" onClick={() => publish({ synced: true, reviewMode: true })} type="button">{session.reviewMode ? '正在讲评' : '开始讲评'}</button>
         <div className="generic-tool-grid">{(Object.keys(genericToolLabels) as GenericToolKey[]).map((tool) => <button key={tool} className={toolState.activeTool === tool ? 'active' : ''} onClick={() => toggleTool(tool)} type="button">{genericToolLabels[tool]}</button>)}</div>

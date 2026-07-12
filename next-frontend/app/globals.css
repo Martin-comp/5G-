@@ -109,6 +109,37 @@ h1, h2, h3, p { margin-top: 0; }
 }
 .classroom-exit-button { margin-top: 18px; min-height: 44px; padding: 0 16px; border: 1px solid #9ccfc0; border-radius: 10px; background: #f4fbf8; color: #087566; font-weight: 900; }
 .classroom-exit-button:hover { border-color: #15917e; background: #e8f7f1; }
+.classroom-join-notice {
+  position: fixed;
+  z-index: 120;
+  top: 16px;
+  left: 50%;
+  width: min(720px, calc(100% - 32px));
+  min-height: 78px;
+  padding: 12px 14px 12px 18px;
+  border: 1px solid #9fd4c5;
+  border-radius: 14px;
+  background: rgba(255,255,255,.97);
+  box-shadow: 0 18px 46px rgba(7, 72, 62, .18);
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  backdrop-filter: blur(14px);
+}
+.classroom-join-notice div { min-width: 0; display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 3px 10px; }
+.classroom-join-notice span { color: #087566; font-size: 12px; font-weight: 900; }
+.classroom-join-notice strong { color: var(--ink); font-size: 18px; }
+.classroom-join-notice small { grid-column: 1 / -1; color: #5d7772; font-size: 13px; line-height: 1.45; }
+.classroom-join-notice button { min-width: 88px; min-height: 44px; border: 0; border-radius: 10px; background: #15917e; color: #fff; font-weight: 900; }
+.classroom-join-notice button:hover { background: #087566; }
+@media (max-width: 560px) {
+  .classroom-join-notice { top: 8px; width: calc(100% - 16px); min-height: 70px; padding: 10px 10px 10px 14px; }
+  .classroom-join-notice strong { font-size: 15px; }
+  .classroom-join-notice small { font-size: 11px; }
+  .classroom-join-notice button { min-width: 72px; min-height: 40px; }
+}
 .login-intro {
   padding: 44px;
   display: flex;
