@@ -100,14 +100,12 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     if (currentRole !== 'student' || isClassroomPaused || !hasJoinedClassroom || !activeClassroom?.synced || !activeClassroom.nodeId) return;
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
     const classroomTarget = `${classroomPath}/`;
-    const practicePath = `/game/?project=${activeClassroom.nodeId.slice(0, 2)}`;
     const normalizedPath = pathname?.replace(/\/+$/, '') || '/';
-    const inControlledPage = normalizedPath === classroomPath || (activeClassroom.practicePushed && normalizedPath.startsWith('/game'));
+    const inControlledPage = normalizedPath === classroomPath;
     if (!inControlledPage) {
-      const target = activeClassroom.practicePushed ? practicePath : classroomTarget;
       // A full location change is deliberate: a student tab may be sitting on a
       // different static route when the teacher starts the classroom session.
-      window.location.assign(target);
+      window.location.assign(classroomTarget);
     }
   }, [activeClassroom, currentRole, hasJoinedClassroom, isClassroomPaused, pathname]);
 
@@ -118,10 +116,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     window.sessionStorage.removeItem('dgbook-paused-classroom-sync');
     setJoinedSyncAt(syncAt);
     setPausedSyncAt('');
-    const target = activeClassroom.practicePushed
-      ? `/game/?project=${activeClassroom.nodeId.slice(0, 2)}`
-      : `/classroom/${activeClassroom.nodeId}/`;
-    window.location.assign(target);
+    window.location.assign(`/classroom/${activeClassroom.nodeId}/`);
   }
 
   function pauseCurrentClassroom() {
@@ -169,7 +164,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
   if (currentRole === 'student' && !isClassroomPaused && hasJoinedClassroom && activeClassroom?.synced && activeClassroom.nodeId) {
     const classroomPath = `/classroom/${activeClassroom.nodeId}`;
     const normalizedPath = pathname?.replace(/\/+$/, '') || '/';
-    const onClassroomPage = normalizedPath === classroomPath || (activeClassroom.practicePushed && normalizedPath.startsWith('/game'));
+    const onClassroomPage = normalizedPath === classroomPath;
     if (!onClassroomPage) {
       return (
         <main className="role-auth-page classroom-control-wait">
