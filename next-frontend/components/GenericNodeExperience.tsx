@@ -372,6 +372,12 @@ function TeacherExitTips({ exits }: { exits: ClassroomExitDTO[] }) {
   return <div className="teacher-exit-tips"><strong>学生退出提示</strong>{exits.slice(0, 3).map((item) => <span key={item.id}><b>{item.studentName}</b> 已退出听讲 · {new Date(item.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</span>)}</div>;
 }
 
+function formatStudyDuration(seconds: number) {
+  if (!seconds) return '0 分钟';
+  if (seconds < 60) return `${seconds} 秒`;
+  return `${Math.max(1, Math.round(seconds / 60))} 分钟`;
+}
+
 function SelfStudyInsightPanel({ analytics, nodeId }: { analytics: SelfStudyAnalyticsDTO | null; nodeId: string }) {
   const supportCard = analytics?.cards.find((item) => item.abilityScore < 60) ?? analytics?.cards.find((item) => item.completedSteps.length < 4);
   const [insight, setInsight] = useState<AIStudyInsightDTO | null>(null);
@@ -396,9 +402,10 @@ function SelfStudyInsightPanel({ analytics, nodeId }: { analytics: SelfStudyAnal
   }
 
   return <article className="panel generic-ai-learning-card generic-ai-insight-panel">
-    <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 自学模式</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生自学数据` : '等待学生保存自学进度'}</h3></div><span>分析依据：学习小节、能力数、完成时间</span></div>
-    <div className="ai-learning-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.completed ?? 0}</strong><span>完成本节点</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要支持</span></article></div>
-    {analytics?.cards.length ? <div className="ai-learning-student-list">{analytics.cards.slice(0, 4).map((item) => <article key={item.studentId}><div><strong>{item.studentName}</strong><span>完成 {item.completedSteps.length}/4 节</span></div><b>{item.abilityScore}</b><div className="ai-ability-bars">{item.abilities.map((ability) => <span key={ability.label}><i style={{ width: `${ability.score}%` }} /><em>{ability.label}</em></span>)}</div></article>)}</div> : null}
+    <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 综合分析</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生学习数据` : '等待学生保存学习进度'}</h3></div><span>分析依据：进度、正确率、重试、用时、能力数</span></div>
+    <div className="ai-learning-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.averageAccuracy ?? 0}%</strong><span>作业正确率</span></article><article><strong>{analytics?.completed ?? 0}</strong><span>完成本节点</span></article><article><strong>{analytics?.totalRetries ?? 0}</strong><span>累计重试</span></article><article><strong>{formatStudyDuration(analytics?.averageDurationSeconds ?? 0)}</strong><span>平均学习用时</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要支持</span></article></div>
+    {(analytics?.typicalErrors?.length || analytics?.weakAbilities?.length) ? <div className="ai-learning-breakdown"><article><strong>典型错误</strong>{analytics?.typicalErrors?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 次</b></span>)}</article><article><strong>能力短板</strong>{analytics?.weakAbilities?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 人</b></span>)}</article></div> : null}
+    {analytics?.cards.length ? <div className="ai-learning-student-list">{analytics.cards.slice(0, 4).map((item) => <article key={item.studentId}><div><strong>{item.studentName}</strong><span>完成 {item.completedSteps.length}/4 节 · {formatStudyDuration(item.timeSpentSeconds)}</span></div><b>{item.abilityScore}</b><div className="ai-ability-bars">{item.abilities.map((ability) => <span key={ability.label}><i style={{ width: `${ability.score}%` }} /><em>{ability.label}</em></span>)}</div></article>)}</div> : null}
     <div className="ai-learning-suggestion"><div><strong>{insight ? 'AI 学情解读' : '规则预判'}</strong><button className="text-action" disabled={!analytics?.students || loading} onClick={generateInsight} type="button">{loading ? '正在生成' : insight ? '重新生成' : '生成 AI 学情解读'}</button></div>{insight ? <><p>{insight.summary}</p><p><b>讲评重点：</b>{insight.focus}</p><p><b>下一步：</b>{insight.action}</p><small>{insight.provider} · {insight.mode === 'remote' ? '真实 AI' : '本地回退'}</small></> : <p>{suggestion}</p>}{error && <small>{error}</small>}</div>
   </article>;
 }

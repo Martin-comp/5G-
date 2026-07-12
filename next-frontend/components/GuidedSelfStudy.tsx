@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { readClassroomId, textbookApi, type SelfStudyProgressDTO } from '@/lib/api';
 import { getLearningNodeExperience } from '@/lib/textbook-data';
 import { SelfStudyAbilityModel } from './SelfStudyAbilityModel';
@@ -32,7 +32,7 @@ function emptyProgress(nodeId: string): SelfStudyProgressDTO {
       { label: '场景理解', score: 0, status: '待开始' },
       { label: '证据判断', score: 0, status: '待开始' },
       { label: '结论表达', score: 0, status: '待开始' }
-    ],
+    ], startedAt: Date.now(), timeSpentSeconds: 0,
     updatedAt: 0
   };
 }
@@ -48,6 +48,8 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState('请从第一个知识点开始学习，完成后会自动解锁下一节。');
+  const trackingStartedAt = useRef(Date.now());
+  const persistedSeconds = useRef(0);
   const completedCount = progress.completedSteps.length;
   const percentage = Math.round(completedCount / sectionOrder.length * 100);
   const nextSection = sectionMeta[Math.min(completedCount, sectionMeta.length - 1)];
@@ -59,6 +61,8 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
     textbookApi.selfStudyProgress(nodeId, studentId()).then((remote) => {
       if (!alive || !remote.studentId) return;
       setProgress(remote);
+      persistedSeconds.current = remote.timeSpentSeconds || 0;
+      trackingStartedAt.current = Date.now();
       setActiveIndex(Math.min(remote.completedSteps.length, sectionMeta.length - 1));
       if (remote.completedSteps.length === sectionOrder.length) setNotice('本节点自学已完成，能力数与学习记录已保存。');
     }).catch(() => undefined);
@@ -87,15 +91,20 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
   async function completeAndContinue() {
     if (!canAdvance) return;
     const completedSteps = [...progress.completedSteps, sectionOrder[activeIndex]];
+    const timeSpentSeconds = persistedSeconds.current + Math.max(1, Math.round((Date.now() - trackingStartedAt.current) / 1000));
     setSaving(true);
     try {
       const saved = await textbookApi.updateSelfStudyProgress({
         nodeId,
         studentId: studentId(),
         studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示',
-        completedSteps
+        completedSteps,
+        startedAt: progress.startedAt || trackingStartedAt.current,
+        timeSpentSeconds
       });
       setProgress(saved);
+      persistedSeconds.current = saved.timeSpentSeconds;
+      trackingStartedAt.current = Date.now();
       const isFinished = completedSteps.length === sectionOrder.length;
       setNotice(isFinished ? '本节点自学已完成，能力数和学习记录已同步到教师端。' : `${displayedSection.title}已保存，已解锁${sectionMeta[activeIndex + 1].title}。`);
       if (!isFinished) setActiveIndex(activeIndex + 1);

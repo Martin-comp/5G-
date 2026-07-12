@@ -1,7 +1,9 @@
 package data
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"sort"
 	"strings"
 	"sync"
@@ -227,33 +229,42 @@ type SelfStudyAbility struct {
 }
 
 type SelfStudyProgressUpdateRequest struct {
-	ClassID        string   `json:"classId"`
-	NodeID         string   `json:"nodeId"`
-	StudentID      string   `json:"studentId"`
-	StudentName    string   `json:"studentName"`
-	CompletedSteps []string `json:"completedSteps"`
+	ClassID          string   `json:"classId"`
+	NodeID           string   `json:"nodeId"`
+	StudentID        string   `json:"studentId"`
+	StudentName      string   `json:"studentName"`
+	CompletedSteps   []string `json:"completedSteps"`
+	StartedAt        int64    `json:"startedAt"`
+	TimeSpentSeconds int      `json:"timeSpentSeconds"`
 }
 
 type SelfStudyProgress struct {
-	ClassID        string             `json:"classId"`
-	NodeID         string             `json:"nodeId"`
-	StudentID      string             `json:"studentId"`
-	StudentName    string             `json:"studentName"`
-	CompletedSteps []string           `json:"completedSteps"`
-	AbilityScore   int                `json:"abilityScore"`
-	Abilities      []SelfStudyAbility `json:"abilities"`
-	UpdatedAt      int64              `json:"updatedAt"`
+	ClassID          string             `json:"classId"`
+	NodeID           string             `json:"nodeId"`
+	StudentID        string             `json:"studentId"`
+	StudentName      string             `json:"studentName"`
+	CompletedSteps   []string           `json:"completedSteps"`
+	AbilityScore     int                `json:"abilityScore"`
+	Abilities        []SelfStudyAbility `json:"abilities"`
+	StartedAt        int64              `json:"startedAt"`
+	TimeSpentSeconds int                `json:"timeSpentSeconds"`
+	UpdatedAt        int64              `json:"updatedAt"`
 }
 
 type SelfStudyAnalytics struct {
-	ClassID        string              `json:"classId"`
-	NodeID         string              `json:"nodeId"`
-	Students       int                 `json:"students"`
-	Completed      int                 `json:"completed"`
-	AverageAbility int                 `json:"averageAbility"`
-	NeedsSupport   int                 `json:"needsSupport"`
-	Cards          []SelfStudyProgress `json:"cards"`
-	UpdatedAt      int64               `json:"updatedAt"`
+	ClassID                string                   `json:"classId"`
+	NodeID                 string                   `json:"nodeId"`
+	Students               int                      `json:"students"`
+	Completed              int                      `json:"completed"`
+	AverageAbility         int                      `json:"averageAbility"`
+	AverageAccuracy        int                      `json:"averageAccuracy"`
+	AverageDurationSeconds int                      `json:"averageDurationSeconds"`
+	TotalRetries           int                      `json:"totalRetries"`
+	NeedsSupport           int                      `json:"needsSupport"`
+	TypicalErrors          []ClassroomAnalyticsItem `json:"typicalErrors"`
+	WeakAbilities          []ClassroomAnalyticsItem `json:"weakAbilities"`
+	Cards                  []SelfStudyProgress      `json:"cards"`
+	UpdatedAt              int64                    `json:"updatedAt"`
 }
 
 var classroomMemory = struct {
@@ -282,18 +293,24 @@ var classroomMemory = struct {
 func ClassroomSession(classID, nodeID string) ClassroomSessionState {
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
+	if store := currentPostgres(); store != nil {
+		state, found, err := store.session(context.Background(), classID, nodeID)
+		if err == nil && found {
+			return state
+		}
+		if err != nil {
+			log.Printf("load classroom session from postgres: %v", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	return classroomSessionLocked(classID, nodeID)
 }
 
-func UpdateClassroomSession(request ClassroomSessionUpdateRequest) ClassroomSessionState {
+func UpdateClassroomSession(request ClassroomSessionUpdateRequest) (ClassroomSessionState, error) {
 	classID := normalizeClassroomID(request.ClassID)
 	nodeID := normalizeClassroomNodeID(request.NodeID)
-	classroomMemory.Lock()
-	defer classroomMemory.Unlock()
-
-	state := classroomSessionLocked(classID, nodeID)
+	state := ClassroomSession(classID, nodeID)
 	if strings.TrimSpace(request.SlideID) != "" {
 		state.SlideID = strings.TrimSpace(request.SlideID)
 	}
@@ -306,17 +323,33 @@ func UpdateClassroomSession(request ClassroomSessionUpdateRequest) ClassroomSess
 	}
 	state.UpdatedAt = time.Now().UnixMilli()
 	state.ClassID = classID
+	if store := currentPostgres(); store != nil {
+		if err := store.saveSession(context.Background(), state); err != nil {
+			return ClassroomSessionState{}, fmt.Errorf("save classroom session: %w", err)
+		}
+	}
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
 	classroomMemory.sessions[classroomKey(classID, nodeID)] = state
 	if state.Synced {
 		classroomMemory.activeNodes[classID] = nodeID
 	} else if classroomMemory.activeNodes[classID] == nodeID {
 		delete(classroomMemory.activeNodes, classID)
 	}
-	return state
+	return state, nil
 }
 
 func ActiveClassroomSession(classID string) ClassroomSessionState {
 	classID = normalizeClassroomID(classID)
+	if store := currentPostgres(); store != nil {
+		state, found, err := store.activeSession(context.Background(), classID)
+		if err == nil && found {
+			return state
+		}
+		if err != nil {
+			log.Printf("load active classroom session from postgres: %v", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	nodeID := classroomMemory.activeNodes[classID]
@@ -329,18 +362,24 @@ func ActiveClassroomSession(classID string) ClassroomSessionState {
 func ClassroomTools(classID, nodeID string) ClassroomToolState {
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
+	if store := currentPostgres(); store != nil {
+		state, found, err := store.tools(context.Background(), classID, nodeID)
+		if err == nil && found {
+			return state
+		}
+		if err != nil {
+			log.Printf("load classroom tools from postgres: %v", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	return classroomToolsLocked(classID, nodeID)
 }
 
-func UpdateClassroomTools(request ClassroomToolUpdateRequest) ClassroomToolState {
+func UpdateClassroomTools(request ClassroomToolUpdateRequest) (ClassroomToolState, error) {
 	classID := normalizeClassroomID(request.ClassID)
 	nodeID := normalizeClassroomNodeID(request.NodeID)
-	classroomMemory.Lock()
-	defer classroomMemory.Unlock()
-
-	state := classroomToolsLocked(classID, nodeID)
+	state := ClassroomTools(classID, nodeID)
 	state.ActiveTool = strings.TrimSpace(request.ActiveTool)
 	state.PollOpen = request.PollOpen
 	state.DiscussionOpen = request.DiscussionOpen
@@ -353,11 +392,18 @@ func UpdateClassroomTools(request ClassroomToolUpdateRequest) ClassroomToolState
 	}
 	state.UpdatedAt = time.Now().UnixMilli()
 	state.ClassID = classID
+	if store := currentPostgres(); store != nil {
+		if err := store.saveTools(context.Background(), state); err != nil {
+			return ClassroomToolState{}, fmt.Errorf("save classroom tools: %w", err)
+		}
+	}
+	classroomMemory.Lock()
+	defer classroomMemory.Unlock()
 	classroomMemory.tools[classroomKey(classID, nodeID)] = state
-	return state
+	return state, nil
 }
 
-func CreateClassroomSubmission(request ClassroomSubmissionRequest) ClassroomSubmission {
+func CreateClassroomSubmission(request ClassroomSubmissionRequest) (ClassroomSubmission, error) {
 	classID := normalizeClassroomID(request.ClassID)
 	nodeID := normalizeClassroomNodeID(request.NodeID)
 	studentID := strings.TrimSpace(request.StudentID)
@@ -392,16 +438,28 @@ func CreateClassroomSubmission(request ClassroomSubmissionRequest) ClassroomSubm
 	}
 	submission.Tags = submissionTags(submission)
 
+	if store := currentPostgres(); store != nil {
+		if err := store.saveSubmission(context.Background(), submission); err != nil {
+			return ClassroomSubmission{}, fmt.Errorf("save classroom submission: %w", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	key := classroomKey(classID, nodeID)
 	classroomMemory.submissions[key] = append(classroomMemory.submissions[key], submission)
-	return submission
+	return submission, nil
 }
 
 func ClassroomSubmissions(classID, nodeID string) []ClassroomSubmission {
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
+	if store := currentPostgres(); store != nil {
+		items, err := store.submissions(context.Background(), classID, nodeID)
+		if err == nil {
+			return items
+		}
+		log.Printf("load classroom submissions from postgres: %v", err)
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	items := make([]ClassroomSubmission, len(classroomMemory.submissions[classroomKey(classID, nodeID)]))
@@ -425,6 +483,11 @@ func CreateClassroomExit(request ClassroomExitRequest) (ClassroomExit, error) {
 		StudentName: displayStudentName(request.StudentName),
 		CreatedAt:   time.Now().UnixMilli(),
 	}
+	if store := currentPostgres(); store != nil {
+		if err := store.saveExit(context.Background(), exit); err != nil {
+			return ClassroomExit{}, fmt.Errorf("save classroom exit: %w", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	key := classroomKey(classID, nodeID)
@@ -435,6 +498,13 @@ func CreateClassroomExit(request ClassroomExitRequest) (ClassroomExit, error) {
 func ClassroomExits(classID, nodeID string) []ClassroomExit {
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
+	if store := currentPostgres(); store != nil {
+		items, err := store.exits(context.Background(), classID, nodeID)
+		if err == nil {
+			return items
+		}
+		log.Printf("load classroom exits from postgres: %v", err)
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	items := make([]ClassroomExit, len(classroomMemory.exits[classroomKey(classID, nodeID)]))
@@ -640,38 +710,47 @@ func ClassroomAnalyticsData(classID, nodeID string) ClassroomAnalytics {
 
 func ClassroomLearningPortfolioData(classID string) ClassroomLearningPortfolio {
 	classID = normalizeClassroomID(classID)
-	classroomMemory.Lock()
-	defer classroomMemory.Unlock()
-
-	prefix := classID + "::"
+	allSubmissions := make([]ClassroomSubmission, 0)
+	if store := currentPostgres(); store != nil {
+		items, err := store.submissionsForClass(context.Background(), classID)
+		if err == nil {
+			allSubmissions = items
+		} else {
+			log.Printf("load classroom portfolio from postgres: %v", err)
+		}
+	} else {
+		classroomMemory.Lock()
+		prefix := classID + "::"
+		for key, submissions := range classroomMemory.submissions {
+			if strings.HasPrefix(key, prefix) {
+				allSubmissions = append(allSubmissions, submissions...)
+			}
+		}
+		classroomMemory.Unlock()
+	}
 	nodes := map[string]*ClassroomNodePortfolio{}
 	students := map[string]struct{}{}
 	recent := make([]ClassroomSubmission, 0)
 	scoreSum := 0
 	total := 0
 
-	for key, submissions := range classroomMemory.submissions {
-		if !strings.HasPrefix(key, prefix) {
-			continue
+	for _, item := range allSubmissions {
+		total++
+		scoreSum += item.Score
+		students[item.StudentID] = struct{}{}
+		recent = append(recent, item)
+		node := nodes[item.NodeID]
+		if node == nil {
+			node = &ClassroomNodePortfolio{NodeID: item.NodeID}
+			nodes[item.NodeID] = node
 		}
-		for _, item := range submissions {
-			total++
-			scoreSum += item.Score
-			students[item.StudentID] = struct{}{}
-			recent = append(recent, item)
-			node := nodes[item.NodeID]
-			if node == nil {
-				node = &ClassroomNodePortfolio{NodeID: item.NodeID}
-				nodes[item.NodeID] = node
-			}
-			node.Submitted++
-			node.AverageScore += item.Score
-			if item.Score < 80 {
-				node.NeedsReview++
-			}
-			if item.CreatedAt > node.LastSubmittedAt {
-				node.LastSubmittedAt = item.CreatedAt
-			}
+		node.Submitted++
+		node.AverageScore += item.Score
+		if item.Score < 80 {
+			node.NeedsReview++
+		}
+		if item.CreatedAt > node.LastSubmittedAt {
+			node.LastSubmittedAt = item.CreatedAt
 		}
 	}
 
@@ -708,6 +787,15 @@ func SelfStudyProgressData(classID, nodeID, studentID string) SelfStudyProgress 
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
 	studentID = strings.TrimSpace(studentID)
+	if store := currentPostgres(); store != nil {
+		progress, found, err := store.selfStudy(context.Background(), classID, nodeID, studentID)
+		if err == nil && found {
+			return progress
+		}
+		if err != nil {
+			log.Printf("load self-study progress from postgres: %v", err)
+		}
+	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	return classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)]
@@ -729,15 +817,34 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	if len(abilities) > 0 {
 		score /= len(abilities)
 	}
+	existing := SelfStudyProgressData(classID, nodeID, studentID)
+	startedAt := request.StartedAt
+	if startedAt <= 0 {
+		startedAt = existing.StartedAt
+	}
+	if startedAt <= 0 {
+		startedAt = time.Now().UnixMilli()
+	}
+	timeSpentSeconds := request.TimeSpentSeconds
+	if timeSpentSeconds < existing.TimeSpentSeconds {
+		timeSpentSeconds = existing.TimeSpentSeconds
+	}
 	progress := SelfStudyProgress{
-		ClassID:        classID,
-		NodeID:         nodeID,
-		StudentID:      studentID,
-		StudentName:    displayStudentName(request.StudentName),
-		CompletedSteps: completedSteps,
-		AbilityScore:   score,
-		Abilities:      abilities,
-		UpdatedAt:      time.Now().UnixMilli(),
+		ClassID:          classID,
+		NodeID:           nodeID,
+		StudentID:        studentID,
+		StudentName:      displayStudentName(request.StudentName),
+		CompletedSteps:   completedSteps,
+		AbilityScore:     score,
+		Abilities:        abilities,
+		StartedAt:        startedAt,
+		TimeSpentSeconds: timeSpentSeconds,
+		UpdatedAt:        time.Now().UnixMilli(),
+	}
+	if store := currentPostgres(); store != nil {
+		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
+			return SelfStudyProgress{}, fmt.Errorf("save self-study progress: %w", err)
+		}
 	}
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
@@ -748,24 +855,44 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 	classID = normalizeClassroomID(classID)
 	nodeID = normalizeClassroomNodeID(nodeID)
-	classroomMemory.Lock()
-	defer classroomMemory.Unlock()
 	cards := make([]SelfStudyProgress, 0)
-	prefix := classID + "::" + nodeID + "::"
+	if store := currentPostgres(); store != nil {
+		items, err := store.selfStudyForNode(context.Background(), classID, nodeID)
+		if err == nil {
+			cards = items
+		} else {
+			log.Printf("load self-study analytics from postgres: %v", err)
+		}
+	} else {
+		classroomMemory.Lock()
+		prefix := classID + "::" + nodeID + "::"
+		for key, item := range classroomMemory.selfStudy {
+			if strings.HasPrefix(key, prefix) {
+				cards = append(cards, item)
+			}
+		}
+		classroomMemory.Unlock()
+	}
 	scoreSum := 0
+	durationSum := 0
 	completed := 0
 	needsSupport := 0
-	for key, item := range classroomMemory.selfStudy {
-		if !strings.HasPrefix(key, prefix) {
-			continue
-		}
-		cards = append(cards, item)
+	weakAbilityCounts := map[string]int{}
+	studentIDs := map[string]struct{}{}
+	for _, item := range cards {
+		studentIDs[item.StudentID] = struct{}{}
 		scoreSum += item.AbilityScore
+		durationSum += item.TimeSpentSeconds
 		if len(item.CompletedSteps) >= 4 {
 			completed++
 		}
 		if item.AbilityScore < 60 {
 			needsSupport++
+		}
+		for _, ability := range item.Abilities {
+			if ability.Score < 100 {
+				weakAbilityCounts[ability.Label]++
+			}
 		}
 	}
 	sort.Slice(cards, func(i, j int) bool { return cards[i].UpdatedAt > cards[j].UpdatedAt })
@@ -773,7 +900,39 @@ func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 	if len(cards) > 0 {
 		average = scoreSum / len(cards)
 	}
-	return SelfStudyAnalytics{ClassID: classID, NodeID: nodeID, Students: len(cards), Completed: completed, AverageAbility: average, NeedsSupport: needsSupport, Cards: cards, UpdatedAt: time.Now().UnixMilli()}
+	averageDuration := 0
+	if len(cards) > 0 {
+		averageDuration = durationSum / len(cards)
+	}
+	submissions := ClassroomSubmissions(classID, nodeID)
+	accuracy := 0
+	retries := 0
+	submissionScores := 0
+	attempts := map[string]int{}
+	errorCounts := map[string]int{}
+	for _, item := range submissions {
+		studentIDs[item.StudentID] = struct{}{}
+		submissionScores += item.Score
+		attemptKey := item.StudentID + "::" + item.TaskID
+		attempts[attemptKey]++
+		for _, tag := range item.Tags {
+			errorCounts[tag]++
+		}
+	}
+	if len(submissions) > 0 {
+		accuracy = submissionScores / len(submissions)
+	}
+	for _, count := range attempts {
+		if count > 1 {
+			retries += count - 1
+		}
+	}
+	return SelfStudyAnalytics{
+		ClassID: classID, NodeID: nodeID, Students: len(studentIDs), Completed: completed,
+		AverageAbility: average, AverageAccuracy: accuracy, AverageDurationSeconds: averageDuration,
+		TotalRetries: retries, NeedsSupport: needsSupport, TypicalErrors: analyticsItemsFromCounts(errorCounts),
+		WeakAbilities: analyticsItemsFromCounts(weakAbilityCounts), Cards: cards, UpdatedAt: time.Now().UnixMilli(),
+	}
 }
 
 func classroomSessionLocked(classID, nodeID string) ClassroomSessionState {

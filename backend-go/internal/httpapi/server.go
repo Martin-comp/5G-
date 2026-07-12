@@ -65,6 +65,7 @@ func (s *Server) health(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{
 		"status":  "ok",
 		"service": "5g-digital-textbook-backend",
+		"storage": data.StorageMode(),
 		"time":    time.Now().Format(time.RFC3339),
 	})
 }
@@ -145,7 +146,11 @@ func (s *Server) updateClassroomSession(w http.ResponseWriter, r *http.Request) 
 		writeError(w, http.StatusBadRequest, "invalid json body")
 		return
 	}
-	state := data.UpdateClassroomSession(request)
+	state, err := data.UpdateClassroomSession(request)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	s.hub.broadcast(state.ClassID, classroomRealtimeEvent{Type: "classroom-session", ClassID: state.ClassID, NodeID: state.NodeID, UpdatedAt: state.UpdatedAt})
 	writeJSON(w, http.StatusOK, state)
 }
@@ -168,7 +173,11 @@ func (s *Server) updateClassroomTools(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "invalid json body")
 		return
 	}
-	state := data.UpdateClassroomTools(request)
+	state, err := data.UpdateClassroomTools(request)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	s.hub.broadcast(state.ClassID, classroomRealtimeEvent{Type: "classroom-tools", ClassID: state.ClassID, NodeID: state.NodeID, UpdatedAt: state.UpdatedAt})
 	writeJSON(w, http.StatusOK, state)
 }
@@ -191,7 +200,11 @@ func (s *Server) createClassroomSubmission(w http.ResponseWriter, r *http.Reques
 		writeError(w, http.StatusBadRequest, "answer, conclusion or evidence is required")
 		return
 	}
-	submission := data.CreateClassroomSubmission(request)
+	submission, err := data.CreateClassroomSubmission(request)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
 	s.hub.broadcast(submission.ClassID, classroomRealtimeEvent{Type: "classroom-submission", ClassID: submission.ClassID, NodeID: submission.NodeID, UpdatedAt: submission.CreatedAt})
 	writeJSON(w, http.StatusCreated, submission)
 }

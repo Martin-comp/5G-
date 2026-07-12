@@ -325,14 +325,24 @@ func requestDeepSeekStudyInsight(apiKey string, request data.AIStudyInsightReque
 func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) string {
 	studentSnapshots := make([]string, 0, len(analytics.Cards))
 	for index, card := range analytics.Cards {
-		studentSnapshots = append(studentSnapshots, fmt.Sprintf("学生%d：能力数%d，完成%d/4节", index+1, card.AbilityScore, len(card.CompletedSteps)))
+		studentSnapshots = append(studentSnapshots, fmt.Sprintf("学生%d：能力数%d，完成%d/4节，用时%d秒", index+1, card.AbilityScore, len(card.CompletedSteps), card.TimeSpentSeconds))
+	}
+	typicalErrors := make([]string, 0, len(analytics.TypicalErrors))
+	for _, item := range analytics.TypicalErrors {
+		typicalErrors = append(typicalErrors, fmt.Sprintf("%s(%d次)", item.Label, item.Count))
+	}
+	weakAbilities := make([]string, 0, len(analytics.WeakAbilities))
+	for _, item := range analytics.WeakAbilities {
+		weakAbilities = append(weakAbilities, fmt.Sprintf("%s(%d人)", item.Label, item.Count))
 	}
 	return fmt.Sprintf(`课程：5G网络优化（高级）
 节点：%s
-自学数据：参与%d人，完整完成%d人，平均能力数%d，需要支持%d人。
+学习数据：参与%d人，完整完成%d人，平均能力数%d，作业正确率%d%%，累计重试%d次，平均学习用时%d秒，需要支持%d人。
+典型错误：%s
+能力短板：%s
 学生概览：%s
 
-请生成给教师看的学情概览、优先讲评重点和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.NeedsSupport, emptyText(strings.Join(studentSnapshots, "；")))
+请生成给教师看的班级概况、优先讲评重点和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(studentSnapshots, "；")))
 }
 
 func parseStudyInsightContent(content string, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
@@ -365,7 +375,13 @@ func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightRes
 		}
 	}
 	focus := "重点核查未完成小节，避免只看能力总分。"
+	if len(analytics.TypicalErrors) > 0 {
+		focus = fmt.Sprintf("优先讲评“%s”，该错误在当前作业中出现%d次。", analytics.TypicalErrors[0].Label, analytics.TypicalErrors[0].Count)
+	}
 	for _, card := range analytics.Cards {
+		if len(analytics.TypicalErrors) > 0 {
+			break
+		}
 		for _, ability := range card.Abilities {
 			if ability.Score < 100 {
 				focus = fmt.Sprintf("优先讲评“%s”，这是当前学习记录中的薄弱维度。", ability.Label)
@@ -378,9 +394,9 @@ func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightRes
 	}
 	return data.AIStudyInsightResponse{
 		Provider: "local-insight", Mode: "local-fallback",
-		Summary: fmt.Sprintf("本节点已有%d人学习，%d人完成，平均能力数为%d。", analytics.Students, analytics.Completed, analytics.AverageAbility),
+		Summary: fmt.Sprintf("本节点已有%d人学习，%d人完成，平均能力数%d，作业正确率%d%%。", analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy),
 		Focus:   focus,
-		Action:  "听讲阶段先展示关键证据，再让未完成学生补齐对应知识小节。",
+		Action:  fmt.Sprintf("优先支持%d名薄弱学生，并围绕典型错误组织一次针对性讲评。", analytics.NeedsSupport),
 	}
 }
 

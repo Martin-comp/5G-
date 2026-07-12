@@ -1,10 +1,10 @@
 # 5G数字教材 Go Mock API
 
-这是给 Next.js 前端预留的 Go 后端 mock 服务。当前只用 Go 标准库，不依赖第三方框架。
+这是 5G 数字教材的 Go 后端服务，支持课堂实时同步、AI 助教和 PostgreSQL 学习数据持久化。
 
 ## 运行
 
-需要先安装 Go 1.22+。
+需要先安装 Go 1.23+。
 
 ```bash
 cd backend-go
@@ -17,6 +17,23 @@ go run ./cmd/server
 ```text
 http://localhost:8080
 ```
+
+## PostgreSQL 持久化
+
+没有配置 `DATABASE_URL` 时，后端使用内存模式，适合本地快速预览。配置后会自动连接 PostgreSQL 并创建数据表，持久保存：
+
+- 课堂同步与课堂工具状态；
+- 学生课堂作业与评分；
+- 自学进度、能力数和学习用时；
+- 学生退出听讲记录。
+
+Render 部署时，在同一项目中创建 PostgreSQL，然后将数据库的 `Internal Database URL` 添加到后端 Web Service：
+
+```text
+DATABASE_URL=<Render Internal Database URL>
+```
+
+服务启动日志出现 `PostgreSQL storage connected` 即表示连接成功。访问 `GET /api/health` 时，`storage` 会显示 `postgresql`。
 
 也可以在 `.env` 里改端口，或临时指定端口：
 

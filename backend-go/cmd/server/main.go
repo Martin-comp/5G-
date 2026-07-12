@@ -2,16 +2,29 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
+	"digital-textbook-backend/internal/data"
 	"digital-textbook-backend/internal/httpapi"
 )
 
 func main() {
 	loadDotEnv(".env")
+	if databaseURL := strings.TrimSpace(os.Getenv("DATABASE_URL")); databaseURL != "" {
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		if err := data.ConfigurePostgres(ctx, databaseURL); err != nil {
+			cancel()
+			log.Fatalf("configure PostgreSQL: %v", err)
+		}
+		cancel()
+		defer data.ClosePostgres()
+		log.Printf("PostgreSQL storage connected")
+	}
 
 	addr := os.Getenv("ADDR")
 	if addr == "" {

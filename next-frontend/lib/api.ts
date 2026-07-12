@@ -168,12 +168,16 @@ export type SelfStudyProgressPayload = {
 	studentId: string;
 	studentName: string;
 	completedSteps: string[];
+	startedAt?: number;
+	timeSpentSeconds?: number;
 };
 
 export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
 	classId: string;
 	abilityScore: number;
 	abilities: SelfStudyAbilityDTO[];
+	startedAt: number;
+	timeSpentSeconds: number;
 	updatedAt: number;
 };
 
@@ -183,7 +187,12 @@ export type SelfStudyAnalyticsDTO = {
 	students: number;
 	completed: number;
 	averageAbility: number;
+	averageAccuracy: number;
+	averageDurationSeconds: number;
+	totalRetries: number;
 	needsSupport: number;
+	typicalErrors: ClassroomAnalyticsItemDTO[];
+	weakAbilities: ClassroomAnalyticsItemDTO[];
 	cards: SelfStudyProgressDTO[];
 	updatedAt: number;
 };
