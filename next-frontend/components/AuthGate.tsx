@@ -33,8 +33,13 @@ function classroomStudentId() {
 
 export function readAuthRole(): AuthRole | '' {
   if (typeof window === 'undefined') return '';
-  const role = window.localStorage.getItem('dgbook-auth-role');
+  const role = window.sessionStorage.getItem('dgbook-auth-role') || window.localStorage.getItem('dgbook-auth-role');
   return role === 'student' || role === 'teacher' ? role : '';
+}
+
+export function readAuthName() {
+  if (typeof window === 'undefined') return '';
+  return window.sessionStorage.getItem('dgbook-auth-name') || window.localStorage.getItem('dgbook-auth-name') || '';
 }
 
 export function AuthGate({ role, children }: { role: AuthRequirement; children: ReactNode }) {
@@ -125,7 +130,7 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
     void textbookApi.leaveClassroom({
       nodeId: activeClassroom.nodeId,
       studentId: classroomStudentId(),
-      studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
+      studentName: readAuthName() || '学生端演示'
     });
     window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
     window.sessionStorage.removeItem('dgbook-joined-classroom-sync');
@@ -206,10 +211,13 @@ export function AuthBadge() {
 
   useEffect(() => {
     setRole(readAuthRole());
-    setName(window.localStorage.getItem('dgbook-auth-name') || '');
+    setName(readAuthName());
   }, []);
 
   function logout() {
+    window.sessionStorage.removeItem('dgbook-auth-role');
+    window.sessionStorage.removeItem('dgbook-auth-name');
+    window.sessionStorage.removeItem('dgbook-classroom-id');
     window.localStorage.removeItem('dgbook-auth-role');
     window.localStorage.removeItem('dgbook-auth-name');
     window.location.href = '/login';

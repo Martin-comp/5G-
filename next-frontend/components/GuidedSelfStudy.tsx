@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { readClassroomId, textbookApi, type SelfStudyProgressDTO } from '@/lib/api';
 import { getLearningNodeExperience } from '@/lib/textbook-data';
+import { readAuthName } from './AuthGate';
 import { SelfStudyAbilityModel } from './SelfStudyAbilityModel';
 
 const sectionOrder = ['case', 'evidence', 'practice', 'summary'] as const;
@@ -27,7 +28,7 @@ function studentId() {
 
 function emptyProgress(nodeId: string): SelfStudyProgressDTO {
   return {
-    classId: readClassroomId(), nodeId, studentId: studentId(), studentName: '学生端演示', completedSteps: [], abilityScore: 0,
+    classId: readClassroomId(), nodeId, studentId: studentId(), studentName: readAuthName() || '学生端演示', completedSteps: [], abilityScore: 0,
     abilities: [
       { label: '场景理解', score: 0, status: '待开始' },
       { label: '证据判断', score: 0, status: '待开始' },
@@ -97,7 +98,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
       const saved = await textbookApi.updateSelfStudyProgress({
         nodeId,
         studentId: studentId(),
-        studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示',
+        studentName: readAuthName() || '学生端演示',
         completedSteps,
         startedAt: progress.startedAt || trackingStartedAt.current,
         timeSpentSeconds

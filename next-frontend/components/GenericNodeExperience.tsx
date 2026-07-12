@@ -21,6 +21,7 @@ import { capabilityNodes, getLearningNodeExperience, p4TaskFlow } from '@/lib/te
 import { GuidedSelfStudy } from './GuidedSelfStudy';
 import { ListeningTutorBar } from './ListeningTutorBar';
 import { NodeActivityBoard } from './NodeActivityBoard';
+import { readAuthName } from './AuthGate';
 
 type GenericExperienceMode = 'learn' | 'classroom' | 'teacher' | 'present';
 
@@ -165,7 +166,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
     setStatus('正在提交...');
     try {
       const result = await textbookApi.submitClassroomWork({
-        nodeId, taskId: `${node.taskId}-classroom`, studentId: getGenericStudentId(), studentName: '学生端演示', answer,
+        nodeId, taskId: `${node.taskId}-classroom`, studentId: getGenericStudentId(), studentName: readAuthName() || '学生端演示', answer,
         evidence, conclusion: answer, score: Math.min(100, 50 + evidence.length * 20), selectedEvidence: evidence
       });
       setStatus(`已提交：${result.score}分，教师端会自动更新。`);
@@ -180,7 +181,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
     void textbookApi.leaveClassroom({
       nodeId,
       studentId: getGenericStudentId(),
-      studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示'
+      studentName: readAuthName() || '学生端演示'
     });
     window.sessionStorage.setItem('dgbook-paused-classroom-sync', syncAt);
     window.sessionStorage.removeItem('dgbook-joined-classroom-sync');
@@ -235,7 +236,7 @@ function GenericClassroomLiveTool({ nodeId, toolState }: { nodeId: string; toolS
   async function submitPoll() {
     if (!choice) return setStatus('请先选择一项判断。');
     try {
-      await textbookApi.submitPollResponse({ nodeId, studentId, studentName: '学生端演示', option: choice });
+      await textbookApi.submitPollResponse({ nodeId, studentId, studentName: readAuthName() || '学生端演示', option: choice });
       setPoll(await textbookApi.classroomPoll(nodeId));
       setStatus('投票已提交，教师端会立即更新。');
     } catch { setStatus('投票提交失败，请稍后再试。'); }
@@ -244,7 +245,7 @@ function GenericClassroomLiveTool({ nodeId, toolState }: { nodeId: string; toolS
   async function postMessage() {
     if (!message.trim()) return setStatus('请先写下一句话观点。');
     try {
-      await textbookApi.postClassroomDiscussion({ nodeId, studentId, studentName: '学生端演示', content: message.trim() });
+      await textbookApi.postClassroomDiscussion({ nodeId, studentId, studentName: readAuthName() || '学生端演示', content: message.trim() });
       setMessage('');
       setMessages(await textbookApi.classroomDiscussion(nodeId));
       setStatus('观点已发送。');
@@ -254,7 +255,7 @@ function GenericClassroomLiveTool({ nodeId, toolState }: { nodeId: string; toolS
   async function submitGroup() {
     if (!groupEvidence.length) return setStatus('至少选择一项关键证据。');
     try {
-      await textbookApi.submitClassroomGroup({ nodeId, studentId, studentName: '学生端演示', evidence: groupEvidence, conclusion: groupConclusion });
+      await textbookApi.submitClassroomGroup({ nodeId, studentId, studentName: readAuthName() || '学生端演示', evidence: groupEvidence, conclusion: groupConclusion });
       setStatus('小组结论已提交，等待教师讲评。');
     } catch { setStatus('小组任务提交失败，请稍后再试。'); }
   }

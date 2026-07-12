@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { textbookApi, type ClassroomSubmissionDTO } from '@/lib/api';
 import { CLASSROOM_REALTIME_EVENT } from '@/lib/classroom-realtime';
 import { getLearningNodeExperience } from '@/lib/textbook-data';
+import { readAuthName } from './AuthGate';
 
 type ActivityId = 'scene' | 'output' | 'boundary';
 type Audience = 'student' | 'teacher';
@@ -111,7 +112,7 @@ export function NodeActivityBoard({ nodeId, audience, enabled = true }: { nodeId
         nodeId,
         taskId: activityTaskId(nodeId, active),
         studentId: currentStudentId,
-        studentName: window.localStorage.getItem('dgbook-auth-name') || '学生端演示',
+        studentName: readAuthName() || '学生端演示',
         answer,
         evidence,
         conclusion,
@@ -133,9 +134,13 @@ export function NodeActivityBoard({ nodeId, audience, enabled = true }: { nodeId
     <div className="activity-card-grid">{activities.map((activity, index) => {
       const items = completedFor(activity.id);
       const finished = audience === 'teacher' ? new Set(items.map((item) => item.studentId)).size : isComplete(activity.id);
-      return <button className={`${active === activity.id ? 'active' : ''} ${finished ? 'done' : ''}`} key={activity.id} onClick={() => setActive(activity.id)} type="button"><small>{activity.label}</small><strong>{node.evidence[index]?.value}</strong><span>{audience === 'teacher' ? `${finished} 人已完成` : activity.action}</span><em>{audience === 'teacher' ? (finished ? '查看完成情况' : '暂无提交') : (finished ? '已完成' : '去完成')}</em></button>;
+      const locked = audience === 'student' && !enabled;
+      return <button className={`${active === activity.id ? 'active' : ''} ${finished ? 'done' : ''} ${locked ? 'locked' : ''}`} disabled={locked} key={activity.id} onClick={() => setActive(activity.id)} type="button"><small>{activity.label}</small><strong>{node.evidence[index]?.value}</strong><span>{audience === 'teacher' ? `${finished} 人已完成` : activity.action}</span><em>{audience === 'teacher' ? (finished ? '查看完成情况' : '暂无提交') : locked ? '等待推送' : (finished ? '已完成' : '去完成')}</em></button>;
     })}</div>
-    <article className="activity-workspace">
+    {audience === 'student' && !enabled ? <article className="activity-workspace activity-workspace-locked">
+      <strong>课堂练习尚未开放</strong>
+      <span>请先跟随教师讲解。教师点击“推送练习”后，三项活动才会解锁。</span>
+    </article> : <article className="activity-workspace">
       <div className="activity-workspace-head"><div><p>{activeMeta.label}</p><h4>{activeEvidence?.value}</h4><span>{activeEvidence?.target}</span></div>{audience === 'teacher' ? <b>{new Set(completedFor(active).map((item) => item.studentId)).size} 人完成</b> : <b>{isComplete(active) ? '已保存' : '待完成'}</b>}</div>
       {audience === 'teacher' ? <TeacherActivityDetail items={completedFor(active)} /> : <>
         {active === 'scene' && <div className="activity-option-list">{activityOptions(node.projectId).map((item) => <label key={item}><input checked={selectedScene.includes(item)} disabled={!enabled || activeCompleted} onChange={() => toggleScene(item)} type="checkbox" />{item}</label>)}</div>}
@@ -143,7 +148,7 @@ export function NodeActivityBoard({ nodeId, audience, enabled = true }: { nodeId
         {active === 'boundary' && <div className="activity-option-list single">{choices.map((item) => <label key={item}><input checked={boundary === item} disabled={!enabled || activeCompleted} name={`boundary-${nodeId}`} onChange={() => setBoundary(item)} type="radio" />{item}</label>)}</div>}
         <div className="activity-workspace-footer"><span>{notice}</span><button className="primary-action" disabled={!enabled || saving || activeCompleted} onClick={submitActivity} type="button">{activeCompleted ? '已提交' : saving ? '正在保存' : enabled ? `提交${activeMeta.label}` : '等待教师推送练习'}</button></div>
       </>}
-    </article>
+    </article>}
   </section>;
 }
 

@@ -22,6 +22,7 @@ import {
   type ClassroomPollResultsDTO
 } from '@/lib/api';
 import { p4NodeExperience, p4TaskFlow, p4Tasks } from '@/lib/textbook-data';
+import { readAuthName } from './AuthGate';
 
 type ExperienceMode = 'learn' | 'classroom' | 'teacher' | 'present';
 
@@ -214,7 +215,7 @@ function ClassroomSubmissionForm() {
         nodeId: data.nodeId,
         taskId: `${data.nodeId}-classroom`,
         studentId: getDemoStudentId(),
-        studentName: '学生端演示',
+        studentName: readAuthName() || '学生端演示',
         answer,
         evidence: selectedEvidence,
         conclusion,
@@ -465,7 +466,7 @@ function ClassroomLiveTool({ toolState }: { toolState: P4ClassroomToolState }) {
       return;
     }
     try {
-      await textbookApi.submitPollResponse({ nodeId, studentId, studentName: '学生端演示', option: selectedPoll });
+      await textbookApi.submitPollResponse({ nodeId, studentId, studentName: readAuthName() || '学生端演示', option: selectedPoll });
       setPoll(await textbookApi.classroomPoll(nodeId));
       setStatus('投票已提交，结果会同步给教师端。');
     } catch {
@@ -479,7 +480,7 @@ function ClassroomLiveTool({ toolState }: { toolState: P4ClassroomToolState }) {
       return;
     }
     try {
-      await textbookApi.postClassroomDiscussion({ nodeId, studentId, studentName: '学生端演示', content: message.trim() });
+      await textbookApi.postClassroomDiscussion({ nodeId, studentId, studentName: readAuthName() || '学生端演示', content: message.trim() });
       setMessage('');
       setMessages(await textbookApi.classroomDiscussion(nodeId));
       setStatus('观点已发送到课堂讨论区。');
@@ -493,7 +494,7 @@ function ClassroomLiveTool({ toolState }: { toolState: P4ClassroomToolState }) {
       await textbookApi.submitClassroomGroup({
         nodeId,
         studentId,
-        studentName: '学生端演示',
+        studentName: readAuthName() || '学生端演示',
         evidence: groupEvidence,
         conclusion: groupConclusion
       });

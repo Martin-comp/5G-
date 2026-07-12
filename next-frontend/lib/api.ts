@@ -308,7 +308,9 @@ const DEFAULT_CLASSROOM_ID = '通信2301班';
 
 export function readClassroomId() {
   if (typeof window === 'undefined') return DEFAULT_CLASSROOM_ID;
-  return window.localStorage.getItem('dgbook-classroom-id')?.trim() || DEFAULT_CLASSROOM_ID;
+  return window.sessionStorage.getItem('dgbook-classroom-id')?.trim()
+    || window.localStorage.getItem('dgbook-classroom-id')?.trim()
+    || DEFAULT_CLASSROOM_ID;
 }
 
 function classroomQuery(nodeId: string, classId = readClassroomId()) {

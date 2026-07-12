@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { textbookApi } from '@/lib/api';
 import { classroomTasks, learningNodeExperiences, mobilityMetrics, projectTaskMap, projects } from '@/lib/textbook-data';
 import type { Navigate } from './types';
+import { readAuthName } from './AuthGate';
 
 export function StudentTaskPage({
   projectId,
@@ -56,7 +57,7 @@ function P4StudentDeepPage({ answer, setAnswer, onNavigate }: { answer: string; 
         nodeId: 'P4T2-N04',
         taskId: 'P4T2-N04-student-task',
         studentId: getStudentTaskDemoId(),
-        studentName: '学生端演示',
+        studentName: readAuthName() || '学生端演示',
         answer,
         evidence: ['切换成功率', '重建次数', '短掉线日志'],
         conclusion: answer,

@@ -1319,12 +1319,17 @@ textarea { width: 100%; height: 128px; resize: vertical; border: 1px solid var(-
 .activity-card-grid > button:hover { border-color: #15917e; transform: translateY(-2px); }
 .activity-card-grid > button.active { border-color: #15917e; background: #f1fbf7; box-shadow: 0 9px 24px rgba(12, 121, 99, .1); }
 .activity-card-grid > button.done { border-color: #80cdbb; }
+.activity-card-grid > button.locked,
+.activity-card-grid > button.locked:hover { cursor: not-allowed; border-color: #dce8e4; background: #f6f9f8; opacity: .62; transform: none; box-shadow: none; }
 .activity-card-grid small { color: #315d56; font-size: 13px; font-weight: 900; }
 .activity-card-grid strong { color: #15917e; font-size: clamp(21px, 1.9vw, 30px); line-height: 1.32; }
 .activity-card-grid span { color: #6a817c; line-height: 1.45; }
 .activity-card-grid em { align-self: end; justify-self: start; padding: 6px 10px; border-radius: 999px; background: #fff0f0; color: #df2935; font-style: normal; font-weight: 900; }
 .activity-card-grid > button.done em { background: #e9f8f2; color: #087566; }
 .activity-workspace { margin-top: 16px; padding: 18px; border: 1px solid #b9dfd2; border-radius: 16px; background: #fbfefd; }
+.activity-workspace-locked { min-height: 118px; display: grid; place-content: center; justify-items: center; gap: 7px; border-style: dashed; background: #f7faf9; text-align: center; }
+.activity-workspace-locked strong { color: #315d56; }
+.activity-workspace-locked span { max-width: 560px; color: #6a817c; font-size: 13px; line-height: 1.55; }
 .activity-workspace-head { display: flex; align-items: start; justify-content: space-between; gap: 14px; padding-bottom: 14px; border-bottom: 1px solid #deeee9; }
 .activity-workspace-head p { margin: 0 0 5px; color: #087566; font-size: 13px; font-weight: 900; }
 .activity-workspace-head h4 { margin: 0; color: #15314e; font-size: 20px; }
