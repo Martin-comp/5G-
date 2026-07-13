@@ -22,14 +22,16 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 
 	_, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
 		ClassID: "测试班", NodeID: "P1T1-N01", StudentID: "s1", StudentName: "学生一",
-		CompletedSteps: []string{"case", "evidence", "practice", "summary"}, StartedAt: 1, TimeSpentSeconds: 120,
+		CompletedSteps: []string{"problem", "visual", "steps", "correction", "exercise", "output"}, StartedAt: 1, TimeSpentSeconds: 120,
+		PracticeAttempts: 2, PracticeScore: 100, WrongKnowledgePoints: []string{"室内资源边界"},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	_, err = UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
 		ClassID: "测试班", NodeID: "P1T1-N01", StudentID: "s2", StudentName: "学生二",
-		CompletedSteps: []string{"case", "evidence"}, StartedAt: 2, TimeSpentSeconds: 60,
+		CompletedSteps: []string{"problem", "visual"}, StartedAt: 2, TimeSpentSeconds: 60,
+		PracticeAttempts: 1, PracticeScore: 0, WrongKnowledgePoints: []string{"室内资源边界"},
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -49,11 +51,11 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 	if analytics.Students != 2 || analytics.Completed != 1 {
 		t.Fatalf("unexpected progress summary: %+v", analytics)
 	}
-	if analytics.AverageAccuracy != 73 {
-		t.Fatalf("expected average accuracy 73, got %d", analytics.AverageAccuracy)
+	if analytics.AverageAccuracy != 64 {
+		t.Fatalf("expected blended average accuracy 64, got %d", analytics.AverageAccuracy)
 	}
-	if analytics.TotalRetries != 1 {
-		t.Fatalf("expected one retry, got %d", analytics.TotalRetries)
+	if analytics.TotalRetries != 2 {
+		t.Fatalf("expected two retries, got %d", analytics.TotalRetries)
 	}
 	if analytics.AverageDurationSeconds != 90 {
 		t.Fatalf("expected average duration 90 seconds, got %d", analytics.AverageDurationSeconds)
@@ -63,5 +65,14 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 	}
 	if len(analytics.WeakAbilities) == 0 {
 		t.Fatal("expected weak abilities from incomplete progress")
+	}
+	var completedCard SelfStudyProgress
+	for _, card := range analytics.Cards {
+		if card.StudentID == "s1" {
+			completedCard = card
+		}
+	}
+	if completedCard.PracticeScore != 100 || completedCard.ReviewStatus != "待审核" {
+		t.Fatalf("expected persisted practice and review data, got %+v", completedCard)
 	}
 }

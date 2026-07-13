@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { CapabilitySpatialGraph } from './CapabilitySpatialGraph';
+import { textbookApi, type SelfStudyProgressDTO } from '@/lib/api';
 import {
   capabilityNodes,
   graphNodes,
@@ -35,6 +36,7 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
   const [selectedNodeId, setSelectedNodeId] = useState(() => defaultNodeId(project.id));
   const [graphMode, setGraphMode] = useState<'neighborhood' | 'overview'>('neighborhood');
   const [relationType, setRelationType] = useState('全部关系');
+  const [learningBackflow, setLearningBackflow] = useState<SelfStudyProgressDTO | null>(null);
 
   useEffect(() => {
     setSelectedNodeId(defaultNodeId(project.id));
@@ -49,6 +51,23 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
   const activeRelations = graphRelations.filter((relation) => (relation.from === selectedNode.id || relation.to === selectedNode.id) && (relationType === '全部关系' || relation.type === relationType));
   const nodeExperience = learningNodeExperiences.find((item) => item.nodeId === selectedNode.id);
   const projectExperience = learningNodeExperiences.find((item) => item.projectId === project.id);
+
+  useEffect(() => {
+    if (!nodeExperience || (project.id !== 'P1' && project.id !== 'P2')) {
+      setLearningBackflow(null);
+      return;
+    }
+    const currentStudentId = window.localStorage.getItem('dgbook-generic-student-id');
+    if (!currentStudentId) {
+      setLearningBackflow(null);
+      return;
+    }
+    let alive = true;
+    textbookApi.selfStudyProgress(selectedNode.id, currentStudentId).then((result) => {
+      if (alive) setLearningBackflow(result.studentId ? result : null);
+    }).catch(() => { if (alive) setLearningBackflow(null); });
+    return () => { alive = false; };
+  }, [nodeExperience, project.id, selectedNode.id]);
 
   return (
     <div className="view-stack graph-workspace">
@@ -91,6 +110,10 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
             <article><strong>节点状态</strong><span>{selectedNode.status}</span></article>
           </div>
           <NodeEndpointLinks nodeId={nodeExperience?.nodeId ?? (project.id === 'P4' ? 'P4T2-N04' : projectExperience?.nodeId)} projectId={project.id} />
+          {(project.id === 'P1' || project.id === 'P2') && <div className="p4-detail-block graph-learning-backflow">
+            <h4>学习结果回流</h4>
+            {learningBackflow ? <div className="graph-backflow-grid"><span>阶段 <b>{learningBackflow.completedSteps.length}/6</b></span><span>微练习 <b>{learningBackflow.practiceScore}分</b></span><span>尝试 <b>{learningBackflow.practiceAttempts}次</b></span><span>状态 <b>{learningBackflow.reviewStatus || '学习中'}</b></span>{learningBackflow.wrongKnowledgePoints.length ? <p>历史错误点：{learningBackflow.wrongKnowledgePoints.join('、')}</p> : null}</div> : <p>完成学生自学后，这里会回流阶段进度、微练习成绩、错误知识点和审核状态。</p>}
+          </div>}
           <div className="p4-detail-block">
             <h4>资源挂接</h4>
             {(activeResources.length ? activeResources : projectResources.slice(0, 3)).map((resource) => (

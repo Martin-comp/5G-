@@ -59,8 +59,14 @@ export const capabilityNodes = [
   { id: 'P2T3-N06', label: '归纳问题类型与原因链', task: 'P2-T3', project: 'P2', activity: '把指标现象、场景和可能原因连成证据链', output: '异常问题清单', status: '原因链' },
   { id: 'P2T3-N07', label: '制定整改建议', task: 'P2-T3', project: 'P2', activity: '把建议写成可复核、不过度承诺的表达', output: '整改建议卡', status: '建议输出' },
   { id: 'P2T3-N08', label: '输出分析报告并连接复测', task: 'P2-T3', project: 'P2', activity: '形成测试数据分析报告并说明后续复测入口', output: '测试数据分析报告', status: '报告产出' },
-  { id: 'P1T1-N01', label: '识别采集场景', task: 'P1-T1', project: 'P1', activity: '确认楼宇、区域、人员和业务场景', output: '场景采集记录', status: '任务入口' },
-  { id: 'P1T1-N02', label: '核对站址机房', task: 'P1-T1', project: 'P1', activity: '核对站址、机房、设备配套和照片日志证据', output: '站址机房核对记录', status: 'P1样章' },
+  { id: 'P1T1-N01', label: '室内资源边界', task: 'P1-T1', project: 'P1', activity: '确认楼宇、楼层、机房和采集边界', output: '室内资源边界记录', status: '路径起点' },
+  { id: 'P1T1-N02', label: '设备拓扑', task: 'P1-T1', project: 'P1', activity: '核对AAU、BBU、RRU和配套连接关系', output: '设备拓扑核对表', status: '前置已解锁' },
+  { id: 'P1T1-N03', label: '运行条件', task: 'P1-T1', project: 'P1', activity: '核对供电、传输、环境和运行状态', output: '运行条件检查表', status: '顺序学习' },
+  { id: 'P1T1-N04', label: '证据与归档', task: 'P1-T1', project: 'P1', activity: '对齐照片、编号、坐标、时间和日志', output: '现场证据归档包', status: '路径终点' },
+  { id: 'P2T1-N01', label: '室外覆盖边界', task: 'P2-T1', project: 'P2', activity: '明确道路、楼宇、测试路线和覆盖边界', output: '室外覆盖边界图', status: '路径起点' },
+  { id: 'P2T1-N02', label: '天线姿态', task: 'P2-T1', project: 'P2', activity: '核对方位角、下倾角、高度和朝向', output: '天线姿态核对表', status: '顺序学习' },
+  { id: 'P2T1-N03', label: '场景与遮挡', task: 'P2-T1', project: 'P2', activity: '识别楼宇、树木、地形和道路遮挡', output: '场景遮挡记录', status: '顺序学习' },
+  { id: 'P2T1-N04', label: '风险路线', task: 'P2-T1', project: 'P2', activity: '规划可复测的高风险测试路线', output: '风险路线测试单', status: '路径终点' },
   { id: 'P1T2-N01', label: '记录环境与站点信息', task: 'P1-T2', project: 'P1', activity: '整理站点、遮挡、楼层和道路边界', output: '环境信息表', status: '前置材料' },
   { id: 'P1T3-N01', label: '结构化投诉线索', task: 'P1-T3', project: 'P1', activity: '把用户原话转成时间、位置、业务和频次', output: '可验证投诉线索卡', status: '项目样章' },
   { id: 'P4T1-N01', label: '明确优化对象与实施边界', task: 'P4-T1', project: 'P4', activity: '填写优化实施任务单', output: '优化实施任务单', status: '实施入口' },
@@ -99,6 +105,34 @@ export type LearningNodeExperience = {
   teacherScript: string[];
   outputs: string[];
   rubric: string[];
+  correction?: { mistake: string; correction: string }[];
+  microExercise?: {
+    prompt: string;
+    options: string[];
+    correctOption: string;
+    explanation: string;
+    knowledgePoint: string;
+  };
+};
+
+export type ProjectLearningPathNode = {
+  nodeId: string;
+  title: string;
+};
+
+export const projectLearningPaths: Record<string, ProjectLearningPathNode[]> = {
+  P1: [
+    { nodeId: 'P1T1-N01', title: '室内资源边界' },
+    { nodeId: 'P1T1-N02', title: '设备拓扑' },
+    { nodeId: 'P1T1-N03', title: '运行条件' },
+    { nodeId: 'P1T1-N04', title: '证据与归档' }
+  ],
+  P2: [
+    { nodeId: 'P2T1-N01', title: '室外覆盖边界' },
+    { nodeId: 'P2T1-N02', title: '天线姿态' },
+    { nodeId: 'P2T1-N03', title: '场景与遮挡' },
+    { nodeId: 'P2T1-N04', title: '风险路线' }
+  ]
 };
 
 function createP4TaskNode(
@@ -293,10 +327,151 @@ function createGeneratedNodeExperience(node: (typeof capabilityNodes)[number]): 
   };
 }
 
+type SamplePathNodeConfig = {
+  nodeId: string;
+  projectId: 'P1' | 'P2';
+  taskId: 'P1-T1' | 'P2-T1';
+  title: string;
+  headline: string;
+  subtitle: string;
+  caseIntro: string;
+  evidence: [string, string, string][];
+  mistake: string;
+  correction: string;
+  output: string;
+  question: string;
+  options: string[];
+  answer: string;
+  explanation: string;
+  knowledgePoint: string;
+};
+
+function createSamplePathNode(config: SamplePathNodeConfig): LearningNodeExperience {
+  return {
+    nodeId: config.nodeId,
+    projectId: config.projectId,
+    taskId: config.taskId,
+    title: config.title,
+    headline: config.headline,
+    subtitle: config.subtitle,
+    caseIntro: config.caseIntro,
+    steps: [
+      { title: '确认任务对象', desc: '先明确本节点面对的现场对象、范围和交付要求。' },
+      { title: '读取现场证据', desc: `围绕“${config.title}”核对记录、参数与现场信息。` },
+      { title: '判断证据边界', desc: '区分直接证据、辅助证据和仍需补充的材料。' },
+      { title: '形成可复核产出', desc: `按字段要求完成${config.output}，供教师审核与后续节点使用。` }
+    ],
+    evidence: config.evidence.map(([label, value, target]) => ({ label, value, target, status: '需核对' })),
+    practice: [
+      { question: config.question, answer: config.answer, reason: config.explanation },
+      { question: '完成本节点后应保留什么？', answer: config.output, reason: '标准化产出会成为下一节点的前置证据。' }
+    ],
+    teacherScript: [
+      `先回到现场任务，说明为什么必须学习“${config.title}”。`,
+      '再带学生把对象、证据和判断边界逐项对齐。',
+      `最后检查${config.output}能否被另一名人员复核。`
+    ],
+    outputs: [config.output, `${config.title}微练习记录`, '节点能力点亮记录'],
+    rubric: ['对象与边界明确', '证据选择准确', '产出字段完整'],
+    correction: [{ mistake: config.mistake, correction: config.correction }],
+    microExercise: {
+      prompt: config.question,
+      options: config.options,
+      correctOption: config.answer,
+      explanation: config.explanation,
+      knowledgePoint: config.knowledgePoint
+    }
+  };
+}
+
+const sampleLearningNodeExperiences: LearningNodeExperience[] = [
+  createSamplePathNode({
+    nodeId: 'P1T1-N01', projectId: 'P1', taskId: 'P1-T1', title: '室内资源边界',
+    headline: '进入室内采集前，怎样先划清资源边界？', subtitle: '确认站址、楼层、机房、覆盖区域与采集对象，避免现场材料失去定位依据。',
+    caseIntro: '某教学楼地下机房需要开展现场采集。工单只写了楼宇名称，学生必须补齐楼层、机房入口、设备区域和采集边界，才能让后续照片与设备记录准确落位。',
+    evidence: [['站址楼层', '教学楼 B1', '与工单位置一致'], ['机房边界', '主机房与电源间', '入口和区域可定位'], ['采集对象', '主设备与配套', '对象范围完整']],
+    mistake: '只写“教学楼机房”，没有楼层、入口和区域边界。', correction: '把站址、楼层、机房入口、设备区域写成可定位的四级边界。',
+    output: '室内资源边界记录', question: '哪组信息最能先确定室内采集边界？',
+    options: ['站址、楼层与机房边界', '平均下载速率', '用户手机品牌', '优化后的KPI'], answer: '站址、楼层与机房边界',
+    explanation: '现场采集必须先明确空间和对象边界，后续设备、照片和日志才有可复核的定位基准。', knowledgePoint: '室内资源边界'
+  }),
+  createSamplePathNode({
+    nodeId: 'P1T1-N02', projectId: 'P1', taskId: 'P1-T1', title: '设备拓扑',
+    headline: '设备名称都拍到了，为什么仍然不能说明连接关系？', subtitle: '核对AAU、BBU、RRU、传输和电源配套之间的拓扑关系。',
+    caseIntro: '现场照片包含AAU、BBU和电源柜，但缺少端口和连接关系。学生需要沿设备链路核对对象、端口和配套，形成能够被复核的设备拓扑。',
+    evidence: [['主设备', 'AAU / BBU / RRU', '设备编号一致'], ['连接关系', '端口与链路', '上下游可追溯'], ['配套设备', '电源与传输', '与主设备对应']],
+    mistake: '把设备清单当作设备拓扑，只记录名称而不记录连接关系。', correction: '按“设备对象—端口—链路—配套”记录上下游关系。',
+    output: '设备拓扑核对表', question: '哪组材料能够证明设备拓扑关系？',
+    options: ['AAU、BBU、RRU与配套连接', '三张设备外观照片', '机房温度单值', '一段用户投诉'], answer: 'AAU、BBU、RRU与配套连接',
+    explanation: '拓扑关注设备之间如何连接，只有对象、端口和链路对应才能支持复核。', knowledgePoint: '设备拓扑'
+  }),
+  createSamplePathNode({
+    nodeId: 'P1T1-N03', projectId: 'P1', taskId: 'P1-T1', title: '运行条件',
+    headline: '设备在位，怎样判断它具备正常运行条件？', subtitle: '联合核对供电、传输、环境、告警和运行状态。',
+    caseIntro: '设备已经安装并上电，但传输状态和机房环境记录不完整。学生需要检查供电、传输、环境和告警，避免把“设备在位”误判为“运行正常”。',
+    evidence: [['供电状态', '电压与备电正常', '供电连续'], ['传输状态', '链路已连通', '无中断告警'], ['环境状态', '温湿度正常', '满足运行要求']],
+    mistake: '看到设备指示灯亮，就直接判断运行条件正常。', correction: '同时核对供电、传输、环境和告警，形成多项证据。',
+    output: '运行条件检查表', question: '判断运行条件时最完整的组合是什么？',
+    options: ['供电、传输与环境状态', '设备外壳颜色', '站点名称', '用户套餐信息'], answer: '供电、传输与环境状态',
+    explanation: '运行条件是多因素共同结果，不能用单一指示灯替代供电、传输和环境检查。', knowledgePoint: '运行条件'
+  }),
+  createSamplePathNode({
+    nodeId: 'P1T1-N04', projectId: 'P1', taskId: 'P1-T1', title: '证据与归档',
+    headline: '怎样让现场材料在离场后仍然可以被复核？', subtitle: '让照片、编号、坐标、时间与日志形成一一对应的证据链。',
+    caseIntro: '采集完成后共有二十张照片和两份日志，但文件名无法对应设备。学生需要统一编号、坐标和时间，形成可追溯、可交接的现场证据包。',
+    evidence: [['照片编号', 'P1-001 至 P1-020', '与对象一一对应'], ['坐标时间', '定位与采集时间', '能够还原现场'], ['原始日志', '设备与运行日志', '支持后续复核']],
+    mistake: '把所有照片放入文件夹就算完成归档。', correction: '建立“对象—照片—编号—坐标—时间—日志”索引。',
+    output: '现场证据归档包', question: '哪种归档方式最便于后续复核？',
+    options: ['照片、编号、坐标、时间与日志互证', '只按拍摄顺序保存照片', '只保留汇总结论', '删除原始日志'], answer: '照片、编号、坐标、时间与日志互证',
+    explanation: '完整索引能让审核人员从任一材料反向定位现场对象和采集过程。', knowledgePoint: '证据归档'
+  }),
+  createSamplePathNode({
+    nodeId: 'P2T1-N01', projectId: 'P2', taskId: 'P2-T1', title: '室外覆盖边界',
+    headline: '测试开始前，怎样确定真正需要覆盖的区域？', subtitle: '把道路、楼宇、投诉点与测试路线放在同一张边界图中。',
+    caseIntro: '某园区准备开展室外测试，但路线只覆盖主干道，未经过投诉集中区域。学生需要根据道路、楼宇和投诉点重新确定覆盖边界。',
+    evidence: [['目标区域', '园区道路与楼宇', '覆盖任务范围'], ['投诉点位', '3个集中区域', '纳入测试路线'], ['路线边界', '起终点与方向', '可复测']],
+    mistake: '直接沿最方便的道路测试，没有覆盖任务目标区域。', correction: '先画出目标边界和投诉点，再规划能够复测的路线。',
+    output: '室外覆盖边界图', question: '哪项最能证明测试边界完整？',
+    options: ['测试路线覆盖目标道路与区域', '测试车辆速度最快', '日志文件最小', '只经过信号最强点'], answer: '测试路线覆盖目标道路与区域',
+    explanation: '路线必须覆盖任务区域和关键问题点，否则测试数据不能代表目标场景。', knowledgePoint: '室外覆盖边界'
+  }),
+  createSamplePathNode({
+    nodeId: 'P2T1-N02', projectId: 'P2', taskId: 'P2-T1', title: '天线姿态',
+    headline: '覆盖方向异常时，应该先核对哪些天线信息？', subtitle: '联合读取方位角、下倾角、高度和朝向，判断覆盖指向是否合理。',
+    caseIntro: '测试路线一侧信号明显偏弱，现场照片显示天线朝向可能偏离道路。学生需要核对工程参数与现场姿态，判断是否存在指向差异。',
+    evidence: [['方位角', '现场与工参对照', '方向一致'], ['下倾角', '机械与电子下倾', '数值可复核'], ['挂高朝向', '高度与道路关系', '覆盖方向合理']],
+    mistake: '只看方位角，不检查下倾角、挂高和现场朝向。', correction: '将方位角、下倾角、挂高和现场照片联合核对。',
+    output: '天线姿态核对表', question: '核对天线姿态需要哪组关键参数？',
+    options: ['方位角、下倾角、高度和朝向', '下载速率与时延', '投诉人姓名', '设备序列号'], answer: '方位角、下倾角、高度和朝向',
+    explanation: '天线姿态由多个空间参数共同决定，单看方位角不足以解释覆盖方向。', knowledgePoint: '天线姿态'
+  }),
+  createSamplePathNode({
+    nodeId: 'P2T1-N03', projectId: 'P2', taskId: 'P2-T1', title: '场景与遮挡',
+    headline: '信号变差时，怎样判断是否与现场遮挡有关？', subtitle: '把楼宇、树木、地形与轨迹上的信号变化逐点对应。',
+    caseIntro: '测试轨迹经过高层楼宇和成片树木时RSRP下降。学生需要标注遮挡物位置，并与信号变化和路线方向对照，避免仅凭照片猜测原因。',
+    evidence: [['遮挡对象', '楼宇与树木', '位置明确'], ['轨迹位置', '异常采样区间', '与遮挡对齐'], ['信号变化', 'RSRP下降区间', '支持场景判断']],
+    mistake: '看到楼宇就直接认定它是弱覆盖原因。', correction: '对齐遮挡位置、测试轨迹和指标变化，再形成待复核判断。',
+    output: '场景遮挡记录', question: '判断遮挡影响最需要哪类对应关系？',
+    options: ['遮挡物位置与信号变化对应', '照片数量与文件大小对应', '车辆颜色与道路对应', '用户名与终端对应'], answer: '遮挡物位置与信号变化对应',
+    explanation: '只有空间位置和指标变化同步出现，遮挡才构成可复核的场景证据。', knowledgePoint: '场景与遮挡'
+  }),
+  createSamplePathNode({
+    nodeId: 'P2T1-N04', projectId: 'P2', taskId: 'P2-T1', title: '风险路线',
+    headline: '怎样把高风险场景组织成一条可复测路线？', subtitle: '标出高风险点、路线顺序、业务条件和复测要求。',
+    caseIntro: '园区存在转角、楼间通道和遮挡路段等多个风险点。学生需要按业务连续性和复测条件规划路线，确保后续测试能够稳定重现问题。',
+    evidence: [['风险点位', '转角与楼间通道', '关键场景不遗漏'], ['路线顺序', '起点至终点', '移动过程连续'], ['复测条件', '时间、业务与速度', '前后条件一致']],
+    mistake: '把风险点列成清单，但没有连接成连续测试路线。', correction: '按业务过程连接风险点，并固定时间、速度和业务条件。',
+    output: '风险路线测试单', question: '风险路线能够复测的关键是什么？',
+    options: ['高风险点、路线顺序与复测条件', '路线越短越好', '只测试一个静止点', '每次改变业务类型'], answer: '高风险点、路线顺序与复测条件',
+    explanation: '固定风险点、顺序和条件，才能让多次测试结果具有可比性。', knowledgePoint: '风险路线'
+  })
+];
+
 export const learningNodeExperiences: LearningNodeExperience[] = [
-  ...authoredLearningNodeExperiences,
+  ...sampleLearningNodeExperiences,
+  ...authoredLearningNodeExperiences.filter((experience) => !sampleLearningNodeExperiences.some((sample) => sample.nodeId === experience.nodeId)),
   ...capabilityNodes
-    .filter((node) => !authoredLearningNodeExperiences.some((experience) => experience.nodeId === node.id) && node.id !== 'P4T2-N04')
+    .filter((node) => !sampleLearningNodeExperiences.some((experience) => experience.nodeId === node.id) && !authoredLearningNodeExperiences.some((experience) => experience.nodeId === node.id) && node.id !== 'P4T2-N04')
     .map(createGeneratedNodeExperience)
 ];
 

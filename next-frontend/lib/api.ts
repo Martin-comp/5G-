@@ -170,6 +170,10 @@ export type SelfStudyProgressPayload = {
 	completedSteps: string[];
 	startedAt?: number;
 	timeSpentSeconds?: number;
+	practiceAttempts?: number;
+	practiceScore?: number;
+	wrongKnowledgePoints?: string[];
+	reviewStatus?: string;
 };
 
 export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
@@ -178,6 +182,10 @@ export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
 	abilities: SelfStudyAbilityDTO[];
 	startedAt: number;
 	timeSpentSeconds: number;
+	practiceAttempts: number;
+	practiceScore: number;
+	wrongKnowledgePoints: string[];
+	reviewStatus: string;
 	updatedAt: number;
 };
 

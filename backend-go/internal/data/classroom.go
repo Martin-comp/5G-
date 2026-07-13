@@ -229,26 +229,34 @@ type SelfStudyAbility struct {
 }
 
 type SelfStudyProgressUpdateRequest struct {
-	ClassID          string   `json:"classId"`
-	NodeID           string   `json:"nodeId"`
-	StudentID        string   `json:"studentId"`
-	StudentName      string   `json:"studentName"`
-	CompletedSteps   []string `json:"completedSteps"`
-	StartedAt        int64    `json:"startedAt"`
-	TimeSpentSeconds int      `json:"timeSpentSeconds"`
+	ClassID              string   `json:"classId"`
+	NodeID               string   `json:"nodeId"`
+	StudentID            string   `json:"studentId"`
+	StudentName          string   `json:"studentName"`
+	CompletedSteps       []string `json:"completedSteps"`
+	StartedAt            int64    `json:"startedAt"`
+	TimeSpentSeconds     int      `json:"timeSpentSeconds"`
+	PracticeAttempts     int      `json:"practiceAttempts"`
+	PracticeScore        int      `json:"practiceScore"`
+	WrongKnowledgePoints []string `json:"wrongKnowledgePoints"`
+	ReviewStatus         string   `json:"reviewStatus"`
 }
 
 type SelfStudyProgress struct {
-	ClassID          string             `json:"classId"`
-	NodeID           string             `json:"nodeId"`
-	StudentID        string             `json:"studentId"`
-	StudentName      string             `json:"studentName"`
-	CompletedSteps   []string           `json:"completedSteps"`
-	AbilityScore     int                `json:"abilityScore"`
-	Abilities        []SelfStudyAbility `json:"abilities"`
-	StartedAt        int64              `json:"startedAt"`
-	TimeSpentSeconds int                `json:"timeSpentSeconds"`
-	UpdatedAt        int64              `json:"updatedAt"`
+	ClassID              string             `json:"classId"`
+	NodeID               string             `json:"nodeId"`
+	StudentID            string             `json:"studentId"`
+	StudentName          string             `json:"studentName"`
+	CompletedSteps       []string           `json:"completedSteps"`
+	AbilityScore         int                `json:"abilityScore"`
+	Abilities            []SelfStudyAbility `json:"abilities"`
+	StartedAt            int64              `json:"startedAt"`
+	TimeSpentSeconds     int                `json:"timeSpentSeconds"`
+	PracticeAttempts     int                `json:"practiceAttempts"`
+	PracticeScore        int                `json:"practiceScore"`
+	WrongKnowledgePoints []string           `json:"wrongKnowledgePoints"`
+	ReviewStatus         string             `json:"reviewStatus"`
+	UpdatedAt            int64              `json:"updatedAt"`
 }
 
 type SelfStudyAnalytics struct {
@@ -829,17 +837,29 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	if timeSpentSeconds < existing.TimeSpentSeconds {
 		timeSpentSeconds = existing.TimeSpentSeconds
 	}
+	practiceAttempts := request.PracticeAttempts
+	if practiceAttempts < existing.PracticeAttempts {
+		practiceAttempts = existing.PracticeAttempts
+	}
+	practiceScore := request.PracticeScore
+	if practiceScore < existing.PracticeScore {
+		practiceScore = existing.PracticeScore
+	}
+	wrongKnowledgePoints := mergeUniqueStrings(existing.WrongKnowledgePoints, request.WrongKnowledgePoints)
+	reviewStatus := strings.TrimSpace(request.ReviewStatus)
+	if reviewStatus == "" {
+		reviewStatus = existing.ReviewStatus
+	}
+	if reviewStatus == "" && len(completedSteps) >= 6 && practiceScore >= 100 {
+		reviewStatus = "待审核"
+	}
 	progress := SelfStudyProgress{
-		ClassID:          classID,
-		NodeID:           nodeID,
-		StudentID:        studentID,
-		StudentName:      displayStudentName(request.StudentName),
-		CompletedSteps:   completedSteps,
-		AbilityScore:     score,
-		Abilities:        abilities,
-		StartedAt:        startedAt,
-		TimeSpentSeconds: timeSpentSeconds,
-		UpdatedAt:        time.Now().UnixMilli(),
+		ClassID: classID, NodeID: nodeID, StudentID: studentID,
+		StudentName: displayStudentName(request.StudentName), CompletedSteps: completedSteps,
+		AbilityScore: score, Abilities: abilities, StartedAt: startedAt,
+		TimeSpentSeconds: timeSpentSeconds, PracticeAttempts: practiceAttempts,
+		PracticeScore: practiceScore, WrongKnowledgePoints: wrongKnowledgePoints,
+		ReviewStatus: reviewStatus, UpdatedAt: time.Now().UnixMilli(),
 	}
 	if store := currentPostgres(); store != nil {
 		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
@@ -879,15 +899,29 @@ func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 	needsSupport := 0
 	weakAbilityCounts := map[string]int{}
 	studentIDs := map[string]struct{}{}
+	accuracyScoreSum := 0
+	accuracySamples := 0
+	retries := 0
+	errorCounts := map[string]int{}
 	for _, item := range cards {
 		studentIDs[item.StudentID] = struct{}{}
 		scoreSum += item.AbilityScore
 		durationSum += item.TimeSpentSeconds
-		if len(item.CompletedSteps) >= 4 {
+		if len(item.CompletedSteps) >= 6 && item.PracticeScore >= 100 {
 			completed++
 		}
-		if item.AbilityScore < 60 {
+		if item.AbilityScore < 60 || (item.PracticeAttempts > 0 && item.PracticeScore < 100) {
 			needsSupport++
+		}
+		if item.PracticeAttempts > 0 {
+			accuracyScoreSum += item.PracticeScore
+			accuracySamples++
+			if item.PracticeAttempts > 1 {
+				retries += item.PracticeAttempts - 1
+			}
+		}
+		for _, point := range item.WrongKnowledgePoints {
+			errorCounts[point]++
 		}
 		for _, ability := range item.Abilities {
 			if ability.Score < 100 {
@@ -905,22 +939,20 @@ func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 		averageDuration = durationSum / len(cards)
 	}
 	submissions := ClassroomSubmissions(classID, nodeID)
-	accuracy := 0
-	retries := 0
-	submissionScores := 0
 	attempts := map[string]int{}
-	errorCounts := map[string]int{}
 	for _, item := range submissions {
 		studentIDs[item.StudentID] = struct{}{}
-		submissionScores += item.Score
+		accuracyScoreSum += item.Score
+		accuracySamples++
 		attemptKey := item.StudentID + "::" + item.TaskID
 		attempts[attemptKey]++
 		for _, tag := range item.Tags {
 			errorCounts[tag]++
 		}
 	}
-	if len(submissions) > 0 {
-		accuracy = submissionScores / len(submissions)
+	accuracy := 0
+	if accuracySamples > 0 {
+		accuracy = accuracyScoreSum / accuracySamples
 	}
 	for _, count := range attempts {
 		if count > 1 {
@@ -1030,8 +1062,8 @@ func cleanStrings(values []string) []string {
 }
 
 func cleanSelfStudySteps(values []string) []string {
-	allowed := map[string]bool{"case": true, "evidence": true, "practice": true, "summary": true}
-	steps := make([]string, 0, 4)
+	allowed := map[string]bool{"problem": true, "visual": true, "steps": true, "correction": true, "exercise": true, "output": true}
+	steps := make([]string, 0, 6)
 	seen := map[string]bool{}
 	for _, value := range values {
 		value = strings.ToLower(strings.TrimSpace(value))
@@ -1065,10 +1097,26 @@ func selfStudyAbilities(steps []string) []SelfStudyAbility {
 		return SelfStudyAbility{Label: label, Score: score, Status: status}
 	}
 	return []SelfStudyAbility{
-		ability("场景理解", "case", "evidence"),
-		ability("证据判断", "evidence", "practice"),
-		ability("结论表达", "practice", "summary"),
+		ability("场景理解", "problem", "visual"),
+		ability("流程执行", "steps", "correction"),
+		ability("证据判断", "visual", "exercise"),
+		ability("结论表达", "exercise", "output"),
 	}
+}
+
+func mergeUniqueStrings(groups ...[]string) []string {
+	seen := map[string]bool{}
+	merged := []string{}
+	for _, values := range groups {
+		for _, value := range values {
+			value = strings.TrimSpace(value)
+			if value != "" && !seen[value] {
+				seen[value] = true
+				merged = append(merged, value)
+			}
+		}
+	}
+	return merged
 }
 
 func displayStudentName(value string) string {
