@@ -121,6 +121,15 @@ func (s *PostgresStore) migrate(ctx context.Context) error {
 			practice_score INTEGER NOT NULL DEFAULT 0,
 			wrong_knowledge_points JSONB NOT NULL DEFAULT '[]'::jsonb,
 			review_status TEXT NOT NULL DEFAULT '',
+			formal_test_attempts INTEGER NOT NULL DEFAULT 0,
+			first_score INTEGER NOT NULL DEFAULT 0,
+			best_score INTEGER NOT NULL DEFAULT 0,
+			latest_score INTEGER NOT NULL DEFAULT 0,
+			test_completed_at BIGINT NOT NULL DEFAULT 0,
+			student_output TEXT NOT NULL DEFAULT '',
+			output_submitted_at BIGINT NOT NULL DEFAULT 0,
+			review_comment TEXT NOT NULL DEFAULT '',
+			certified_at BIGINT NOT NULL DEFAULT 0,
 			updated_at BIGINT NOT NULL,
 			PRIMARY KEY (class_id, node_id, student_id)
 		)`,
@@ -128,6 +137,15 @@ func (s *PostgresStore) migrate(ctx context.Context) error {
 		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS practice_score INTEGER NOT NULL DEFAULT 0`,
 		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS wrong_knowledge_points JSONB NOT NULL DEFAULT '[]'::jsonb`,
 		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS review_status TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS formal_test_attempts INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS first_score INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS best_score INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS latest_score INTEGER NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS test_completed_at BIGINT NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS student_output TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS output_submitted_at BIGINT NOT NULL DEFAULT 0`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS review_comment TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE self_study_progress ADD COLUMN IF NOT EXISTS certified_at BIGINT NOT NULL DEFAULT 0`,
 		`CREATE INDEX IF NOT EXISTS self_study_progress_node_idx ON self_study_progress (class_id, node_id, updated_at DESC)`,
 		`CREATE TABLE IF NOT EXISTS classroom_exits (
 			id TEXT PRIMARY KEY,
@@ -290,16 +308,22 @@ func (s *PostgresStore) saveSelfStudy(ctx context.Context, progress SelfStudyPro
 	abilities, _ := json.Marshal(progress.Abilities)
 	wrongKnowledgePoints, _ := json.Marshal(progress.WrongKnowledgePoints)
 	_, err := s.pool.Exec(ctx, `INSERT INTO self_study_progress
-		(class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,updated_at)
-		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+		(class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,formal_test_attempts,first_score,best_score,latest_score,test_completed_at,student_output,output_submitted_at,review_comment,certified_at,updated_at)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)
 		ON CONFLICT (class_id,node_id,student_id) DO UPDATE SET student_name=EXCLUDED.student_name,
 		completed_steps=EXCLUDED.completed_steps,ability_score=EXCLUDED.ability_score,abilities=EXCLUDED.abilities,
 		started_at=EXCLUDED.started_at,time_spent_seconds=EXCLUDED.time_spent_seconds,
 		practice_attempts=EXCLUDED.practice_attempts,practice_score=EXCLUDED.practice_score,
-		wrong_knowledge_points=EXCLUDED.wrong_knowledge_points,review_status=EXCLUDED.review_status,updated_at=EXCLUDED.updated_at`,
+		wrong_knowledge_points=EXCLUDED.wrong_knowledge_points,review_status=EXCLUDED.review_status,
+		formal_test_attempts=EXCLUDED.formal_test_attempts,first_score=EXCLUDED.first_score,best_score=EXCLUDED.best_score,
+		latest_score=EXCLUDED.latest_score,test_completed_at=EXCLUDED.test_completed_at,student_output=EXCLUDED.student_output,
+		output_submitted_at=EXCLUDED.output_submitted_at,review_comment=EXCLUDED.review_comment,certified_at=EXCLUDED.certified_at,
+		updated_at=EXCLUDED.updated_at`,
 		progress.ClassID, progress.NodeID, progress.StudentID, progress.StudentName, steps, progress.AbilityScore,
 		abilities, progress.StartedAt, progress.TimeSpentSeconds, progress.PracticeAttempts, progress.PracticeScore,
-		wrongKnowledgePoints, progress.ReviewStatus, progress.UpdatedAt)
+		wrongKnowledgePoints, progress.ReviewStatus, progress.FormalTestAttempts, progress.FirstScore, progress.BestScore,
+		progress.LatestScore, progress.TestCompletedAt, progress.StudentOutput, progress.OutputSubmittedAt,
+		progress.ReviewComment, progress.CertifiedAt, progress.UpdatedAt)
 	return err
 }
 
@@ -308,7 +332,9 @@ func scanSelfStudy(row pgx.Row) (SelfStudyProgress, error) {
 	var steps, abilities, wrongKnowledgePoints []byte
 	err := row.Scan(&progress.ClassID, &progress.NodeID, &progress.StudentID, &progress.StudentName, &steps,
 		&progress.AbilityScore, &abilities, &progress.StartedAt, &progress.TimeSpentSeconds, &progress.PracticeAttempts,
-		&progress.PracticeScore, &wrongKnowledgePoints, &progress.ReviewStatus, &progress.UpdatedAt)
+		&progress.PracticeScore, &wrongKnowledgePoints, &progress.ReviewStatus, &progress.FormalTestAttempts,
+		&progress.FirstScore, &progress.BestScore, &progress.LatestScore, &progress.TestCompletedAt,
+		&progress.StudentOutput, &progress.OutputSubmittedAt, &progress.ReviewComment, &progress.CertifiedAt, &progress.UpdatedAt)
 	if err != nil {
 		return progress, err
 	}
@@ -319,7 +345,7 @@ func scanSelfStudy(row pgx.Row) (SelfStudyProgress, error) {
 }
 
 func (s *PostgresStore) selfStudy(ctx context.Context, classID, nodeID, studentID string) (SelfStudyProgress, bool, error) {
-	progress, err := scanSelfStudy(s.pool.QueryRow(ctx, `SELECT class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,updated_at
+	progress, err := scanSelfStudy(s.pool.QueryRow(ctx, `SELECT class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,formal_test_attempts,first_score,best_score,latest_score,test_completed_at,student_output,output_submitted_at,review_comment,certified_at,updated_at
 		FROM self_study_progress WHERE class_id=$1 AND node_id=$2 AND student_id=$3`, classID, nodeID, studentID))
 	if errors.Is(err, pgx.ErrNoRows) {
 		return SelfStudyProgress{}, false, nil
@@ -328,7 +354,7 @@ func (s *PostgresStore) selfStudy(ctx context.Context, classID, nodeID, studentI
 }
 
 func (s *PostgresStore) selfStudyForNode(ctx context.Context, classID, nodeID string) ([]SelfStudyProgress, error) {
-	rows, err := s.pool.Query(ctx, `SELECT class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,updated_at
+	rows, err := s.pool.Query(ctx, `SELECT class_id,node_id,student_id,student_name,completed_steps,ability_score,abilities,started_at,time_spent_seconds,practice_attempts,practice_score,wrong_knowledge_points,review_status,formal_test_attempts,first_score,best_score,latest_score,test_completed_at,student_output,output_submitted_at,review_comment,certified_at,updated_at
 		FROM self_study_progress WHERE class_id=$1 AND node_id=$2 ORDER BY updated_at DESC`, classID, nodeID)
 	if err != nil {
 		return nil, err

@@ -240,6 +240,22 @@ type SelfStudyProgressUpdateRequest struct {
 	PracticeScore        int      `json:"practiceScore"`
 	WrongKnowledgePoints []string `json:"wrongKnowledgePoints"`
 	ReviewStatus         string   `json:"reviewStatus"`
+	FormalTestAttempts   int      `json:"formalTestAttempts"`
+	FirstScore           int      `json:"firstScore"`
+	BestScore            int      `json:"bestScore"`
+	LatestScore          int      `json:"latestScore"`
+	TestCompletedAt      int64    `json:"testCompletedAt"`
+	StudentOutput        string   `json:"studentOutput"`
+	OutputSubmittedAt    int64    `json:"outputSubmittedAt"`
+	ReviewComment        string   `json:"reviewComment"`
+}
+
+type SelfStudyReviewRequest struct {
+	ClassID   string `json:"classId"`
+	NodeID    string `json:"nodeId"`
+	StudentID string `json:"studentId"`
+	Status    string `json:"status"`
+	Comment   string `json:"comment"`
 }
 
 type SelfStudyProgress struct {
@@ -256,6 +272,15 @@ type SelfStudyProgress struct {
 	PracticeScore        int                `json:"practiceScore"`
 	WrongKnowledgePoints []string           `json:"wrongKnowledgePoints"`
 	ReviewStatus         string             `json:"reviewStatus"`
+	FormalTestAttempts   int                `json:"formalTestAttempts"`
+	FirstScore           int                `json:"firstScore"`
+	BestScore            int                `json:"bestScore"`
+	LatestScore          int                `json:"latestScore"`
+	TestCompletedAt      int64              `json:"testCompletedAt"`
+	StudentOutput        string             `json:"studentOutput"`
+	OutputSubmittedAt    int64              `json:"outputSubmittedAt"`
+	ReviewComment        string             `json:"reviewComment"`
+	CertifiedAt          int64              `json:"certifiedAt"`
 	UpdatedAt            int64              `json:"updatedAt"`
 }
 
@@ -846,12 +871,44 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 		practiceScore = existing.PracticeScore
 	}
 	wrongKnowledgePoints := mergeUniqueStrings(existing.WrongKnowledgePoints, request.WrongKnowledgePoints)
+	formalTestAttempts := request.FormalTestAttempts
+	if formalTestAttempts < existing.FormalTestAttempts {
+		formalTestAttempts = existing.FormalTestAttempts
+	}
+	firstScore := existing.FirstScore
+	if existing.FormalTestAttempts == 0 && request.FormalTestAttempts > 0 {
+		firstScore = request.FirstScore
+	}
+	bestScore := request.BestScore
+	if bestScore < existing.BestScore {
+		bestScore = existing.BestScore
+	}
+	latestScore := existing.LatestScore
+	if request.FormalTestAttempts >= existing.FormalTestAttempts && request.FormalTestAttempts > 0 {
+		latestScore = request.LatestScore
+	}
+	testCompletedAt := request.TestCompletedAt
+	if testCompletedAt < existing.TestCompletedAt {
+		testCompletedAt = existing.TestCompletedAt
+	}
+	studentOutput := strings.TrimSpace(request.StudentOutput)
+	if studentOutput == "" {
+		studentOutput = existing.StudentOutput
+	}
+	outputSubmittedAt := request.OutputSubmittedAt
+	if outputSubmittedAt < existing.OutputSubmittedAt {
+		outputSubmittedAt = existing.OutputSubmittedAt
+	}
 	reviewStatus := strings.TrimSpace(request.ReviewStatus)
 	if reviewStatus == "" {
 		reviewStatus = existing.ReviewStatus
 	}
-	if reviewStatus == "" && len(completedSteps) >= 6 && practiceScore >= 100 {
+	if reviewStatus == "" && len(completedSteps) >= 6 && practiceScore >= 100 && formalTestAttempts > 0 && outputSubmittedAt > 0 {
 		reviewStatus = "待审核"
+	}
+	reviewComment := strings.TrimSpace(request.ReviewComment)
+	if reviewComment == "" {
+		reviewComment = existing.ReviewComment
 	}
 	progress := SelfStudyProgress{
 		ClassID: classID, NodeID: nodeID, StudentID: studentID,
@@ -859,7 +916,11 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 		AbilityScore: score, Abilities: abilities, StartedAt: startedAt,
 		TimeSpentSeconds: timeSpentSeconds, PracticeAttempts: practiceAttempts,
 		PracticeScore: practiceScore, WrongKnowledgePoints: wrongKnowledgePoints,
-		ReviewStatus: reviewStatus, UpdatedAt: time.Now().UnixMilli(),
+		ReviewStatus: reviewStatus, FormalTestAttempts: formalTestAttempts,
+		FirstScore: firstScore, BestScore: bestScore, LatestScore: latestScore,
+		TestCompletedAt: testCompletedAt, StudentOutput: studentOutput,
+		OutputSubmittedAt: outputSubmittedAt, ReviewComment: reviewComment,
+		CertifiedAt: existing.CertifiedAt, UpdatedAt: time.Now().UnixMilli(),
 	}
 	if store := currentPostgres(); store != nil {
 		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
@@ -869,6 +930,42 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	classroomMemory.Lock()
 	defer classroomMemory.Unlock()
 	classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)] = progress
+	return progress, nil
+}
+
+func ReviewSelfStudyProgress(request SelfStudyReviewRequest) (SelfStudyProgress, error) {
+	classID := normalizeClassroomID(request.ClassID)
+	nodeID := normalizeClassroomNodeID(request.NodeID)
+	studentID := strings.TrimSpace(request.StudentID)
+	if studentID == "" {
+		return SelfStudyProgress{}, fmt.Errorf("studentId is required")
+	}
+	status := strings.TrimSpace(request.Status)
+	if status != "需修改" && status != "已认证" {
+		return SelfStudyProgress{}, fmt.Errorf("status must be 需修改 or 已认证")
+	}
+	progress := SelfStudyProgressData(classID, nodeID, studentID)
+	if progress.StudentID == "" {
+		return SelfStudyProgress{}, fmt.Errorf("self-study progress not found")
+	}
+	if progress.OutputSubmittedAt <= 0 || strings.TrimSpace(progress.StudentOutput) == "" {
+		return SelfStudyProgress{}, fmt.Errorf("student output has not been submitted")
+	}
+	progress.ReviewStatus = status
+	progress.ReviewComment = strings.TrimSpace(request.Comment)
+	progress.CertifiedAt = 0
+	if status == "已认证" {
+		progress.CertifiedAt = time.Now().UnixMilli()
+	}
+	progress.UpdatedAt = time.Now().UnixMilli()
+	if store := currentPostgres(); store != nil {
+		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
+			return SelfStudyProgress{}, fmt.Errorf("save self-study review: %w", err)
+		}
+	}
+	classroomMemory.Lock()
+	classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)] = progress
+	classroomMemory.Unlock()
 	return progress, nil
 }
 
@@ -907,13 +1004,19 @@ func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 		studentIDs[item.StudentID] = struct{}{}
 		scoreSum += item.AbilityScore
 		durationSum += item.TimeSpentSeconds
-		if len(item.CompletedSteps) >= 6 && item.PracticeScore >= 100 {
+		if len(item.CompletedSteps) >= 6 && item.PracticeScore >= 100 && item.FormalTestAttempts > 0 && item.OutputSubmittedAt > 0 {
 			completed++
 		}
-		if item.AbilityScore < 60 || (item.PracticeAttempts > 0 && item.PracticeScore < 100) {
+		if item.AbilityScore < 60 || (item.PracticeAttempts > 0 && item.PracticeScore < 100) || (item.FormalTestAttempts > 0 && item.BestScore < 60) || item.ReviewStatus == "需修改" {
 			needsSupport++
 		}
-		if item.PracticeAttempts > 0 {
+		if item.FormalTestAttempts > 0 {
+			accuracyScoreSum += item.LatestScore
+			accuracySamples++
+			if item.FormalTestAttempts > 1 {
+				retries += item.FormalTestAttempts - 1
+			}
+		} else if item.PracticeAttempts > 0 {
 			accuracyScoreSum += item.PracticeScore
 			accuracySamples++
 			if item.PracticeAttempts > 1 {

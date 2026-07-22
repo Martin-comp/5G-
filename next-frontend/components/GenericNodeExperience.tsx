@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   readClassroomId,
   textbookApi,
-  type ClassroomAnalyticsDTO,
   type ClassroomDiscussionMessageDTO,
   type ClassroomExitDTO,
   type ClassroomGroupResponseDTO,
@@ -13,17 +12,25 @@ import {
   type ClassroomSessionStateDTO,
   type ClassroomSubmissionDTO,
   type ClassroomToolStateDTO,
-	 type AIStudyInsightDTO,
-  type SelfStudyAnalyticsDTO
+  type AIStudyInsightDTO,
+  type SelfStudyAnalyticsDTO,
+  type SelfStudyProgressDTO
 } from '@/lib/api';
-import { CLASSROOM_REALTIME_EVENT, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
-import { capabilityNodes, getLearningNodeExperience, p4TaskFlow } from '@/lib/textbook-data';
+import { CLASSROOM_REALTIME_EVENT, emitClassroomRealtime, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
+import { capabilityNodes, getLearningNodeExperience, p4TaskFlow, projectLearningPaths } from '@/lib/textbook-data';
 import { GuidedSelfStudy } from './GuidedSelfStudy';
 import { ListeningTutorBar } from './ListeningTutorBar';
 import { NodeActivityBoard } from './NodeActivityBoard';
 import { readAuthName } from './AuthGate';
 
 type GenericExperienceMode = 'learn' | 'classroom' | 'teacher' | 'present';
+type TeacherWorkspaceTab = 'script' | 'insight' | 'review';
+
+const teacherWorkspaceTabs: { id: TeacherWorkspaceTab; label: string; note: string }[] = [
+  { id: 'script', label: '讲稿', note: '备课与课堂同步' },
+  { id: 'insight', label: '学情', note: '班级表现与薄弱点' },
+  { id: 'review', label: '批阅', note: '学习产出与课堂作答' }
+];
 
 const modeCopy: Record<GenericExperienceMode, { eyebrow: string; hint: string }> = {
   learn: { eyebrow: '学生端 · 自主学习', hint: '按案例、步骤、证据和练习完成本节点学习。' },
@@ -205,7 +212,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
         <article className="node-card classroom-submit-form"><label>选择关键依据<div className="evidence-choice-row">{node.evidence.map((item) => <button key={item.label} className={evidence.includes(item.label) ? 'active' : ''} onClick={() => toggle(item.label)} type="button">{item.label}</button>)}</div></label><label>我的判断<textarea value={answer} onChange={(event) => setAnswer(event.target.value)} /></label><button className="primary-action full" onClick={submit} type="button">提交课堂作答</button>{status && <p className="submit-status">{status}</p>}</article>
       </section> : <section className="node-section classroom-await-practice"><p className="eyebrow">{locallyExited ? '已退出听讲' : '跟随听讲'}</p><h3>{locallyExited ? '当前内容可回看，课堂作业已暂停' : '教师正在讲解当前页'}</h3><p>{locallyExited ? '你已主动退出本次课堂同步，仍可停留在本页阅读内容；教师再次同步后会自动恢复跟随。' : '本页证据已同步。请先跟随听讲助教和教师讲解，等待教师推送练习后再提交自己的判断。'}</p></section>}
     </> : null}
-    {(node.projectId === 'P1' || node.projectId === 'P2') && <ListeningTutorBar nodeId={nodeId} />}
+    {(node.projectId === 'P1' || node.projectId === 'P2') && <ListeningTutorBar nodeId={nodeId} scriptIndex={slideNumber - 1} />}
   </>;
 }
 
@@ -297,7 +304,6 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
   const [session, setSession] = useState<ClassroomSessionStateDTO>({ classId: '通信2301班', nodeId, slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0, updatedBy: 'teacher' });
   const [classroomId, setClassroomId] = useState('通信2301班');
-  const [analytics, setAnalytics] = useState<ClassroomAnalyticsDTO | null>(null);
   const [selfStudyAnalytics, setSelfStudyAnalytics] = useState<SelfStudyAnalyticsDTO | null>(null);
   const [submissions, setSubmissions] = useState<ClassroomSubmissionDTO[]>([]);
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
@@ -307,16 +313,24 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   const [exits, setExits] = useState<ClassroomExitDTO[]>([]);
   const [draftSlideId, setDraftSlideId] = useState('1');
   const [draftInitialized, setDraftInitialized] = useState(false);
+  const [workspaceTab, setWorkspaceTab] = useState<TeacherWorkspaceTab>('script');
   const slideTotal = Math.max(node.teacherScript.length, 1);
   const slideNumber = Math.min(Math.max(Number(draftSlideId) || 1, 1), slideTotal);
+  const currentScript = node.teacherScript[slideNumber - 1] ?? node.headline;
+  const pendingReviews = selfStudyAnalytics?.cards.filter((item) => item.reviewStatus === '待审核').length ?? 0;
+  const workspaceNotes: Record<TeacherWorkspaceTab, string> = {
+    script: `当前第 ${slideNumber}/${slideTotal} 段`,
+    insight: `${selfStudyAnalytics?.students ?? 0} 名学生有记录`,
+    review: pendingReviews ? `${pendingReviews} 份待批阅` : '暂无待批阅产出'
+  };
 
   useEffect(() => {
     setClassroomId(readClassroomId());
     let alive = true;
     async function refresh() {
       try {
-        const [nextSession, nextAnalytics, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups, nextSelfStudy, nextExits] = await Promise.all([
-          textbookApi.classroomSession(nodeId), textbookApi.classroomAnalytics(nodeId), textbookApi.classroomSubmissions(nodeId),
+        const [nextSession, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups, nextSelfStudy, nextExits] = await Promise.all([
+          textbookApi.classroomSession(nodeId), textbookApi.classroomSubmissions(nodeId),
           textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId), textbookApi.selfStudyAnalytics(nodeId), textbookApi.classroomExits(nodeId)
         ]);
         if (!alive) return;
@@ -325,7 +339,7 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
           setDraftSlideId(nextSession.slideId || '1');
           setDraftInitialized(true);
         }
-        setAnalytics(nextAnalytics); setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
+        setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
       } catch { /* Keep the template visible while the service wakes. */ }
     }
     void refresh();
@@ -367,8 +381,20 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
 
   return <>
     <section className="generic-teacher-top panel"><div><p className="eyebrow">教师授课控制台</p><h2>{node.taskId} · {node.title}</h2><p>{node.headline}</p></div><div><span>班级：{classroomId}</span><strong className={session.synced ? 'is-live' : ''}>学生端：{session.synced ? '已同步' : '待同步'}</strong></div></section>
+    <nav className="generic-teacher-workspace-tabs" aria-label="教师工作区">
+      {teacherWorkspaceTabs.map((tab) => <button className={workspaceTab === tab.id ? 'active' : ''} key={tab.id} onClick={() => setWorkspaceTab(tab.id)} type="button"><strong>{tab.label}{tab.id === 'review' && pendingReviews > 0 ? <em>{pendingReviews}</em> : null}</strong><span>{workspaceNotes[tab.id]}</span><small>{tab.note}</small></button>)}
+    </nav>
     <section className="generic-teacher-grid">
-      <article className="panel generic-teacher-stage"><p className="eyebrow">讲解脚本</p><h3>{node.headline}</h3><div className="teacher-script-list">{node.teacherScript.map((item, index) => <article key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div>{node.projectId === 'P1' || node.projectId === 'P2' ? <NodeActivityBoard audience="teacher" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}</article>
+      <article className="panel generic-teacher-stage">
+        {workspaceTab === 'script' && <>
+          <div className="teacher-workspace-heading"><div><p className="eyebrow">课堂讲稿</p><h3>{node.headline}</h3></div><span>当前第 {slideNumber} / {slideTotal} 段</span></div>
+          <div className="teacher-current-script"><small>同步后学生助教将播报本段</small><strong>{currentScript}</strong></div>
+          <div className="teacher-script-list">{node.teacherScript.map((item, index) => <article className={index + 1 === slideNumber ? 'active' : ''} key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div>
+          <TeacherEvidenceCanvas nodeId={nodeId} />
+        </>}
+        {workspaceTab === 'insight' && <TeacherLearningOverview analytics={selfStudyAnalytics} classroomSubmissions={submissions.length} onOpenReview={() => setWorkspaceTab('review')} />}
+        {workspaceTab === 'review' && <><SelfStudyInsightPanel analytics={selfStudyAnalytics} embedded nodeId={nodeId} />{node.projectId === 'P1' || node.projectId === 'P2' ? <NodeActivityBoard audience="teacher" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}</>}
+      </article>
       <aside className="panel generic-teacher-side">
         <h3>课堂控制</h3>
         <div className="teacher-slide-control"><span>预览 {slideNumber} / {slideTotal}{session.synced ? ` · 已同步第 ${session.slideId} 页` : ''}</span><button aria-label="上一讲解页" disabled={slideNumber === 1} onClick={() => changeSlide(-1)} type="button">上一页</button><button aria-label="下一讲解页" disabled={slideNumber === slideTotal} onClick={() => changeSlide(1)} type="button">下一页</button></div>
@@ -384,12 +410,100 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
       </aside>
     </section>
     <section className="generic-teacher-data">
-      <SelfStudyInsightPanel analytics={selfStudyAnalytics} nodeId={nodeId} />
-      <article className="panel"><h3>学生学习证据</h3><strong>{analytics?.submitted ?? 0} / {analytics?.totalStudents ?? 42} 人</strong><p>提交率 {analytics?.submitRate ?? '0%'}，平均分 {analytics?.averageScore ?? 0}。</p></article>
-      <article className="panel"><h3>讲评优先级</h3>{(analytics?.priorityItems ?? []).slice(0, 3).map((item) => <p key={item.label}><b>{item.level}</b>{item.label} · {item.count}人</p>)}{!analytics && <p>学生提交后会显示需讲评的证据缺口。</p>}</article>
+      <ProjectScoreSummary currentNodeId={nodeId} onOpenReview={() => setWorkspaceTab('review')} projectId={node.projectId} />
+      <article className="panel"><h3>学生学习证据</h3><strong>{selfStudyAnalytics?.students ?? 0} 名学生</strong>{selfStudyAnalytics?.students ? <p>{selfStudyAnalytics.completed} 人点亮节点，综合正确率 {selfStudyAnalytics.averageAccuracy}%。</p> : <p>学生开始自学后，这里会汇总进度、测试和学习产出。</p>}</article>
+      <article className="panel"><h3>讲评优先级</h3>{selfStudyAnalytics?.typicalErrors.slice(0, 3).map((item) => <p key={item.label}><b>{item.level}</b>{item.label} · {item.count}次</p>)}{!selfStudyAnalytics?.typicalErrors.length && <p>出现错误知识点后，这里会生成讲评优先级。</p>}</article>
       <article className="panel"><h3>最新提交</h3>{submissions.length ? submissions.slice(0, 3).map((item) => <p key={item.id}><b>{item.studentName}</b>{item.conclusion || item.answer}</p>) : <p>暂未收到真实提交。</p>}</article>
     </section>
   </>;
+}
+
+function TeacherEvidenceCanvas({ nodeId }: { nodeId: string }) {
+  const node = getLearningNodeExperience(nodeId)!;
+  return <section className="teacher-evidence-canvas" aria-label="当前讲稿证据板">
+    <div><strong>本段证据板</strong><span>讲稿、证据与学生助教播报使用同一节点数据</span></div>
+    <div className="teacher-evidence-flow">{node.evidence.map((item, index) => <article key={item.label}><b>{String.fromCharCode(65 + index)}</b><strong>{item.label}</strong><span>{item.value}</span><small>{item.target}</small></article>)}</div>
+  </section>;
+}
+
+function TeacherLearningOverview({ analytics, classroomSubmissions, onOpenReview }: { analytics: SelfStudyAnalyticsDTO | null; classroomSubmissions: number; onOpenReview: () => void }) {
+  const distribution = useMemo(() => {
+    const scores = analytics?.cards.map((item) => item.formalTestAttempts > 0 ? item.bestScore : item.practiceScore) ?? [];
+    return [
+      { label: '90—100', count: scores.filter((score) => score >= 90).length },
+      { label: '60—89', count: scores.filter((score) => score >= 60 && score < 90).length },
+      { label: '60以下', count: scores.filter((score) => score < 60).length }
+    ];
+  }, [analytics]);
+  const maxCount = Math.max(...distribution.map((item) => item.count), 1);
+  const pendingReviews = analytics?.cards.filter((item) => item.reviewStatus === '待审核').length ?? 0;
+  return <div className="teacher-learning-overview">
+    <div className="teacher-workspace-heading"><div><p className="eyebrow">班级学情</p><h3>从自学记录到课堂讲评</h3></div><div className="teacher-heading-actions"><span>{analytics?.students ?? 0} 名学生产生记录</span>{pendingReviews > 0 && <button onClick={onOpenReview} type="button">查看 {pendingReviews} 份待批阅</button>}</div></div>
+    <div className="teacher-insight-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.averageAccuracy ?? 0}%</strong><span>综合正确率</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需重点支持</span></article><article><strong>{classroomSubmissions}</strong><span>课堂已提交</span></article></div>
+    <div className="teacher-score-distribution"><strong>正式测试分布</strong>{distribution.map((item) => <div key={item.label}><span>{item.label}</span><i><b style={{ width: `${item.count / maxCount * 100}%` }} /></i><em>{item.count} 人</em></div>)}</div>
+    <div className="teacher-insight-columns"><article><strong>典型错误</strong>{analytics?.typicalErrors.slice(0, 4).map((item) => <span key={item.label}>{item.label}<b>{item.count}次</b></span>)}{!analytics?.typicalErrors.length && <small>暂无错误记录</small>}</article><article><strong>能力短板</strong>{analytics?.weakAbilities.slice(0, 4).map((item) => <span key={item.label}>{item.label}<b>{item.count}人</b></span>)}{!analytics?.weakAbilities.length && <small>暂无薄弱点记录</small>}</article></div>
+  </div>;
+}
+
+function scoreProgress(item: SelfStudyProgressDTO) {
+  const assessment = item.formalTestAttempts > 0 ? item.bestScore : item.practiceScore;
+  const review = item.reviewStatus === '已认证' ? 100 : item.reviewStatus === '待审核' ? 70 : item.reviewStatus === '需修改' ? 40 : 0;
+  return Math.round(item.abilityScore * .35 + assessment * .5 + review * .15);
+}
+
+function ProjectScoreSummary({ projectId, currentNodeId, onOpenReview }: { projectId: string; currentNodeId: string; onOpenReview: () => void }) {
+  const path = projectLearningPaths[projectId] ?? [{ nodeId: currentNodeId, title: getLearningNodeExperience(currentNodeId)?.title ?? currentNodeId }];
+  const [items, setItems] = useState<{ nodeId: string; title: string; analytics: SelfStudyAnalyticsDTO }[]>([]);
+  const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
+
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => Promise.all(path.map(async (item) => ({ ...item, analytics: await textbookApi.selfStudyAnalytics(item.nodeId) }))).then((next) => {
+      if (!alive) return;
+      setItems(next);
+      setLoadState('ready');
+    }).catch(() => { if (alive) setLoadState('error'); });
+    void refresh();
+    window.addEventListener(CLASSROOM_REALTIME_EVENT, refresh);
+    return () => { alive = false; window.removeEventListener(CLASSROOM_REALTIME_EVENT, refresh); };
+  }, [currentNodeId, projectId]);
+
+  const records = items.flatMap((item) => item.analytics.cards);
+  const nodeRows = items.map((item) => {
+    const scores = item.analytics.cards.map(scoreProgress);
+    return { ...item, score: scores.length ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length) : 0 };
+  });
+  const activeRows = nodeRows.filter((item) => item.analytics.students > 0);
+  const students = Array.from(records.reduce((map, item) => {
+    const current = map.get(item.studentId) ?? { studentId: item.studentId, studentName: item.studentName, scores: [] as number[], completedNodes: 0, pendingReviews: 0, needsSupport: false };
+    current.scores.push(scoreProgress(item));
+    if (item.completedSteps.length >= 6) current.completedNodes++;
+    if (item.reviewStatus === '待审核') current.pendingReviews++;
+    if (item.reviewStatus === '需修改' || item.bestScore < 60 || item.abilityScore < 60) current.needsSupport = true;
+    map.set(item.studentId, current);
+    return map;
+  }, new Map<string, { studentId: string; studentName: string; scores: number[]; completedNodes: number; pendingReviews: number; needsSupport: boolean }>()).values()).map((item) => ({
+    ...item,
+    score: item.scores.length ? Math.round(item.scores.reduce((sum, score) => sum + score, 0) / item.scores.length) : 0
+  }));
+  const aggregate = students.length ? Math.round(students.reduce((sum, item) => sum + item.score, 0) / students.length) : 0;
+  const distribution = [
+    { label: '优秀', range: '90—100', count: students.filter((item) => item.score >= 90).length },
+    { label: '达标', range: '60—89', count: students.filter((item) => item.score >= 60 && item.score < 90).length },
+    { label: '需支持', range: '60以下', count: students.filter((item) => item.score < 60).length }
+  ];
+  const maxCount = Math.max(...distribution.map((item) => item.count), 1);
+  const supportStudents = students.filter((item) => item.needsSupport || item.score < 60).sort((left, right) => left.score - right.score).slice(0, 4);
+  const pendingReviews = students.reduce((sum, item) => sum + item.pendingReviews, 0);
+
+  return <section className="panel teacher-project-score-summary">
+    <div className="portfolio-heading"><div><p className="eyebrow">成绩回流</p><h3>{projectId} 任务与项目成绩</h3></div><div className="teacher-heading-actions"><span>按学生聚合：能力 35% + 测试 50% + 审核 15%</span>{pendingReviews > 0 && <button onClick={onOpenReview} type="button">批阅 {pendingReviews} 份产出</button>}</div></div>
+    {loadState === 'error' ? <div className="teacher-score-state error"><strong>成绩暂时无法加载</strong><span>请确认后端服务已连接，页面会在收到新记录后再次刷新。</span></div> : loadState === 'loading' ? <div className="teacher-score-state"><strong>正在汇总学习记录</strong><span>正在读取 P1/P2 节点成绩与审核状态。</span></div> : <>
+      <div className="teacher-aggregate-scores"><article><span>{getLearningNodeExperience(currentNodeId)?.taskId ?? `${projectId}-T1`}</span><strong>{aggregate}</strong><small>任务综合分</small></article><article><span>{projectId}</span><strong>{aggregate}</strong><small>项目综合分</small></article><article><span>{students.length} 名学生</span><strong>{activeRows.length}/{path.length}</strong><small>有数据节点 / 项目节点</small></article></div>
+      <div className="teacher-project-score-grid"><div className="teacher-node-score-list">{nodeRows.map((item) => <Link className={item.nodeId === currentNodeId ? 'active' : ''} href={`/teacher/sessions/${item.nodeId}`} key={item.nodeId}><div><strong>{item.title}</strong><span>{item.nodeId} · {item.analytics.students}人</span></div><b>{item.score}</b></Link>)}</div><div className="teacher-project-distribution"><strong>班级成绩分布</strong>{distribution.map((item) => <div key={item.label}><span>{item.label}<small>{item.range}</small></span><i><b style={{ width: `${item.count / maxCount * 100}%` }} /></i><em>{item.count}</em></div>)}<small>同一学生跨节点记录只计入一次。</small></div></div>
+      {supportStudents.length ? <div className="teacher-support-students"><div><strong>需优先支持</strong><span>按项目综合分与审核状态排序</span></div>{supportStudents.map((item) => <article key={item.studentId}><div><strong>{item.studentName}</strong><span>完成 {item.completedNodes}/{path.length} 节 · {item.pendingReviews ? `${item.pendingReviews} 份待批` : '暂无待批'}</span></div><b>{item.score}</b></article>)}</div> : students.length ? <div className="teacher-score-state success"><strong>当前没有明显薄弱学生</strong><span>可继续关注新提交与课堂表现。</span></div> : <div className="teacher-score-state"><strong>等待学生学习记录</strong><span>学生完成自学或测试后，这里会按学生汇总成绩。</span></div>}
+    </>}
+  </section>;
 }
 
 function TeacherExitTips({ exits }: { exits: ClassroomExitDTO[] }) {
@@ -403,16 +517,55 @@ function formatStudyDuration(seconds: number) {
   return `${Math.max(1, Math.round(seconds / 60))} 分钟`;
 }
 
-function SelfStudyInsightPanel({ analytics, nodeId }: { analytics: SelfStudyAnalyticsDTO | null; nodeId: string }) {
-  const supportCard = analytics?.cards.find((item) => item.abilityScore < 60 || item.practiceScore < 100) ?? analytics?.cards.find((item) => item.completedSteps.length < 6);
+function SelfStudyInsightPanel({ analytics, nodeId, embedded = false }: { analytics: SelfStudyAnalyticsDTO | null; nodeId: string; embedded?: boolean }) {
   const [insight, setInsight] = useState<AIStudyInsightDTO | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [reviewComments, setReviewComments] = useState<Record<string, string>>({});
+  const [reviewedCards, setReviewedCards] = useState<Record<string, SelfStudyProgressDTO>>({});
+  const [reviewingStudent, setReviewingStudent] = useState('');
+  const [reviewMessage, setReviewMessage] = useState('');
+  const [studentQuery, setStudentQuery] = useState('');
+  const [reviewFilter, setReviewFilter] = useState<'全部' | '待审核' | '需修改' | '已认证' | '未提交' | '需支持'>('全部');
+  const cards = analytics?.cards.map((item) => reviewedCards[item.studentId] ?? item) ?? [];
+  const filteredCards = useMemo(() => {
+    const query = studentQuery.trim().toLocaleLowerCase();
+    return cards.filter((item) => {
+      const status = item.reviewStatus || '未提交';
+      const needsSupport = status === '需修改'
+        || (item.formalTestAttempts > 0 && item.bestScore < 60)
+        || item.practiceScore < 100
+        || item.completedSteps.length < 6;
+      const matchesStatus = reviewFilter === '全部'
+        || status === reviewFilter
+        || (reviewFilter === '需支持' && needsSupport);
+      const matchesQuery = !query
+        || item.studentName.toLocaleLowerCase().includes(query)
+        || item.studentId.toLocaleLowerCase().includes(query);
+      return matchesStatus && matchesQuery;
+    });
+  }, [cards, reviewFilter, studentQuery]);
+  const supportCard = cards.find((item) => item.reviewStatus === '需修改' || (item.formalTestAttempts > 0 && item.bestScore < 60)) ?? cards.find((item) => item.abilityScore < 60 || item.practiceScore < 100) ?? cards.find((item) => item.completedSteps.length < 6);
   const suggestion = supportCard
     ? `优先让 ${supportCard.studentName} 回看“${supportCard.abilities.find((ability) => ability.score < 100)?.label ?? '结论表达'}”并完成未解锁小节。`
     : analytics?.students
       ? '本节点自学完成度较好，可在听讲阶段重点追问证据之间的关联。'
       : '学生保存自学进度后，系统会生成能力数、薄弱点和教师建议。';
+
+  useEffect(() => {
+    if (!analytics?.cards.length) return;
+    setReviewedCards((current) => {
+      const next = { ...current };
+      let changed = false;
+      analytics.cards.forEach((item) => {
+        if (next[item.studentId] && item.updatedAt > next[item.studentId].updatedAt) {
+          delete next[item.studentId];
+          changed = true;
+        }
+      });
+      return changed ? next : current;
+    });
+  }, [analytics]);
 
   async function generateInsight() {
     setLoading(true);
@@ -426,11 +579,39 @@ function SelfStudyInsightPanel({ analytics, nodeId }: { analytics: SelfStudyAnal
     }
   }
 
-  return <article className="panel generic-ai-learning-card generic-ai-insight-panel">
+  async function reviewStudent(item: SelfStudyProgressDTO, status: '需修改' | '已认证') {
+    const comment = (reviewComments[item.studentId] ?? item.reviewComment ?? '').trim();
+    if (status === '需修改' && !comment) {
+      setReviewMessage('退回前请填写具体修改意见。');
+      return;
+    }
+    setReviewingStudent(item.studentId);
+    setReviewMessage('');
+    try {
+      const saved = await textbookApi.reviewSelfStudyProgress({ nodeId, studentId: item.studentId, status, comment });
+      setReviewedCards((current) => ({ ...current, [item.studentId]: saved }));
+      emitClassroomRealtime({ type: 'self-study-progress', classId: saved.classId, nodeId: saved.nodeId, updatedAt: saved.updatedAt });
+      setReviewMessage(`${item.studentName}的学习产出已${status === '已认证' ? '认证通过' : '退回修改'}。`);
+    } catch {
+      setReviewMessage('审核保存失败，请确认后端服务已连接。');
+    } finally {
+      setReviewingStudent('');
+    }
+  }
+
+  return <article className={`${embedded ? 'embedded' : 'panel generic-ai-learning-card'} generic-ai-insight-panel`}>
     <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 综合分析</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生学习数据` : '等待学生保存学习进度'}</h3></div><span>分析依据：进度、正确率、重试、用时、能力数</span></div>
     <div className="ai-learning-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.averageAccuracy ?? 0}%</strong><span>综合正确率</span></article><article><strong>{analytics?.completed ?? 0}</strong><span>点亮本节点</span></article><article><strong>{analytics?.totalRetries ?? 0}</strong><span>累计重试</span></article><article><strong>{formatStudyDuration(analytics?.averageDurationSeconds ?? 0)}</strong><span>平均学习用时</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要支持</span></article></div>
     {(analytics?.typicalErrors?.length || analytics?.weakAbilities?.length) ? <div className="ai-learning-breakdown"><article><strong>典型错误</strong>{analytics?.typicalErrors?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 次</b></span>)}</article><article><strong>能力短板</strong>{analytics?.weakAbilities?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 人</b></span>)}</article></div> : null}
-    {analytics?.cards.length ? <div className="ai-learning-student-list">{analytics.cards.slice(0, 4).map((item) => <article key={item.studentId}><div><strong>{item.studentName}</strong><span>完成 {item.completedSteps.length}/6 阶段 · {formatStudyDuration(item.timeSpentSeconds)}</span><small>微练习 {item.practiceScore}分 / {item.practiceAttempts}次 · {item.reviewStatus || '未提交审核'}</small>{item.wrongKnowledgePoints.length ? <small>错误点：{item.wrongKnowledgePoints.join('、')}</small> : null}</div><b>{item.abilityScore}</b><div className="ai-ability-bars">{item.abilities.map((ability) => <span key={ability.label}><i style={{ width: `${ability.score}%` }} /><em>{ability.label}</em></span>)}</div></article>)}</div> : null}
+    {cards.length ? <>
+      <div className="ai-student-filters">
+        <input aria-label="搜索学生" onChange={(event) => setStudentQuery(event.target.value)} placeholder="搜索学生姓名" value={studentQuery} />
+        <div>{(['全部', '待审核', '需修改', '已认证', '未提交', '需支持'] as const).map((filter) => <button className={reviewFilter === filter ? 'is-active' : ''} key={filter} onClick={() => setReviewFilter(filter)} type="button">{filter}</button>)}</div>
+        <span>显示 {filteredCards.length} / {cards.length} 名学生</span>
+      </div>
+      {filteredCards.length ? <div className="ai-learning-student-list">{filteredCards.slice(0, 8).map((item) => <article key={item.studentId}><div className="ai-student-summary"><strong>{item.studentName}</strong><span>完成 {item.completedSteps.length}/6 阶段 · {formatStudyDuration(item.timeSpentSeconds)}</span><small>微练习 {item.practiceScore}分 / {item.practiceAttempts}次 · 审核 {item.reviewStatus || '未提交'}</small><small>正式测试：首次 {item.firstScore} · 最高 {item.bestScore} · 最近 {item.latestScore} · {item.formalTestAttempts}/3 次</small>{item.wrongKnowledgePoints.length ? <small>错误点：{item.wrongKnowledgePoints.join('、')}</small> : null}</div><b>{item.abilityScore}</b><div className="ai-ability-bars">{item.abilities.map((ability) => <span key={ability.label}><i style={{ width: `${ability.score}%` }} /><em>{ability.label}</em></span>)}</div>{item.studentOutput ? <div className="teacher-output-review"><strong>学生产出</strong><p>{item.studentOutput}</p><textarea maxLength={300} onChange={(event) => setReviewComments((current) => ({ ...current, [item.studentId]: event.target.value }))} placeholder="填写审核意见；退回修改时必填" value={reviewComments[item.studentId] ?? item.reviewComment ?? ''} /><div><button className="secondary" disabled={reviewingStudent === item.studentId || item.reviewStatus === '已认证'} onClick={() => reviewStudent(item, '需修改')} type="button">退回修改</button><button disabled={reviewingStudent === item.studentId || item.reviewStatus === '已认证'} onClick={() => reviewStudent(item, '已认证')} type="button">{item.reviewStatus === '已认证' ? '已认证' : '认证通过'}</button></div></div> : <div className="teacher-output-empty">尚未提交正式学习产出</div>}</article>)}</div> : <div className="teacher-output-empty">没有符合当前筛选条件的学生记录。</div>}
+    </> : null}
+    {reviewMessage && <div className="teacher-review-message">{reviewMessage}</div>}
     <div className="ai-learning-suggestion"><div><strong>{insight ? 'AI 学情解读' : '规则预判'}</strong><button className="text-action" disabled={!analytics?.students || loading} onClick={generateInsight} type="button">{loading ? '正在生成' : insight ? '重新生成' : '生成 AI 学情解读'}</button></div>{insight ? <><p>{insight.summary}</p><p><b>讲评重点：</b>{insight.focus}</p><p><b>下一步：</b>{insight.action}</p><small>{insight.provider} · {insight.mode === 'remote' ? '真实 AI' : '本地回退'}</small></> : <p>{suggestion}</p>}{error && <small>{error}</small>}</div>
   </article>;
 }

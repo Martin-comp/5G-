@@ -113,6 +113,13 @@ export type LearningNodeExperience = {
     explanation: string;
     knowledgePoint: string;
   };
+  formalTest?: {
+    prompt: string;
+    options: string[];
+    correctOption: string;
+    explanation: string;
+    knowledgePoint: string;
+  }[];
 };
 
 export type ProjectLearningPathNode = {
@@ -380,7 +387,30 @@ function createSamplePathNode(config: SamplePathNodeConfig): LearningNodeExperie
       correctOption: config.answer,
       explanation: config.explanation,
       knowledgePoint: config.knowledgePoint
-    }
+    },
+    formalTest: [
+      {
+        prompt: config.question,
+        options: config.options,
+        correctOption: config.answer,
+        explanation: config.explanation,
+        knowledgePoint: config.knowledgePoint
+      },
+      {
+        prompt: `完成“${config.title}”后，哪项产出最适合作为后续节点的正式证据？`,
+        options: [config.output, '口头描述摘要', '无来源的结论截图', '只保留个人备忘'],
+        correctOption: config.output,
+        explanation: `${config.output}包含本节点要求的结构化字段，可以保存、审核和继续复用。`,
+        knowledgePoint: '学习产出'
+      },
+      {
+        prompt: `出现“${config.mistake}”时，正确的纠偏措施是什么？`,
+        options: [config.correction, '维持原判断并省略证据', '只增加材料数量', '跳过本节点直接形成结论'],
+        correctOption: config.correction,
+        explanation: '纠偏必须直接修复当前证据链中的缺口，而不是增加无关材料。',
+        knowledgePoint: '纠偏判断'
+      }
+    ]
   };
 }
 

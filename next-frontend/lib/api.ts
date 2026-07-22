@@ -174,6 +174,14 @@ export type SelfStudyProgressPayload = {
 	practiceScore?: number;
 	wrongKnowledgePoints?: string[];
 	reviewStatus?: string;
+	formalTestAttempts?: number;
+	firstScore?: number;
+	bestScore?: number;
+	latestScore?: number;
+	testCompletedAt?: number;
+	studentOutput?: string;
+	outputSubmittedAt?: number;
+	reviewComment?: string;
 };
 
 export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
@@ -186,7 +194,24 @@ export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
 	practiceScore: number;
 	wrongKnowledgePoints: string[];
 	reviewStatus: string;
+	formalTestAttempts: number;
+	firstScore: number;
+	bestScore: number;
+	latestScore: number;
+	testCompletedAt: number;
+	studentOutput: string;
+	outputSubmittedAt: number;
+	reviewComment: string;
+	certifiedAt: number;
 	updatedAt: number;
+};
+
+export type SelfStudyReviewPayload = {
+	classId?: string;
+	nodeId: string;
+	studentId: string;
+	status: '需修改' | '已认证';
+	comment: string;
 };
 
 export type SelfStudyAnalyticsDTO = {
@@ -400,6 +425,10 @@ export const textbookApi = {
   classroomPortfolio: (classId = readClassroomId()) => requestJSON<ClassroomLearningPortfolioDTO>(`/api/classroom/portfolio?classId=${encodeURIComponent(classId)}`),
   selfStudyProgress: (nodeId: string, studentId: string, classId = readClassroomId()) => requestJSON<SelfStudyProgressDTO>(`/api/self-study/progress?classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}&studentId=${encodeURIComponent(studentId)}`),
   updateSelfStudyProgress: (payload: SelfStudyProgressPayload) => requestJSON<SelfStudyProgressDTO>('/api/self-study/progress', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
+  reviewSelfStudyProgress: (payload: SelfStudyReviewPayload) => requestJSON<SelfStudyProgressDTO>('/api/self-study/review', {
     method: 'POST',
     body: JSON.stringify(withClassroomId(payload))
   }),

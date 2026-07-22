@@ -24,6 +24,8 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 		ClassID: "测试班", NodeID: "P1T1-N01", StudentID: "s1", StudentName: "学生一",
 		CompletedSteps: []string{"problem", "visual", "steps", "correction", "exercise", "output"}, StartedAt: 1, TimeSpentSeconds: 120,
 		PracticeAttempts: 2, PracticeScore: 100, WrongKnowledgePoints: []string{"室内资源边界"},
+		FormalTestAttempts: 2, FirstScore: 60, BestScore: 80, LatestScore: 80, TestCompletedAt: 10,
+		StudentOutput: "已完成室内资源边界、证据和判断结论记录。", OutputSubmittedAt: 11,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -32,6 +34,7 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 		ClassID: "测试班", NodeID: "P1T1-N01", StudentID: "s2", StudentName: "学生二",
 		CompletedSteps: []string{"problem", "visual"}, StartedAt: 2, TimeSpentSeconds: 60,
 		PracticeAttempts: 1, PracticeScore: 0, WrongKnowledgePoints: []string{"室内资源边界"},
+		FormalTestAttempts: 1, FirstScore: 0, BestScore: 0, LatestScore: 0, TestCompletedAt: 12,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -51,8 +54,8 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 	if analytics.Students != 2 || analytics.Completed != 1 {
 		t.Fatalf("unexpected progress summary: %+v", analytics)
 	}
-	if analytics.AverageAccuracy != 64 {
-		t.Fatalf("expected blended average accuracy 64, got %d", analytics.AverageAccuracy)
+	if analytics.AverageAccuracy != 60 {
+		t.Fatalf("expected blended average accuracy 60, got %d", analytics.AverageAccuracy)
 	}
 	if analytics.TotalRetries != 2 {
 		t.Fatalf("expected two retries, got %d", analytics.TotalRetries)
@@ -72,7 +75,16 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 			completedCard = card
 		}
 	}
-	if completedCard.PracticeScore != 100 || completedCard.ReviewStatus != "待审核" {
+	if completedCard.PracticeScore != 100 || completedCard.ReviewStatus != "待审核" || completedCard.BestScore != 80 || completedCard.StudentOutput == "" {
 		t.Fatalf("expected persisted practice and review data, got %+v", completedCard)
+	}
+	reviewed, err := ReviewSelfStudyProgress(SelfStudyReviewRequest{
+		ClassID: "测试班", NodeID: "P1T1-N01", StudentID: "s1", Status: "已认证", Comment: "证据完整，可以进入下一节点。",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reviewed.ReviewStatus != "已认证" || reviewed.CertifiedAt == 0 || reviewed.ReviewComment == "" {
+		t.Fatalf("expected certified review, got %+v", reviewed)
 	}
 }

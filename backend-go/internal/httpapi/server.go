@@ -48,6 +48,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/classroom/portfolio", s.classroomLearningPortfolio)
 	s.mux.HandleFunc("GET /api/self-study/progress", s.selfStudyProgress)
 	s.mux.HandleFunc("POST /api/self-study/progress", s.updateSelfStudyProgress)
+	s.mux.HandleFunc("POST /api/self-study/review", s.reviewSelfStudyProgress)
 	s.mux.HandleFunc("GET /api/self-study/analytics", s.selfStudyAnalytics)
 	s.mux.HandleFunc("GET /api/classroom/poll", s.classroomPoll)
 	s.mux.HandleFunc("POST /api/classroom/poll", s.createClassroomPollResponse)
@@ -257,6 +258,21 @@ func (s *Server) updateSelfStudyProgress(w http.ResponseWriter, r *http.Request)
 
 func (s *Server) selfStudyAnalytics(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, data.SelfStudyAnalyticsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) reviewSelfStudyProgress(w http.ResponseWriter, r *http.Request) {
+	var request data.SelfStudyReviewRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	progress, err := data.ReviewSelfStudyProgress(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(progress.ClassID, classroomRealtimeEvent{Type: "self-study-progress", ClassID: progress.ClassID, NodeID: progress.NodeID, UpdatedAt: progress.UpdatedAt})
+	writeJSON(w, http.StatusOK, progress)
 }
 
 func (s *Server) classroomPoll(w http.ResponseWriter, r *http.Request) {

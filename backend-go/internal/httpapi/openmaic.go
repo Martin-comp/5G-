@@ -324,8 +324,10 @@ func requestDeepSeekStudyInsight(apiKey string, request data.AIStudyInsightReque
 
 func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) string {
 	studentSnapshots := make([]string, 0, len(analytics.Cards))
-	for index, card := range analytics.Cards {
-		studentSnapshots = append(studentSnapshots, fmt.Sprintf("学生%d：能力数%d，完成%d/4节，用时%d秒", index+1, card.AbilityScore, len(card.CompletedSteps), card.TimeSpentSeconds))
+	for _, card := range analytics.Cards {
+		studentSnapshots = append(studentSnapshots, fmt.Sprintf("%s：能力数%d，完成%d/6阶段，用时%d秒，正式测试首次%d/最高%d/最近%d，共%d次，审核状态%s，错误点%s",
+			card.StudentName, card.AbilityScore, len(card.CompletedSteps), card.TimeSpentSeconds, card.FirstScore, card.BestScore,
+			card.LatestScore, card.FormalTestAttempts, emptyText(card.ReviewStatus), emptyText(strings.Join(card.WrongKnowledgePoints, "、"))))
 	}
 	typicalErrors := make([]string, 0, len(analytics.TypicalErrors))
 	for _, item := range analytics.TypicalErrors {
@@ -342,7 +344,7 @@ func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfS
 能力短板：%s
 学生概览：%s
 
-请生成给教师看的班级概况、优先讲评重点和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(studentSnapshots, "；")))
+请优先依据正式测试的首次/最高/最近成绩、重试次数、错误知识点和教师审核状态，生成给教师看的班级概况、重点学生、优先讲评内容和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(studentSnapshots, "；")))
 }
 
 func parseStudyInsightContent(content string, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
@@ -375,10 +377,25 @@ func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightRes
 		}
 	}
 	focus := "重点核查未完成小节，避免只看能力总分。"
+	for _, card := range analytics.Cards {
+		if card.ReviewStatus == "需修改" {
+			focus = fmt.Sprintf("优先跟进%s的退回产出，并对照审核意见完成修改。", card.StudentName)
+			break
+		}
+		if card.FormalTestAttempts > 0 && card.BestScore < 60 {
+			focus = fmt.Sprintf("优先支持%s，其正式测试最高分为%d分。", card.StudentName, card.BestScore)
+			break
+		}
+	}
 	if len(analytics.TypicalErrors) > 0 {
-		focus = fmt.Sprintf("优先讲评“%s”，该错误在当前作业中出现%d次。", analytics.TypicalErrors[0].Label, analytics.TypicalErrors[0].Count)
+		if focus == "重点核查未完成小节，避免只看能力总分。" {
+			focus = fmt.Sprintf("优先讲评“%s”，该错误在当前作业中出现%d次。", analytics.TypicalErrors[0].Label, analytics.TypicalErrors[0].Count)
+		}
 	}
 	for _, card := range analytics.Cards {
+		if focus != "重点核查未完成小节，避免只看能力总分。" {
+			break
+		}
 		if len(analytics.TypicalErrors) > 0 {
 			break
 		}
