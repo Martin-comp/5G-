@@ -85,6 +85,12 @@ func (s *Server) aiStudyInsight(w http.ResponseWriter, r *http.Request) {
 	}
 
 	analytics := data.SelfStudyAnalyticsData(request.ClassID, request.NodeID)
+	if strings.TrimSpace(request.StudentID) != "" {
+		if _, ok := studyInsightStudent(analytics, request.StudentID); !ok {
+			writeError(w, http.StatusNotFound, "student learning record not found")
+			return
+		}
+	}
 	if apiKey := strings.TrimSpace(os.Getenv("DEEPSEEK_API_KEY")); apiKey != "" {
 		response, err := requestDeepSeekStudyInsight(apiKey, request, analytics)
 		if err == nil {
@@ -93,7 +99,7 @@ func (s *Server) aiStudyInsight(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	writeJSON(w, http.StatusOK, localStudyInsight(analytics))
+	writeJSON(w, http.StatusOK, localStudyInsight(request, analytics))
 }
 
 func requestOpenMAICPBLChat(baseURL string, payload data.AIChatRequest) (data.AIChatResponse, error) {
@@ -316,13 +322,33 @@ func requestDeepSeekStudyInsight(apiKey string, request data.AIStudyInsightReque
 	if err != nil {
 		return data.AIStudyInsightResponse{}, err
 	}
-	response := parseStudyInsightContent(content, analytics)
+	response := parseStudyInsightContent(content, request, analytics)
 	response.Provider = "DeepSeek"
 	response.Mode = "remote"
 	return response, nil
 }
 
 func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) string {
+	if student, ok := studyInsightStudent(analytics, request.StudentID); ok {
+		return fmt.Sprintf(`课程：5G网络优化（高级）
+节点：%s
+学生：%s（%s）
+完成阶段：%d/6
+能力数：%d
+学习用时：%d秒
+微练习：%d分，共%d次
+正式测试：首次%d分、最高%d分、最近%d分，共%d次
+错误知识点：%s
+学习产出：%s
+教师审核：%s
+审核意见：%s
+
+请只依据该生真实记录，生成教师可直接使用的个人学习概况、首要薄弱点和下一步讲评或辅导动作。`,
+			request.NodeID, student.StudentName, student.StudentID, len(student.CompletedSteps), student.AbilityScore,
+			student.TimeSpentSeconds, student.PracticeScore, student.PracticeAttempts, student.FirstScore, student.BestScore,
+			student.LatestScore, student.FormalTestAttempts, emptyText(strings.Join(student.WrongKnowledgePoints, "、")),
+			emptyText(student.StudentOutput), emptyText(student.ReviewStatus), emptyText(student.ReviewComment))
+	}
 	studentSnapshots := make([]string, 0, len(analytics.Cards))
 	for _, card := range analytics.Cards {
 		studentSnapshots = append(studentSnapshots, fmt.Sprintf("%s：能力数%d，完成%d/6阶段，用时%d秒，正式测试首次%d/最高%d/最近%d，共%d次，审核状态%s，错误点%s",
@@ -347,7 +373,7 @@ func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfS
 请优先依据正式测试的首次/最高/最近成绩、重试次数、错误知识点和教师审核状态，生成给教师看的班级概况、重点学生、优先讲评内容和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(studentSnapshots, "；")))
 }
 
-func parseStudyInsightContent(content string, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
+func parseStudyInsightContent(content string, request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
 	content = strings.TrimSpace(strings.Trim(content, "`"))
 	if strings.HasPrefix(content, "json") {
 		content = strings.TrimSpace(strings.TrimPrefix(content, "json"))
@@ -360,14 +386,43 @@ func parseStudyInsightContent(content string, analytics data.SelfStudyAnalytics)
 	if err := json.Unmarshal([]byte(content), &parsed); err == nil && strings.TrimSpace(parsed.Summary) != "" {
 		return data.AIStudyInsightResponse{Summary: parsed.Summary, Focus: parsed.Focus, Action: parsed.Action}
 	}
-	response := localStudyInsight(analytics)
+	response := localStudyInsight(request, analytics)
 	if strings.TrimSpace(content) != "" {
 		response.Summary = content
 	}
 	return response
 }
 
-func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
+func localStudyInsight(request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
+	if student, ok := studyInsightStudent(analytics, request.StudentID); ok {
+		score := student.PracticeScore
+		scoreLabel := "微练习"
+		if student.FormalTestAttempts > 0 {
+			score = student.BestScore
+			scoreLabel = "正式测试最高分"
+		}
+		focus := "继续完成尚未点亮的学习阶段。"
+		switch {
+		case student.ReviewStatus == "需修改":
+			focus = fmt.Sprintf("学习产出已退回，需按审核意见修改：%s", emptyText(student.ReviewComment))
+		case len(student.WrongKnowledgePoints) > 0:
+			focus = fmt.Sprintf("首要薄弱点是“%s”，需要回到对应场景和证据重新判断。", student.WrongKnowledgePoints[0])
+		case student.FormalTestAttempts > 0 && student.BestScore < 60:
+			focus = fmt.Sprintf("正式测试最高分%d分，需先纠正错误再进行一次测试。", student.BestScore)
+		case len(student.CompletedSteps) >= 6 && student.ReviewStatus == "待审核":
+			focus = "六阶段已完成，当前重点是核验学习产出与证据是否一致。"
+		}
+		action := "安排一次针对性讲解，再让学生修正产出或重做测试。"
+		if student.ReviewStatus == "已认证" && score >= 60 {
+			action = "该生已达到当前节点要求，可进入下一知识节点并保留抽查。"
+		}
+		return data.AIStudyInsightResponse{
+			Provider: "local-insight", Mode: "local-fallback",
+			Summary: fmt.Sprintf("%s已完成%d/6阶段，能力数%d，%s%d分。", student.StudentName, len(student.CompletedSteps), student.AbilityScore, scoreLabel, score),
+			Focus:   focus,
+			Action:  action,
+		}
+	}
 	if analytics.Students == 0 {
 		return data.AIStudyInsightResponse{
 			Provider: "local-insight", Mode: "local-fallback",
@@ -415,6 +470,19 @@ func localStudyInsight(analytics data.SelfStudyAnalytics) data.AIStudyInsightRes
 		Focus:   focus,
 		Action:  fmt.Sprintf("优先支持%d名薄弱学生，并围绕典型错误组织一次针对性讲评。", analytics.NeedsSupport),
 	}
+}
+
+func studyInsightStudent(analytics data.SelfStudyAnalytics, studentID string) (data.SelfStudyProgress, bool) {
+	studentID = strings.TrimSpace(studentID)
+	if studentID == "" {
+		return data.SelfStudyProgress{}, false
+	}
+	for _, card := range analytics.Cards {
+		if card.StudentID == studentID {
+			return card, true
+		}
+	}
+	return data.SelfStudyProgress{}, false
 }
 
 func requestDeepSeekCompletion(apiKey string, messages []chatMessage, temperature float64) (string, error) {

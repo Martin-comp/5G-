@@ -233,6 +233,7 @@ export type SelfStudyAnalyticsDTO = {
 export type AIStudyInsightPayload = {
 	classId?: string;
 	nodeId: string;
+	studentId?: string;
 };
 
 export type AIStudyInsightDTO = {

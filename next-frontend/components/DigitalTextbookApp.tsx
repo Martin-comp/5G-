@@ -27,7 +27,7 @@ const projectIds = new Set(['P1', 'P2', 'P3', 'P4', 'P5', 'P6']);
 export function DigitalTextbookApp({ initialView = 'course' }: { initialView?: ViewKey }) {
   const router = useRouter();
   const [view, setView] = useState<ViewKey>(initialView);
-  const [selectedProjectId, setSelectedProjectId] = useState('P4');
+  const [selectedProjectId, setSelectedProjectId] = useState(initialView === 'teacher' ? 'P1' : 'P4');
   const [selectedTask, setSelectedTask] = useState('N04');
   const [answer, setAnswer] = useState('');
 

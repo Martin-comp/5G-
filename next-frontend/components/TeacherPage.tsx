@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   classroomTasks,
@@ -8,7 +7,6 @@ import {
   mobilityMetrics,
   p4NodeExperience,
   p4Tasks,
-  projectTaskMap,
   projects,
   teacherSuggestions
 } from '@/lib/textbook-data';
@@ -34,6 +32,7 @@ import {
 } from '@/lib/classroom-sync';
 import { CLASSROOM_REALTIME_EVENT } from '@/lib/classroom-realtime';
 import type { Navigate } from './types';
+import { TeacherWorkbench } from './TeacherWorkbench';
 
 type TeacherPanelTab = 'script' | 'question' | 'board' | 'answer';
 
@@ -72,52 +71,10 @@ export function TeacherPage({ projectId, onNavigate }: { projectId: string; onNa
   const isP4 = project.id === 'P4';
 
   if (!isP4) {
-    return <TeacherProjectOverview projectId={project.id} onNavigate={onNavigate} />;
+    return <TeacherWorkbench projectId={project.id} onNavigate={onNavigate} />;
   }
 
   return <P4TeacherConsole onNavigate={onNavigate} />;
-}
-
-function TeacherProjectOverview({ projectId, onNavigate }: { projectId: string; onNavigate: Navigate }) {
-  const project = projects.find((item) => item.id === projectId) ?? projects[3];
-  const tasks = projectTaskMap[project.id] ?? [];
-  const learningNode = learningNodeExperiences.find((item) => item.projectId === project.id);
-
-  return (
-    <div className="teacher-overview-v2">
-      <section className="teacher-overview-hero panel">
-        <div>
-          <p className="eyebrow">教师端 · 项目备课</p>
-          <h2>{project.id} {project.title}</h2>
-          <p>{project.note}。该项目已接入案例讲解、课堂跟随、教师讲评与卡牌互动的一条样章闭环。</p>
-        </div>
-        <button className="primary-action" onClick={() => onNavigate('project')} type="button">查看项目结构</button>
-      </section>
-
-      <section className="teacher-prep-grid">
-        {tasks.map((task) => (
-          <article key={task.id} className="panel teacher-prep-card">
-            <span>{task.id}</span>
-            <strong>{task.title}</strong>
-            <p>{task.desc}</p>
-            <em>{task.status}</em>
-          </article>
-        ))}
-      </section>
-
-      <section className="panel teacher-next-template">
-        <h3>本项目端侧学习闭环</h3>
-        <div>
-          {learningNode ? <>
-            <Link href={`/learn/${learningNode.nodeId}`}>学生自学页</Link>
-            <Link href={`/classroom/${learningNode.nodeId}`}>学生课堂页</Link>
-            <Link href={`/teacher/sessions/${learningNode.nodeId}`}>教师授课页</Link>
-            <Link href={`/game?project=${project.id}`}>卡牌互动与讲评</Link>
-          </> : <span>正在补充端侧学习数据</span>}
-        </div>
-      </section>
-    </div>
-  );
 }
 
 function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {

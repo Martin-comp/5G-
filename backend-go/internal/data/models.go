@@ -131,8 +131,9 @@ type AIChatResponse struct {
 }
 
 type AIStudyInsightRequest struct {
-	ClassID string `json:"classId"`
-	NodeID  string `json:"nodeId"`
+	ClassID   string `json:"classId"`
+	NodeID    string `json:"nodeId"`
+	StudentID string `json:"studentId,omitempty"`
 }
 
 type AIStudyInsightResponse struct {

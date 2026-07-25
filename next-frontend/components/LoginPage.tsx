@@ -5,8 +5,8 @@ import { FormEvent, useMemo, useState } from 'react';
 import type { AuthRole } from './AuthGate';
 
 const accounts: Record<AuthRole, { username: string; password: string; name: string; defaultPath: string }> = {
-  student: { username: 'student', password: '123456', name: '学生端', defaultPath: '/course' },
-  teacher: { username: 'teacher', password: '123456', name: '张老师', defaultPath: '/teacher' }
+  student: { username: 'student', password: '123456', name: '学生端', defaultPath: '/student' },
+  teacher: { username: 'teacher', password: '123456', name: '张老师', defaultPath: '/teacher?project=P1' }
 };
 
 const roleCopy: Record<AuthRole, { title: string; desc: string; points: string[] }> = {
