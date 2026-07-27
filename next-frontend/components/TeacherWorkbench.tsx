@@ -40,12 +40,17 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
   const [selectedNodeId, setSelectedNodeId] = useState('');
   const [studentInsight, setStudentInsight] = useState<AIStudyInsightDTO | null>(null);
   const [insightState, setInsightState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [reviewComment, setReviewComment] = useState('');
+  const [reviewState, setReviewState] = useState<'idle' | 'saving'>('idle');
+  const [reviewMessage, setReviewMessage] = useState('');
 
   useEffect(() => {
     setSelectedStudentId('');
     setSelectedNodeId('');
     setStudentInsight(null);
     setInsightState('idle');
+    setReviewComment('');
+    setReviewMessage('');
   }, [project.id]);
 
   useEffect(() => {
@@ -90,6 +95,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
       formalTests: 0,
       completedNodes: 0,
       pendingReviews: 0,
+      needsRevision: false,
       duration: 0,
       lastNodeId: '',
       lastUpdatedAt: 0,
@@ -100,6 +106,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
     if (record.formalTestAttempts > 0) current.formalTests++;
     if ((record.completedSteps?.length ?? 0) >= 6) current.completedNodes++;
     if (record.reviewStatus === '待审核') current.pendingReviews++;
+    if (record.reviewStatus === '需修改') current.needsRevision = true;
     current.duration += record.timeSpentSeconds;
     current.records.push(record);
     if (record.updatedAt >= current.lastUpdatedAt) {
@@ -116,6 +123,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
     formalTests: number;
     completedNodes: number;
     pendingReviews: number;
+    needsRevision: boolean;
     duration: number;
     lastNodeId: string;
     lastUpdatedAt: number;
@@ -143,6 +151,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
   const classroomLive = Boolean(activeSession?.synced && activeSession.nodeId);
   const priorityStudents = [...students].sort((left, right) => {
     if (left.pendingReviews !== right.pendingReviews) return right.pendingReviews - left.pendingReviews;
+    if (left.needsRevision !== right.needsRevision) return left.needsRevision ? -1 : 1;
     if ((left.score < 60) !== (right.score < 60)) return left.score < 60 ? -1 : 1;
     return left.score - right.score || right.lastUpdatedAt - left.lastUpdatedAt;
   }).slice(0, 8);
@@ -151,11 +160,20 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
     ?? selectedStudent?.records.find((record) => record.nodeId === selectedStudent.lastNodeId)
     ?? selectedStudent?.records[0];
 
+  useEffect(() => {
+    setReviewComment(selectedRecord?.reviewComment ?? '');
+  }, [selectedRecord?.nodeId, selectedRecord?.reviewComment, selectedRecord?.reviewStatus, selectedRecord?.studentId]);
+
+  useEffect(() => {
+    setReviewMessage('');
+  }, [selectedRecord?.nodeId, selectedRecord?.outputSubmittedAt, selectedRecord?.studentId]);
+
   function openStudent(student: (typeof students)[number]) {
     setSelectedStudentId(student.id);
     setSelectedNodeId(student.lastNodeId || student.records[0]?.nodeId || '');
     setStudentInsight(null);
     setInsightState('idle');
+    setReviewMessage('');
   }
 
   async function generateStudentInsight() {
@@ -172,6 +190,45 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
       setInsightState('idle');
     } catch {
       setInsightState('error');
+    }
+  }
+
+  async function reviewSelected(status: '需修改' | '已认证') {
+    if (!selectedRecord || reviewState === 'saving') return;
+    const comment = reviewComment.trim();
+    if (!selectedRecord.studentOutput || selectedRecord.outputSubmittedAt <= 0) {
+      setReviewMessage('该生尚未提交学习产出，暂时不能审核。');
+      return;
+    }
+    if (status === '需修改' && !comment) {
+      setReviewMessage('退回修改前请填写具体审核意见。');
+      return;
+    }
+    setReviewState('saving');
+    setReviewMessage('');
+    try {
+      const saved = await textbookApi.reviewSelfStudyProgress({
+        nodeId: selectedRecord.nodeId,
+        studentId: selectedRecord.studentId,
+        status,
+        comment
+      });
+      setItems((current) => current.map((item) => item.nodeId === saved.nodeId
+        ? {
+            ...item,
+            analytics: {
+              ...item.analytics,
+              cards: item.analytics.cards.map((record) => record.studentId === saved.studentId ? saved : record),
+              updatedAt: saved.updatedAt
+            }
+          }
+        : item));
+      setReviewComment(saved.reviewComment);
+      setReviewMessage(status === '已认证' ? '已认证，结果已实时回流学生端。' : '已退回，学生端会显示修改意见。');
+    } catch {
+      setReviewMessage('审核保存失败，请检查后端服务后重试。');
+    } finally {
+      setReviewState('idle');
     }
   }
 
@@ -251,8 +308,9 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
         {priorityStudents.length ? <div className="teacher-student-table">
           <div className="teacher-student-table-head"><span>学生</span><span>节点进度</span><span>项目成绩</span><span>正式测试</span><span>学习时长</span><span>状态</span><span>处理</span></div>
           {priorityStudents.map((student) => {
-            const status = student.pendingReviews > 0 ? '待批阅' : student.score < 60 ? '需支持' : student.completedNodes >= path.length ? '已达标' : '学习中';
-            const statusKey = student.pendingReviews > 0 ? 'review' : student.score < 60 ? 'support' : student.completedNodes >= path.length ? 'reached' : 'learning';
+            const needsSupport = student.needsRevision || student.score < 60;
+            const status = student.pendingReviews > 0 ? '待批阅' : needsSupport ? '需支持' : student.completedNodes >= path.length ? '已达标' : '学习中';
+            const statusKey = student.pendingReviews > 0 ? 'review' : needsSupport ? 'support' : student.completedNodes >= path.length ? 'reached' : 'learning';
             const targetNodeId = student.lastNodeId || activeNode?.nodeId;
             return <article className={selectedStudentId === student.id ? 'is-selected' : ''} key={student.id}>
               <div><strong>{student.name || student.id}</strong><small>{student.weakPoints.slice(0, 2).join('、') || '暂无错误知识点'}</small></div>
@@ -291,6 +349,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
                   setSelectedNodeId(record.nodeId);
                   setStudentInsight(null);
                   setInsightState('idle');
+                  setReviewMessage('');
                 }}
               >{record.nodeId}</button>)}
           </div>
@@ -305,7 +364,31 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
                 <div><dt>学习产出</dt><dd>{selectedRecord.studentOutput || '尚未提交'}</dd></div>
                 <div><dt>审核意见</dt><dd>{selectedRecord.reviewComment || '暂无意见'}</dd></div>
               </dl>
-              <Link href={`/teacher/sessions/${selectedRecord.nodeId}`}>进入节点批阅</Link>
+              <div className={`teacher-workbench-review ${selectedRecord.reviewStatus === '需修改' ? 'is-returned' : selectedRecord.reviewStatus === '已认证' ? 'is-certified' : ''}`}>
+                <div><strong>直接审核</strong><span>{selectedRecord.reviewStatus || '未提交'}</span></div>
+                <textarea
+                  disabled={selectedRecord.reviewStatus === '已认证'}
+                  maxLength={300}
+                  onChange={(event) => setReviewComment(event.target.value)}
+                  placeholder="填写审核意见；退回修改时必填"
+                  value={reviewComment}
+                />
+                <div className="teacher-workbench-review-actions">
+                  <button
+                    className="secondary"
+                    disabled={reviewState === 'saving' || !selectedRecord.studentOutput || selectedRecord.reviewStatus === '已认证'}
+                    onClick={() => void reviewSelected('需修改')}
+                    type="button"
+                  >退回修改</button>
+                  <button
+                    disabled={reviewState === 'saving' || !selectedRecord.studentOutput || selectedRecord.reviewStatus === '已认证'}
+                    onClick={() => void reviewSelected('已认证')}
+                    type="button"
+                  >{selectedRecord.reviewStatus === '已认证' ? '已认证' : '认证通过'}</button>
+                </div>
+                {reviewMessage ? <p aria-live="polite">{reviewMessage}</p> : null}
+              </div>
+              <Link href={`/teacher/sessions/${selectedRecord.nodeId}`}>打开完整节点记录</Link>
             </div>
             <div className="teacher-student-ai">
               <div>

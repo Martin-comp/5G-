@@ -90,6 +90,11 @@ export function StudentHome() {
   const projectScore = path.length ? Math.round(path.reduce((sum, node) => sum + progressScore(records[node.nodeId]), 0) / path.length) : 0;
   const taskScore = currentRecord ? progressScore(currentRecord) : projectScore;
   const classroomAvailable = Boolean(session?.synced && session.nodeId);
+  const latestReview = path
+    .map((node) => records[node.nodeId])
+    .filter((record): record is SelfStudyProgressDTO => Boolean(record?.reviewStatus))
+    .sort((left, right) => right.updatedAt - left.updatedAt)[0];
+  const latestReviewNode = latestReview ? path.find((node) => node.nodeId === latestReview.nodeId) : null;
 
   return (
     <main className="student-home">
@@ -130,6 +135,18 @@ export function StudentHome() {
           <Link href={`/classroom/${session?.nodeId}`}>查看课堂</Link>
         </section> : null}
 
+        {latestReview ? <section className={`student-review-feedback ${latestReview.reviewStatus === '需修改' ? 'is-returned' : latestReview.reviewStatus === '已认证' ? 'is-certified' : ''}`} aria-live="polite">
+          <div>
+            <p className="eyebrow">教师审核已回流</p>
+            <h3>{latestReview.nodeId} · {latestReviewNode?.title ?? '学习产出'}</h3>
+            <p>{latestReview.reviewStatus === '待审核'
+              ? '产出已进入教师批阅队列，审核结果会在这里自动更新。'
+              : latestReview.reviewComment || (latestReview.reviewStatus === '需修改' ? '请修改学习产出后重新提交。' : '本节点产出已通过认证。')}</p>
+          </div>
+          <span>{latestReview.reviewStatus}</span>
+          <Link href={`/learn/${latestReview.nodeId}`}>{latestReview.reviewStatus === '需修改' ? '修改产出' : '查看详情'}</Link>
+        </section> : null}
+
         <section className="student-home-metrics">
           <article><span>学习进度</span><strong>{completedNodes}/{path.length}</strong><small>完成节点</small></article>
           <article><span>当前节点能力数</span><strong>{currentRecord?.abilityScore ?? 0}</strong><small>{currentRecord?.completedSteps?.length ?? 0}/6 阶段</small></article>
@@ -154,7 +171,7 @@ export function StudentHome() {
             <p className="eyebrow">本节点学习产出</p>
             <h3>{currentExperience?.outputs[0] ?? '学习记录'}</h3>
             <p>完成自学后形成可保存、可审核并可进入后续任务的职业化学习证据。</p>
-            <dl><div><dt>提交状态</dt><dd>{currentRecord?.reviewStatus || '未提交'}</dd></div><div><dt>正式测试</dt><dd>{currentRecord?.formalTestAttempts ? `最高 ${currentRecord.bestScore} 分` : '尚未完成'}</dd></div><div><dt>练习尝试</dt><dd>{currentRecord?.practiceAttempts ?? 0} 次</dd></div></dl>
+            <dl><div><dt>提交状态</dt><dd>{currentRecord?.reviewStatus || '未提交'}</dd></div><div><dt>正式测试</dt><dd>{currentRecord?.formalTestAttempts ? `最高 ${currentRecord.bestScore} 分` : '尚未完成'}</dd></div><div><dt>练习尝试</dt><dd>{currentRecord?.practiceAttempts ?? 0} 次</dd></div>{currentRecord?.reviewComment ? <div><dt>教师意见</dt><dd>{currentRecord.reviewComment}</dd></div> : null}</dl>
             {currentNode ? <Link href={`/learn/${currentNode.nodeId}`}>查看本节点详情</Link> : null}
           </aside>
         </section>

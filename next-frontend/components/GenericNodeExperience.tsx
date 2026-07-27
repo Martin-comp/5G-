@@ -590,7 +590,7 @@ function SelfStudyInsightPanel({ analytics, nodeId, embedded = false }: { analyt
     try {
       const saved = await textbookApi.reviewSelfStudyProgress({ nodeId, studentId: item.studentId, status, comment });
       setReviewedCards((current) => ({ ...current, [item.studentId]: saved }));
-      emitClassroomRealtime({ type: 'self-study-progress', classId: saved.classId, nodeId: saved.nodeId, updatedAt: saved.updatedAt });
+      emitClassroomRealtime({ type: 'self-study-review', classId: saved.classId, nodeId: saved.nodeId, updatedAt: saved.updatedAt });
       setReviewMessage(`${item.studentName}的学习产出已${status === '已认证' ? '认证通过' : '退回修改'}。`);
     } catch {
       setReviewMessage('审核保存失败，请确认后端服务已连接。');

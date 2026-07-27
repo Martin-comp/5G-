@@ -33,13 +33,13 @@ function classroomStudentId() {
 
 export function readAuthRole(): AuthRole | '' {
   if (typeof window === 'undefined') return '';
-  const role = window.sessionStorage.getItem('dgbook-auth-role') || window.localStorage.getItem('dgbook-auth-role');
+  const role = window.sessionStorage.getItem('dgbook-auth-role');
   return role === 'student' || role === 'teacher' ? role : '';
 }
 
 export function readAuthName() {
   if (typeof window === 'undefined') return '';
-  return window.sessionStorage.getItem('dgbook-auth-name') || window.localStorage.getItem('dgbook-auth-name') || '';
+  return window.sessionStorage.getItem('dgbook-auth-name') || '';
 }
 
 export function AuthGate({ role, children }: { role: AuthRequirement; children: ReactNode }) {
@@ -213,6 +213,8 @@ export function AuthBadge() {
     window.sessionStorage.removeItem('dgbook-auth-role');
     window.sessionStorage.removeItem('dgbook-auth-name');
     window.sessionStorage.removeItem('dgbook-classroom-id');
+    // Remove legacy shared credentials once; classroom ID stays shared so both
+    // independently logged-in endpoints can still join the same class.
     window.localStorage.removeItem('dgbook-auth-role');
     window.localStorage.removeItem('dgbook-auth-name');
     window.location.href = '/login';

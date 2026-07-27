@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { readClassroomId, textbookApi, type SelfStudyProgressDTO } from '@/lib/api';
-import { CLASSROOM_REALTIME_EVENT, emitClassroomRealtime } from '@/lib/classroom-realtime';
+import { CLASSROOM_REALTIME_EVENT, emitClassroomRealtime, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
 import { getLearningNodeExperience, projectLearningPaths } from '@/lib/textbook-data';
 import { readAuthName } from './AuthGate';
 import { SelfStudyAbilityModel } from './SelfStudyAbilityModel';
@@ -136,13 +136,21 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
 
   useEffect(() => {
     let alive = true;
-    const refreshReviewState = () => {
+    const refreshReviewState = (event: Event) => {
+      const detail = (event as CustomEvent<ClassroomRealtimeEvent>).detail;
+      if (!detail || (detail.type !== 'self-study-progress' && detail.type !== 'self-study-review')) return;
+      if (detail.nodeId && detail.nodeId !== nodeId) return;
       textbookApi.selfStudyProgress(nodeId, studentId()).then((item) => {
         if (!alive || !item.studentId) return;
         const normalized = normalizeProgress(item, nodeId);
         setProgress(normalized);
         setPathProgress((current) => ({ ...current, [nodeId]: normalized }));
         setOutputDraft((current) => current || normalized.studentOutput);
+        if (detail?.type === 'self-study-review' && detail.nodeId === nodeId) {
+          setNotice(normalized.reviewStatus === '需修改'
+            ? '教师已退回本节点产出，请根据审核意见修改后重新提交。'
+            : '教师已认证本节点产出，审核结果已保存。');
+        }
       }).catch(() => undefined);
     };
     window.addEventListener(CLASSROOM_REALTIME_EVENT, refreshReviewState);

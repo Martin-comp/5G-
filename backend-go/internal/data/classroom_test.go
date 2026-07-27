@@ -88,3 +88,47 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 		t.Fatalf("expected certified review, got %+v", reviewed)
 	}
 }
+
+func TestReturnedSelfStudyCanBeResubmittedForReview(t *testing.T) {
+	ClosePostgres()
+	resetClassroomMemoryForTest()
+
+	original, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+		ClassID: "测试班", NodeID: "P1T1-N02", StudentID: "s1", StudentName: "学生一",
+		CompletedSteps:   []string{"problem", "visual", "steps", "correction", "exercise", "output"},
+		PracticeAttempts: 1, PracticeScore: 100, FormalTestAttempts: 1,
+		FirstScore: 80, BestScore: 80, LatestScore: 80,
+		StudentOutput: "第一版学习产出，包含对象、证据和初步判断。", OutputSubmittedAt: 100,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	returned, err := ReviewSelfStudyProgress(SelfStudyReviewRequest{
+		ClassID: "测试班", NodeID: "P1T1-N02", StudentID: "s1",
+		Status: "需修改", Comment: "请补充证据来源和判断边界。",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if original.ReviewStatus != "待审核" || returned.ReviewComment == "" {
+		t.Fatalf("expected returned review with comment, got original=%+v returned=%+v", original, returned)
+	}
+
+	resubmitted, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+		ClassID: "测试班", NodeID: "P1T1-N02", StudentID: "s1", StudentName: "学生一",
+		CompletedSteps: returned.CompletedSteps, PracticeAttempts: returned.PracticeAttempts,
+		PracticeScore: returned.PracticeScore, FormalTestAttempts: returned.FormalTestAttempts,
+		FirstScore: returned.FirstScore, BestScore: returned.BestScore, LatestScore: returned.LatestScore,
+		StudentOutput:     "第二版学习产出，已补充证据来源、对象对应关系和判断边界。",
+		OutputSubmittedAt: 200, ReviewStatus: "待审核",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resubmitted.ReviewStatus != "待审核" || resubmitted.ReviewComment != "" || resubmitted.CertifiedAt != 0 {
+		t.Fatalf("expected a clean pending review after resubmission, got %+v", resubmitted)
+	}
+	if resubmitted.StudentOutput == returned.StudentOutput || resubmitted.OutputSubmittedAt != 200 {
+		t.Fatalf("expected the revised output to be saved, got %+v", resubmitted)
+	}
+}

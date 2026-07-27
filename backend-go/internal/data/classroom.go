@@ -906,9 +906,18 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	if reviewStatus == "" && len(completedSteps) >= 6 && practiceScore >= 100 && formalTestAttempts > 0 && outputSubmittedAt > 0 {
 		reviewStatus = "待审核"
 	}
+	isResubmission := existing.ReviewStatus == "需修改" &&
+		reviewStatus == "待审核" &&
+		request.OutputSubmittedAt > existing.OutputSubmittedAt
 	reviewComment := strings.TrimSpace(request.ReviewComment)
-	if reviewComment == "" {
+	if isResubmission {
+		reviewComment = ""
+	} else if reviewComment == "" {
 		reviewComment = existing.ReviewComment
+	}
+	certifiedAt := existing.CertifiedAt
+	if isResubmission {
+		certifiedAt = 0
 	}
 	progress := SelfStudyProgress{
 		ClassID: classID, NodeID: nodeID, StudentID: studentID,
@@ -920,7 +929,7 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 		FirstScore: firstScore, BestScore: bestScore, LatestScore: latestScore,
 		TestCompletedAt: testCompletedAt, StudentOutput: studentOutput,
 		OutputSubmittedAt: outputSubmittedAt, ReviewComment: reviewComment,
-		CertifiedAt: existing.CertifiedAt, UpdatedAt: time.Now().UnixMilli(),
+		CertifiedAt: certifiedAt, UpdatedAt: time.Now().UnixMilli(),
 	}
 	if store := currentPostgres(); store != nil {
 		if err := store.saveSelfStudy(context.Background(), progress); err != nil {

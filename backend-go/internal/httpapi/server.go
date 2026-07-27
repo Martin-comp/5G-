@@ -271,7 +271,7 @@ func (s *Server) reviewSelfStudyProgress(w http.ResponseWriter, r *http.Request)
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	s.hub.broadcast(progress.ClassID, classroomRealtimeEvent{Type: "self-study-progress", ClassID: progress.ClassID, NodeID: progress.NodeID, UpdatedAt: progress.UpdatedAt})
+	s.hub.broadcast(progress.ClassID, classroomRealtimeEvent{Type: "self-study-review", ClassID: progress.ClassID, NodeID: progress.NodeID, UpdatedAt: progress.UpdatedAt})
 	writeJSON(w, http.StatusOK, progress)
 }
 

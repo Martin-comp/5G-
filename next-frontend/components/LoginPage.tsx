@@ -60,8 +60,6 @@ export function LoginPage({ initialRole = 'student' }: { initialRole?: AuthRole 
     window.sessionStorage.setItem('dgbook-auth-role', role);
     window.sessionStorage.setItem('dgbook-auth-name', selected.name);
     window.sessionStorage.setItem('dgbook-classroom-id', classId.trim() || '通信2301班');
-    window.localStorage.setItem('dgbook-auth-role', role);
-    window.localStorage.setItem('dgbook-auth-name', selected.name);
     window.localStorage.setItem('dgbook-classroom-id', classId.trim() || '通信2301班');
     router.push(nextPath);
   }
