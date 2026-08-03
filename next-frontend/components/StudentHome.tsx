@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { AuthBadge, readAuthName } from './AuthGate';
 import { textbookApi, type ClassroomSessionStateDTO, type SelfStudyProgressDTO } from '@/lib/api';
@@ -43,7 +44,9 @@ function normalizeProgress(record: SelfStudyProgressDTO): SelfStudyProgressDTO {
 }
 
 export function StudentHome() {
-  const [projectId, setProjectId] = useState('P1');
+  const searchParams = useSearchParams();
+  const requestedProject = searchParams.get('project')?.toUpperCase();
+  const projectId = requestedProject === 'P2' ? 'P2' : 'P1';
   const [studentName, setStudentName] = useState('同学');
   const [records, setRecords] = useState<Record<string, SelfStudyProgressDTO>>({});
   const [session, setSession] = useState<ClassroomSessionStateDTO | null>(null);
@@ -53,8 +56,6 @@ export function StudentHome() {
 
   useEffect(() => {
     setStudentName(readAuthName() || '同学');
-    const requested = new URLSearchParams(window.location.search).get('project')?.toUpperCase();
-    if (requested === 'P1' || requested === 'P2') setProjectId(requested);
   }, []);
 
   useEffect(() => {
