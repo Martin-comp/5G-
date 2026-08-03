@@ -16,6 +16,19 @@ func resetClassroomMemoryForTest() {
 	classroomMemory.selfStudy = map[string]SelfStudyProgress{}
 }
 
+func TestClassroomAnalyticsUsesEmptyStateWithoutSubmissions(t *testing.T) {
+	ClosePostgres()
+	resetClassroomMemoryForTest()
+
+	analytics := ClassroomAnalyticsData("测试班", "P1T1-N01")
+	if analytics.Submitted != 0 || analytics.TotalStudents != 0 || analytics.AverageScore != 0 {
+		t.Fatalf("expected real empty analytics instead of seeded demo data, got %+v", analytics)
+	}
+	if len(analytics.CommonMistakes) != 0 || len(analytics.PriorityItems) != 0 || len(analytics.SuggestedFocus) != 0 {
+		t.Fatalf("expected no fabricated findings for an empty class, got %+v", analytics)
+	}
+}
+
 func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 	ClosePostgres()
 	resetClassroomMemoryForTest()
@@ -87,6 +100,9 @@ func TestSelfStudyAnalyticsCombinesProgressAndHomework(t *testing.T) {
 	if reviewed.ReviewStatus != "已认证" || reviewed.CertifiedAt == 0 || reviewed.ReviewComment == "" {
 		t.Fatalf("expected certified review, got %+v", reviewed)
 	}
+	if len(reviewed.OutputVersions) != 1 || reviewed.OutputVersions[0].ReviewStatus != "已认证" || reviewed.OutputVersions[0].ReviewedAt == 0 {
+		t.Fatalf("expected immutable certified output version, got %+v", reviewed.OutputVersions)
+	}
 }
 
 func TestReturnedSelfStudyCanBeResubmittedForReview(t *testing.T) {
@@ -130,5 +146,83 @@ func TestReturnedSelfStudyCanBeResubmittedForReview(t *testing.T) {
 	}
 	if resubmitted.StudentOutput == returned.StudentOutput || resubmitted.OutputSubmittedAt != 200 {
 		t.Fatalf("expected the revised output to be saved, got %+v", resubmitted)
+	}
+	if len(resubmitted.OutputVersions) != 2 {
+		t.Fatalf("expected two immutable output versions, got %+v", resubmitted.OutputVersions)
+	}
+	if resubmitted.OutputVersions[0].StudentOutput != original.StudentOutput || resubmitted.OutputVersions[0].ReviewStatus != "需修改" {
+		t.Fatalf("expected returned first version to remain unchanged, got %+v", resubmitted.OutputVersions[0])
+	}
+	if resubmitted.OutputVersions[1].StudentOutput != resubmitted.StudentOutput || resubmitted.OutputVersions[1].ReviewStatus != "待审核" {
+		t.Fatalf("expected pending second version, got %+v", resubmitted.OutputVersions[1])
+	}
+}
+
+func TestResetDemoStudentsCreatesThreeDistinctStates(t *testing.T) {
+	ClosePostgres()
+	resetClassroomMemoryForTest()
+
+	summary, err := ResetDemoStudents("演示班")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if summary.ResetStudents != 3 || summary.SeededRecords != 13 || summary.CompletedRecords != 12 {
+		t.Fatalf("unexpected reset summary: %+v", summary)
+	}
+	if empty := SelfStudyProgressData("演示班", "P1T1-N01", "student01"); empty.StudentID != "" {
+		t.Fatalf("student01 must start without progress, got %+v", empty)
+	}
+	returned := SelfStudyProgressData("演示班", "P1T1-N01", "student02")
+	if returned.ReviewStatus != "需修改" || len(returned.OutputVersions) != 1 || len(returned.FormalTestVersions) != 1 || returned.ReviewComment == "" {
+		t.Fatalf("student02 must show a returned output, got %+v", returned)
+	}
+	for _, nodeID := range []string{"P1T1-N01", "P1T1-N04", "P1T2-N04", "P1T3-N04"} {
+		complete := SelfStudyProgressData("演示班", nodeID, "student03")
+		if complete.ReviewStatus != "已认证" || len(complete.CompletedSteps) != 6 || len(complete.OutputVersions) != 1 || len(complete.FormalTestVersions) != 1 {
+			t.Fatalf("student03 must have a certified result for %s, got %+v", nodeID, complete)
+		}
+	}
+	revised := SelfStudyProgressData("演示班", "P1T1-N02", "student03")
+	if len(revised.OutputVersions) != 2 || revised.OutputVersions[0].ReviewStatus != "需修改" || revised.OutputVersions[1].ReviewStatus != "已认证" {
+		t.Fatalf("student03 P01 must preserve returned v1 and certified v2, got %+v", revised.OutputVersions)
+	}
+}
+
+func TestFormalTestAttemptsRemainImmutable(t *testing.T) {
+	ClosePostgres()
+	resetClassroomMemoryForTest()
+
+	first, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+		ClassID: "测试班", NodeID: "P1T1-N02", StudentID: "s1", StudentName: "学生一",
+		FormalTestAttempts: 1, FirstScore: 50, BestScore: 50, LatestScore: 50, TestCompletedAt: 100,
+		FormalTestSubmission: &SelfStudyTestAttempt{
+			VersionID: "FORM-P1T1-N02-v1-A1", SubmittedAt: 100, ElapsedSeconds: 300, Score: 50,
+			SingleAnswer: "错误答案", Sequence: []string{"步骤二", "步骤一"}, Evidence: []string{"个人印象"},
+			Conclusion: []string{"绝对化结论"}, WrongKnowledgePoints: []string{"判断边界"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+		ClassID: "测试班", NodeID: "P1T1-N02", StudentID: "s1", StudentName: "学生一",
+		CompletedSteps: first.CompletedSteps, FormalTestAttempts: 2, FirstScore: 50, BestScore: 100, LatestScore: 100, TestCompletedAt: 200,
+		FormalTestSubmission: &SelfStudyTestAttempt{
+			VersionID: "FORM-P1T1-N02-v1-A2", SubmittedAt: 200, ElapsedSeconds: 240, Score: 100,
+			SingleAnswer: "正确答案", Sequence: []string{"步骤一", "步骤二"}, Evidence: []string{"日志", "照片"},
+			Conclusion: []string{"任务对象", "关键证据", "判断边界", "后续动作"},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(second.FormalTestVersions) != 2 {
+		t.Fatalf("expected two immutable formal test versions, got %+v", second.FormalTestVersions)
+	}
+	if second.FormalTestVersions[0].Score != 50 || second.FormalTestVersions[0].SingleAnswer != "错误答案" {
+		t.Fatalf("first attempt must remain unchanged, got %+v", second.FormalTestVersions[0])
+	}
+	if second.FormalTestVersions[1].Attempt != 2 || second.FormalTestVersions[1].Score != 100 {
+		t.Fatalf("second attempt was not appended, got %+v", second.FormalTestVersions[1])
 	}
 }

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { readClassroomId, textbookApi, type SelfStudyProgressDTO } from '@/lib/api';
+import { readClassroomId, textbookApi, type ResourceGovernanceDTO, type SelfStudyProgressDTO } from '@/lib/api';
 import { CLASSROOM_REALTIME_EVENT, emitClassroomRealtime, type ClassroomRealtimeEvent } from '@/lib/classroom-realtime';
 import { getLearningNodeExperience, projectLearningPaths } from '@/lib/textbook-data';
 import { readAuthName } from './AuthGate';
@@ -43,7 +43,7 @@ function emptyProgress(nodeId: string): SelfStudyProgressDTO {
     startedAt: Date.now(), timeSpentSeconds: 0, practiceAttempts: 0, practiceScore: 0,
     wrongKnowledgePoints: [], reviewStatus: '', formalTestAttempts: 0, firstScore: 0,
     bestScore: 0, latestScore: 0, testCompletedAt: 0, studentOutput: '',
-    outputSubmittedAt: 0, reviewComment: '', certifiedAt: 0, updatedAt: 0
+    outputSubmittedAt: 0, reviewComment: '', certifiedAt: 0, outputVersions: [], formalTestVersions: [], updatedAt: 0
   };
 }
 
@@ -68,7 +68,9 @@ function normalizeProgress(value: SelfStudyProgressDTO, nodeId: string): SelfStu
     studentOutput: value.studentOutput ?? '',
     outputSubmittedAt: value.outputSubmittedAt ?? 0,
     reviewComment: value.reviewComment ?? '',
-    certifiedAt: value.certifiedAt ?? 0
+    certifiedAt: value.certifiedAt ?? 0,
+    outputVersions: value.outputVersions ?? [],
+    formalTestVersions: value.formalTestVersions ?? []
   };
 }
 
@@ -91,9 +93,16 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
   const [testAnswers, setTestAnswers] = useState<Record<number, string>>({});
   const [testMessage, setTestMessage] = useState('');
   const [testResultScore, setTestResultScore] = useState<number | null>(null);
+  const [resources, setResources] = useState<ResourceGovernanceDTO[]>([]);
   const [saving, setSaving] = useState(false);
+  const [pathCollapsed, setPathCollapsed] = useState(false);
+  const [nodeInfoOpen, setNodeInfoOpen] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [fullScreen, setFullScreen] = useState(false);
   const [notice, setNotice] = useState('请从“问题”开始，六个阶段完成后会点亮本节点。');
   const trackingStartedAt = useRef(Date.now());
+  const sectionStartedAt = useRef(Date.now());
+  const sessionLoggedForNode = useRef('');
   const persistedSeconds = useRef(0);
   const completedCount = sectionOrder.filter((step) => progress.completedSteps.includes(step)).length;
   const percentage = Math.round(completedCount / sectionOrder.length * 100);
@@ -102,8 +111,10 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
   const exercisePassed = progress.practiceScore >= 100;
   const outputReady = progress.outputSubmittedAt > 0 && progress.formalTestAttempts > 0;
   const canAdvance = activeIndex === completedCount && completedCount < sectionOrder.length && (displayedSection.id !== 'exercise' || exercisePassed) && (displayedSection.id !== 'output' || outputReady);
-  const nodeUnlocked = !pathLoaded || pathIndex === 0 || nodeIsComplete(pathProgress[path[pathIndex - 1]?.nodeId]);
+  const nodeUnlocked = pathLoaded && (pathIndex === 0 || nodeIsComplete(pathProgress[path[pathIndex - 1]?.nodeId]));
   const formalTest = node.formalTest ?? [];
+  const sectionResources = resources.filter((item) => item.nodeId === nodeId && item.linkedSection === displayedSection.id && item.availability === '可用');
+  const prerequisite = pathIndex > 0 ? path[pathIndex - 1] : null;
 
   useEffect(() => {
     let alive = true;
@@ -126,13 +137,33 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         setTestResultScore(null);
         persistedSeconds.current = current.timeSpentSeconds || 0;
         trackingStartedAt.current = Date.now();
+        sectionStartedAt.current = Date.now();
         const nextIndex = Math.min(current.completedSteps.length, sectionMeta.length - 1);
         setActiveIndex(nextIndex);
         if (nodeIsComplete(current)) setNotice('本节点已点亮，练习成绩和学习记录已同步到教师端。');
         setPathLoaded(true);
+        if (sessionLoggedForNode.current !== nodeId) {
+          sessionLoggedForNode.current = nodeId;
+          void logLearningEvent('session-start', sectionMeta[nextIndex].id);
+          void logLearningEvent('section-view', sectionMeta[nextIndex].id);
+        }
       });
     return () => { alive = false; };
   }, [nodeId]);
+
+  useEffect(() => {
+    let alive = true;
+    textbookApi.resourceGovernance(node.projectId)
+      .then((items) => { if (alive) setResources(items); })
+      .catch(() => { if (alive) setResources([]); });
+    return () => { alive = false; };
+  }, [node.projectId]);
+
+  useEffect(() => {
+    const handleFullscreen = () => setFullScreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handleFullscreen);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreen);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -164,6 +195,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
     if (displayedSection.id === 'problem') return <>
       <p className="guided-lead">{node.caseIntro}</p>
       <div className="guided-insight-grid"><article><strong>本节问题</strong><span>{node.headline}</span></article><article><strong>判断目标</strong><span>{node.subtitle}</span></article></div>
+      <div className="guided-context-strip"><article><strong>前置知识</strong><span>{prerequisite ? `${prerequisite.nodeId} · ${prerequisite.title}` : '项目任务、现场对象与基本证据意识'}</span></article><article><strong>完成标准</strong><span>六阶段完成、微练习通过、正式测试留痕并提交学习产出</span></article><article><strong>后续去向</strong><span>{path[pathIndex + 1] ? `${path[pathIndex + 1].nodeId} · ${path[pathIndex + 1].title}` : '汇入任务成果档案与项目级能力记录'}</span></article></div>
       <div className="guided-term-grid"><strong>术语与证据口径</strong><div>{node.evidence.map((item) => <article key={item.label}><b>{item.label}</b><span>{item.value}</span><small>核对口径：{item.target}</small></article>)}</div></div>
     </>;
     if (displayedSection.id === 'visual') return <>
@@ -174,6 +206,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         <footer><span><i className="object" />现场对象</span><span><i className="record" />证据记录</span><span><i className="boundary" />判断边界</span></footer>
       </div>
       <div className="guided-evidence-grid compact">{node.evidence.map((item, index) => <article key={item.label}><b>{String.fromCharCode(65 + index)}</b><strong>{item.label}</strong><span>{item.value}</span><small>{item.target}</small></article>)}</div>
+      <div className="guided-evidence-limit"><strong>证据边界</strong><span>单项证据只能说明局部状态，不能脱离现场对象、采集时间和判断阈值直接形成结论；存在冲突时应回到来源记录复核。</span></div>
     </>;
     if (displayedSection.id === 'steps') return <>
       <p className="guided-lead">按岗位工作过程推进，每一步都要留下能够进入下一步的依据。</p>
@@ -208,7 +241,9 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         <footer><span>{outputMessage || `${outputDraft.trim().length}/800 字`}</span><button disabled={certified || saving || outputDraft.trim().length < 20} onClick={submitOutput} type="button">{certified ? '已认证' : progress.outputSubmittedAt ? '修改并重新提交' : '提交学习产出'}</button></footer>
       </div>
       <div className="guided-formal-test">
-        <header><div><strong>节点正式测试</strong><span>共 {formalTest.length} 题，最多作答 3 次；成绩用于教师学情分析。</span></div><div className="guided-test-scores"><span>首次<b>{progress.firstScore}</b></span><span>最高<b>{progress.bestScore}</b></span><span>最近<b>{progress.latestScore}</b></span><span>次数<b>{progress.formalTestAttempts}/3</b></span></div></header>
+        <header><div><strong>节点正式测试</strong><span>独立测试包含单选、排序、多选和结构化结论，提交后形成不可修改的本次记录。</span></div><div className="guided-test-scores"><span>首次<b>{progress.firstScore}</b></span><span>最高<b>{progress.bestScore}</b></span><span>最近<b>{progress.latestScore}</b></span><span>次数<b>{progress.formalTestAttempts}/3</b></span></div></header>
+        <Link className="guided-independent-test-link" href={`/learn/${nodeId}/test`}><span><strong>进入 15 分钟独立正式测试</strong><small>四类题型 · 100分 · 80分通过 · 自动生成能力诊断</small></span><b>开始测试 →</b></Link>
+        <details className="guided-test-practice"><summary>展开节点内快速复习题</summary>
         <div className="guided-test-questions">{formalTest.map((question, questionIndex) => {
           const selected = testAnswers[questionIndex];
           const answered = testResultScore !== null;
@@ -219,12 +254,30 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
           </article>;
         })}</div>
         <footer><span>{testMessage || (testLimitReached ? '已完成 3 次作答，系统保留最高成绩。' : '所有题目作答后可以提交。')}</span>{testResultScore !== null && !testLimitReached ? <button disabled={saving} onClick={startRetest} type="button">再次作答</button> : <button disabled={saving || testLimitReached || formalTest.length === 0 || Object.keys(testAnswers).length !== formalTest.length} onClick={submitFormalTest} type="button">提交正式测试</button>}</footer>
+        </details>
       </div>
     </>;
   }
 
   function elapsedSeconds() {
     return persistedSeconds.current + Math.max(1, Math.round((Date.now() - trackingStartedAt.current) / 1000));
+  }
+
+  function logLearningEvent(
+    eventType: 'session-start' | 'section-view' | 'section-complete' | 'exercise-pass' | 'exercise-error' | 'test-submit' | 'output-submit',
+    sectionId: SectionId,
+    value = '',
+    durationSeconds = 0
+  ) {
+    return textbookApi.createLearningEvent({
+      nodeId,
+      studentId: studentId(),
+      studentName: readAuthName() || '学生端演示',
+      eventType,
+      sectionId,
+      value,
+      durationSeconds
+    }).catch(() => undefined);
   }
 
   async function saveProgress(overrides: Partial<SelfStudyProgressDTO>) {
@@ -273,6 +326,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         practiceScore: correct ? 100 : progress.practiceScore,
         wrongKnowledgePoints
       });
+      void logLearningEvent(correct ? 'exercise-pass' : 'exercise-error', 'exercise', selectedAnswer);
       setExerciseMessage(correct ? `回答正确。${explanation}` : `回答不正确，请回看“纠偏”和“看图”后再试。`);
     } catch {
       setExerciseMessage('答案保存失败，后端可能正在唤醒，请稍后再试。');
@@ -291,6 +345,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         outputSubmittedAt: Date.now(),
         reviewStatus: '待审核'
       });
+      void logLearningEvent('output-submit', 'output', progress.outputSubmittedAt ? 'resubmit' : 'submit');
       setOutputDraft(content);
       setOutputMessage(progress.outputSubmittedAt ? '修改已重新提交，教师端会收到最新版本。' : '学习产出已提交并保存。');
     } catch {
@@ -309,6 +364,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
       ...progress.wrongKnowledgePoints,
       ...formalTest.filter((question, index) => testAnswers[index] !== question.correctOption).map((question) => question.knowledgePoint)
     ]));
+    const submittedAt = Date.now();
     setSaving(true);
     try {
       await saveProgress({
@@ -316,9 +372,23 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         firstScore: progress.formalTestAttempts === 0 ? score : progress.firstScore,
         bestScore: Math.max(progress.bestScore, score),
         latestScore: score,
-        testCompletedAt: Date.now(),
-        wrongKnowledgePoints
+        testCompletedAt: submittedAt,
+        wrongKnowledgePoints,
+        formalTestSubmission: {
+          versionId: `FORM-${nodeId}-GUIDED-2026.08-A${attempts}`,
+          submittedAt,
+          elapsedSeconds: 0,
+          score,
+          singleAnswer: formalTest.map((_, index) => testAnswers[index]).join('｜'),
+          sequence: [], evidence: [], conclusion: [], wrongKnowledgePoints,
+          diagnosis: formalTest.map((question, index) => ({
+            label: question.knowledgePoint,
+            score: testAnswers[index] === question.correctOption ? 100 : 0,
+            status: testAnswers[index] === question.correctOption ? '已达成' : '待巩固'
+          }))
+        }
       });
+      void logLearningEvent('test-submit', 'output', String(score));
       setTestResultScore(score);
       setTestMessage(`本次得分 ${score} 分，答对 ${correctCount}/${formalTest.length} 题。`);
     } catch {
@@ -341,8 +411,15 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
     setSaving(true);
     try {
       await saveProgress({ completedSteps, reviewStatus: isFinished ? '待审核' : progress.reviewStatus });
+      const durationSeconds = Math.max(1, Math.round((Date.now() - sectionStartedAt.current) / 1000));
+      void logLearningEvent('section-complete', displayedSection.id, '', durationSeconds);
       setNotice(isFinished ? '本节点已点亮，成绩、用时与错误知识点已同步到教师端。' : `${displayedSection.title}已保存，已解锁“${sectionMeta[activeIndex + 1].title}”。`);
-      if (!isFinished) setActiveIndex(activeIndex + 1);
+      if (!isFinished) {
+        const nextIndex = activeIndex + 1;
+        setActiveIndex(nextIndex);
+        sectionStartedAt.current = Date.now();
+        void logLearningEvent('section-view', sectionMeta[nextIndex].id);
+      }
     } catch {
       setNotice('保存失败：后端可能正在唤醒，请稍后再试。');
     } finally {
@@ -351,7 +428,19 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
   }
 
   function selectSection(index: number) {
-    if (index <= completedCount && nodeUnlocked) setActiveIndex(index);
+    if (index <= completedCount && nodeUnlocked) {
+      setActiveIndex(index);
+      sectionStartedAt.current = Date.now();
+      void logLearningEvent('section-view', sectionMeta[index].id);
+    }
+  }
+
+  async function toggleFullscreen() {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+    await document.documentElement.requestFullscreen();
   }
 
   return <section className="guided-self-study" aria-label="六阶段章节自学">
@@ -360,12 +449,25 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
       <div className="guided-mastery"><strong>{progress.abilityScore || percentage}%</strong><span>技能掌握度</span></div>
     </header>
     <div className="guided-progress"><i style={{ width: `${percentage}%` }} /></div>
+    <div className="guided-study-toolbar" aria-label="学习页面工具">
+      <button aria-pressed={pathCollapsed} onClick={() => setPathCollapsed((current) => !current)} title={pathCollapsed ? '展开学习路径' : '折叠学习路径'} type="button"><b>{pathCollapsed ? '▤' : '▥'}</b><span>{pathCollapsed ? '展开路径' : '折叠路径'}</span></button>
+      <button aria-expanded={nodeInfoOpen} onClick={() => setNodeInfoOpen((current) => !current)} title="查看节点信息" type="button"><b>i</b><span>节点信息</span></button>
+      <Link href={`/graph?project=${node.projectId}`} title="在课程图谱中定位本节点"><b>⌘</b><span>课程图谱</span></Link>
+      <button aria-pressed={motionPaused} onClick={() => setMotionPaused((current) => !current)} title={motionPaused ? '恢复能力数动画' : '暂停能力数动画'} type="button"><b>{motionPaused ? '▶' : 'Ⅱ'}</b><span>{motionPaused ? '恢复动画' : '暂停动画'}</span></button>
+      <button aria-pressed={fullScreen} onClick={() => void toggleFullscreen()} title={fullScreen ? '退出全屏' : '进入全屏'} type="button"><b>⛶</b><span>{fullScreen ? '退出全屏' : '全屏阅读'}</span></button>
+    </div>
+    {nodeInfoOpen && <section className="guided-node-info" aria-label="当前节点信息">
+      <article><span>所属任务</span><strong>{node.taskId}</strong><small>{node.projectId} 项目任务</small></article>
+      <article><span>前置节点</span><strong>{prerequisite?.nodeId ?? '项目起点'}</strong><small>{prerequisite?.title ?? '无需前置节点'}</small></article>
+      <article><span>关联资源</span><strong>{resources.filter((item) => item.nodeId === nodeId && item.availability === '可用').length} 项</strong><small>均经过来源、权利与可用性检查</small></article>
+      <article><span>评价产出</span><strong>{node.outputs.length} 项</strong><small>{node.outputs.join('、')}</small></article>
+    </section>}
     {progress.reviewStatus && <section className={`guided-review-notice ${progress.reviewStatus === '需修改' ? 'returned' : progress.reviewStatus === '已认证' ? 'certified' : ''}`} aria-live="polite">
       <div><span>教师审核</span><strong>{progress.reviewStatus}</strong></div>
       <p>{progress.reviewStatus === '需修改' ? progress.reviewComment || '教师已退回，请进入“产出”阶段修改后重新提交。' : progress.reviewStatus === '已认证' ? progress.reviewComment || '本节点学习产出已经认证，可作为后续学习证据。' : '学习产出已进入教师批阅队列。'}</p>
       {progress.reviewStatus === '需修改' && <button onClick={() => setActiveIndex(sectionOrder.indexOf('output'))} type="button">去修改产出</button>}
     </section>}
-    <nav className="guided-node-path" aria-label={`${node.projectId}学习路径`}>
+    {!pathCollapsed && <nav className="guided-node-path" aria-label={`${node.projectId}学习路径`}>
       {path.map((item, index) => {
         const done = nodeIsComplete(pathProgress[item.nodeId]);
         const unlocked = index === 0 || nodeIsComplete(pathProgress[path[index - 1]?.nodeId]);
@@ -373,8 +475,8 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         const content = <><b>{done ? '✓' : index + 1}</b><span><small>{item.nodeId}</small><strong>{item.title}</strong></span><em>{done ? '已点亮' : unlocked ? '可学习' : '前置锁定'}</em></>;
         return unlocked ? <Link className={`${active ? 'active' : ''} ${done ? 'done' : ''}`} href={`/learn/${item.nodeId}`} key={item.nodeId}>{content}</Link> : <span className="locked" key={item.nodeId}>{content}</span>;
       })}
-    </nav>
-    {!nodeUnlocked ? <div className="guided-node-locked"><strong>本节点尚未解锁</strong><span>请先完成上一节点的六阶段学习并答对微练习。</span><Link href={`/learn/${path[pathIndex - 1].nodeId}`}>返回上一节点</Link></div> : <div className="guided-study-layout">
+    </nav>}
+    {!pathLoaded ? <div className="guided-node-locked is-loading"><span className="auth-spinner" /><strong>正在读取学习路径</strong><span>核对前置节点、正式测试和学习产出记录。</span></div> : !nodeUnlocked ? <div className="guided-node-locked"><strong>本节点尚未解锁</strong><span>请先完成上一节点的六阶段学习并答对微练习。</span><Link href={`/learn/${path[pathIndex - 1].nodeId}`}>返回上一节点</Link></div> : <div className="guided-study-layout">
       <div className="guided-sections">
         {sectionMeta.map((section, index) => {
           const isDone = progress.completedSteps.includes(section.id);
@@ -384,6 +486,15 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
             <button aria-expanded={open} disabled={locked} onClick={() => selectSection(index)} type="button"><b>{isDone ? '✓' : index + 1}</b><span><strong>{section.title}</strong><small>{section.subtitle}</small></span><em>{locked ? '锁定' : open ? '收起' : '展开'}</em></button>
             {open && <div className="guided-section-content">
               {renderDetail()}
+              {sectionResources.length > 0 && <section className="guided-section-resources" aria-label="本阶段关联资源">
+                <header><strong>本阶段关联资源</strong><span>已通过来源、权利与可用性检查</span></header>
+                <div>{sectionResources.map((item) => <article key={item.id}>
+                  <span>{item.type}</span>
+                  <strong>{item.title}</strong>
+                  <p>{item.usage}</p>
+                  <small>{item.source} · {item.rights}{item.required ? ' · 必学' : ' · 拓展'}</small>
+                </article>)}</div>
+              </section>}
               <div className="guided-section-action">
                 {isDone ? <span>本阶段已完成，可以回看内容或继续下一阶段。</span> : displayedSection.id === 'exercise' && !exercisePassed ? <span>必须答对本节点微练习后才能继续。</span> : <button className="guided-complete-button" disabled={!canAdvance || saving} onClick={completeAndContinue} type="button">{saving ? '正在保存' : `完成“${section.title}”并继续`}</button>}
               </div>
@@ -392,7 +503,7 @@ export function GuidedSelfStudy({ nodeId }: { nodeId: string }) {
         })}
       </div>
       <aside className="guided-study-side">
-        <SelfStudyAbilityModel score={progress.abilityScore || percentage} />
+        <SelfStudyAbilityModel paused={motionPaused} score={progress.abilityScore || percentage} />
         <div className="guided-side-copy"><strong>能力数 {progress.abilityScore || percentage}</strong><span>{nextSection.title} · {completedCount}/6 阶段已完成</span></div>
         <div className="guided-ability-chips">{progress.abilities.map((item) => <span key={item.label}>{item.label}<b>{item.score}</b></span>)}</div>
         <div className="guided-practice-summary"><span>微练习 <b>{progress.practiceScore}分</b></span><span>尝试 <b>{progress.practiceAttempts}次</b></span><span>审核 <b>{progress.reviewStatus || '未提交'}</b></span></div>

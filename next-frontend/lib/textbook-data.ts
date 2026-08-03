@@ -68,7 +68,13 @@ export const capabilityNodes = [
   { id: 'P2T1-N03', label: '场景与遮挡', task: 'P2-T1', project: 'P2', activity: '识别楼宇、树木、地形和道路遮挡', output: '场景遮挡记录', status: '顺序学习' },
   { id: 'P2T1-N04', label: '风险路线', task: 'P2-T1', project: 'P2', activity: '规划可复测的高风险测试路线', output: '风险路线测试单', status: '路径终点' },
   { id: 'P1T2-N01', label: '记录环境与站点信息', task: 'P1-T2', project: 'P1', activity: '整理站点、遮挡、楼层和道路边界', output: '环境信息表', status: '前置材料' },
+  { id: 'P1T2-N02', label: '核对天线与覆盖对象', task: 'P1-T2', project: 'P1', activity: '核对天线姿态、覆盖方向和目标道路', output: '天线与覆盖对象核对表', status: '顺序学习' },
+  { id: 'P1T2-N03', label: '采集室外现场证据', task: 'P1-T2', project: 'P1', activity: '关联点位照片、坐标、时间和现场遮挡', output: '室外现场证据表', status: '顺序学习' },
+  { id: 'P1T2-N04', label: '形成室外采集记录', task: 'P1-T2', project: 'P1', activity: '汇总路线、对象和证据并完成复核', output: '室外信息采集成果', status: '任务产出' },
   { id: 'P1T3-N01', label: '结构化投诉线索', task: 'P1-T3', project: 'P1', activity: '把用户原话转成时间、位置、业务和频次', output: '可验证投诉线索卡', status: '项目样章' },
+  { id: 'P1T3-N02', label: '还原投诉场景', task: 'P1-T3', project: 'P1', activity: '把楼层、区域、移动路径和业务条件落到场景图', output: '投诉场景复现单', status: '顺序学习' },
+  { id: 'P1T3-N03', label: '关联网络侧证据', task: 'P1-T3', project: 'P1', activity: '关联投诉时间窗内的覆盖、告警和日志证据', output: '投诉证据关联表', status: '顺序学习' },
+  { id: 'P1T3-N04', label: '形成投诉调查单', task: 'P1-T3', project: 'P1', activity: '形成事实、边界、证据和下一步测试入口', output: '投诉信息采集成果', status: '任务产出' },
   { id: 'P4T1-N01', label: '明确优化对象与实施边界', task: 'P4-T1', project: 'P4', activity: '填写优化实施任务单', output: '优化实施任务单', status: '实施入口' },
   { id: 'P4T1-N06', label: '形成复测验证入口并交接P4-T2', task: 'P4-T1', project: 'P4', activity: '汇总复测场景、指标和交接材料', output: '复测验证交接清单', status: '前置交接' },
   { id: 'P4T2-N01', label: '识别验证场景', task: 'P4-T2', project: 'P4', activity: '投诉线索归类', output: '投诉到验证对象映射', status: '任务级深样章' },
@@ -132,7 +138,15 @@ export const projectLearningPaths: Record<string, ProjectLearningPathNode[]> = {
     { nodeId: 'P1T1-N01', title: '室内资源边界' },
     { nodeId: 'P1T1-N02', title: '设备拓扑' },
     { nodeId: 'P1T1-N03', title: '运行条件' },
-    { nodeId: 'P1T1-N04', title: '证据与归档' }
+    { nodeId: 'P1T1-N04', title: '证据与归档' },
+    { nodeId: 'P1T2-N01', title: '环境与站点信息' },
+    { nodeId: 'P1T2-N02', title: '天线与覆盖对象' },
+    { nodeId: 'P1T2-N03', title: '室外现场证据' },
+    { nodeId: 'P1T2-N04', title: '室外采集记录' },
+    { nodeId: 'P1T3-N01', title: '结构化投诉线索' },
+    { nodeId: 'P1T3-N02', title: '还原投诉场景' },
+    { nodeId: 'P1T3-N03', title: '关联网络侧证据' },
+    { nodeId: 'P1T3-N04', title: '形成投诉调查单' }
   ],
   P2: [
     { nodeId: 'P2T1-N01', title: '室外覆盖边界' },
@@ -301,6 +315,8 @@ const generatedProjectProfiles: Record<string, { focus: string; evidence: string
 
 function createGeneratedNodeExperience(node: (typeof capabilityNodes)[number]): LearningNodeExperience {
   const profile = generatedProjectProfiles[node.project] ?? generatedProjectProfiles.P4;
+  const primaryAnswer = '当前任务对象、场景边界与可用证据';
+  const primaryOptions = [primaryAnswer, '只记录最终结论', '先跳过场景直接选参数', '增加无关截图数量'];
   return {
     nodeId: node.id,
     projectId: node.project,
@@ -330,7 +346,37 @@ function createGeneratedNodeExperience(node: (typeof capabilityNodes)[number]): 
       `最后检查${node.output}是否保留了判断边界和后续交接条件。`
     ],
     outputs: [node.output, `${node.task} 学习记录`, `${node.project} 后续任务交接依据`],
-    rubric: ['活动对象明确', '证据选择合理', '产出可复核且有边界']
+    rubric: ['活动对象明确', '证据选择合理', '产出可复核且有边界'],
+    microExercise: {
+      prompt: `${node.label} 最需要先确认什么？`,
+      options: primaryOptions,
+      correctOption: primaryAnswer,
+      explanation: '先确认对象、场景和证据边界，后续活动与产出才可复核。',
+      knowledgePoint: node.label
+    },
+    formalTest: [
+      {
+        prompt: `${node.label} 最需要先确认什么？`,
+        options: primaryOptions,
+        correctOption: primaryAnswer,
+        explanation: '任务判断必须从对象、场景与证据边界开始。',
+        knowledgePoint: node.label
+      },
+      {
+        prompt: `完成“${node.label}”后，哪项材料应进入后续任务？`,
+        options: [node.output, '没有来源的截图', '口头印象', '与本节点无关的日志'],
+        correctOption: node.output,
+        explanation: `${node.output}是本节点定义的结构化交付物。`,
+        knowledgePoint: '学习产出'
+      },
+      {
+        prompt: '哪种结论表达符合职业证据要求？',
+        options: ['说明对象、依据、判断边界与后续动作', '只写“已经解决”', '只抄录一个指标', '省略证据来源'],
+        correctOption: '说明对象、依据、判断边界与后续动作',
+        explanation: '职业结论必须可追溯，并明确证据能证明和不能证明的范围。',
+        knowledgePoint: '职业表达'
+      }
+    ]
   };
 }
 

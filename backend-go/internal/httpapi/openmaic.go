@@ -363,14 +363,29 @@ func studyInsightPrompt(request data.AIStudyInsightRequest, analytics data.SelfS
 	for _, item := range analytics.WeakAbilities {
 		weakAbilities = append(weakAbilities, fmt.Sprintf("%s(%d人)", item.Label, item.Count))
 	}
+	priorityStudents := make([]string, 0, len(analytics.Engagement.PriorityStudents))
+	for _, item := range analytics.Engagement.PriorityStudents {
+		priorityStudents = append(priorityStudents, fmt.Sprintf("%s风险%d分(%s)，原因：%s", item.StudentName, item.RiskScore, item.RiskLevel, strings.Join(item.Reasons, "、")))
+	}
+	sectionRisks := make([]string, 0, len(analytics.Engagement.SectionRisks))
+	for _, item := range analytics.Engagement.SectionRisks {
+		sectionRisks = append(sectionRisks, fmt.Sprintf("%s阶段%s风险，完成率%d%%，错误%d次", item.SectionID, item.RiskLevel, item.CompletionRate, item.Errors))
+	}
+	resourceOutcomes := make([]string, 0, len(analytics.Engagement.ResourceOutcomes))
+	for _, item := range analytics.Engagement.ResourceOutcomes {
+		resourceOutcomes = append(resourceOutcomes, fmt.Sprintf("%s：触达%d次，阶段完成率%d%%，%s", item.Title, item.ExposureCount, item.CompletionRate, item.Signal))
+	}
 	return fmt.Sprintf(`课程：5G网络优化（高级）
 节点：%s
 学习数据：参与%d人，完整完成%d人，平均能力数%d，作业正确率%d%%，累计重试%d次，平均学习用时%d秒，需要支持%d人。
 典型错误：%s
 能力短板：%s
+重点学生：%s
+阶段风险：%s
+资源成效：%s
 学生概览：%s
 
-请优先依据正式测试的首次/最高/最近成绩、重试次数、错误知识点和教师审核状态，生成给教师看的班级概况、重点学生、优先讲评内容和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(studentSnapshots, "；")))
+请优先依据正式测试成绩、过程行为、阶段风险、资源成效、错误知识点和教师审核状态，生成给教师看的班级概况、重点学生、优先讲评内容和下一步课堂动作。`, request.NodeID, analytics.Students, analytics.Completed, analytics.AverageAbility, analytics.AverageAccuracy, analytics.TotalRetries, analytics.AverageDurationSeconds, analytics.NeedsSupport, emptyText(strings.Join(typicalErrors, "；")), emptyText(strings.Join(weakAbilities, "；")), emptyText(strings.Join(priorityStudents, "；")), emptyText(strings.Join(sectionRisks, "；")), emptyText(strings.Join(resourceOutcomes, "；")), emptyText(strings.Join(studentSnapshots, "；")))
 }
 
 func parseStudyInsightContent(content string, request data.AIStudyInsightRequest, analytics data.SelfStudyAnalytics) data.AIStudyInsightResponse {
@@ -432,6 +447,10 @@ func localStudyInsight(request data.AIStudyInsightRequest, analytics data.SelfSt
 		}
 	}
 	focus := "重点核查未完成小节，避免只看能力总分。"
+	if len(analytics.Engagement.PriorityStudents) > 0 {
+		student := analytics.Engagement.PriorityStudents[0]
+		focus = fmt.Sprintf("优先支持%s：%s", student.StudentName, student.SuggestedAction)
+	}
 	for _, card := range analytics.Cards {
 		if card.ReviewStatus == "需修改" {
 			focus = fmt.Sprintf("优先跟进%s的退回产出，并对照审核意见完成修改。", card.StudentName)

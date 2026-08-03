@@ -1,6 +1,6 @@
 import { AuthGate } from '@/components/AuthGate';
-import { DigitalTextbookApp } from '@/components/DigitalTextbookApp';
+import { GamePortal } from '@/components/GamePortal';
 
 export default function GameRoutePage() {
-  return <AuthGate role={['student', 'teacher']}><DigitalTextbookApp initialView="game" /></AuthGate>;
+  return <AuthGate role={['student', 'teacher']}><GamePortal /></AuthGate>;
 }

@@ -3,6 +3,7 @@ package httpapi
 import (
 	"encoding/json"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -18,11 +19,35 @@ type classroomRealtimeEvent struct {
 }
 
 type classroomClient struct {
-	classID string
-	role    string
-	conn    *websocket.Conn
-	send    chan []byte
-	done    chan struct{}
+	classID          string
+	role             string
+	deviceID         string
+	name             string
+	connectedAt      int64
+	lastSeenAt       int64
+	receivedNodeID   string
+	receivedUpdateAt int64
+	conn             *websocket.Conn
+	send             chan []byte
+	done             chan struct{}
+}
+
+type classroomPresenceDevice struct {
+	DeviceID         string `json:"deviceId"`
+	Name             string `json:"name"`
+	Role             string `json:"role"`
+	ConnectedAt      int64  `json:"connectedAt"`
+	LastSeenAt       int64  `json:"lastSeenAt"`
+	ReceivedNodeID   string `json:"receivedNodeId"`
+	ReceivedUpdateAt int64  `json:"receivedUpdateAt"`
+}
+
+type classroomPresence struct {
+	ClassID   string                    `json:"classId"`
+	Students  int                       `json:"students"`
+	Teachers  int                       `json:"teachers"`
+	Devices   []classroomPresenceDevice `json:"devices"`
+	UpdatedAt int64                     `json:"updatedAt"`
 }
 
 type classroomHub struct {
@@ -40,13 +65,29 @@ func (h *classroomHub) serveWS(w http.ResponseWriter, r *http.Request) {
 	if role != "teacher" {
 		role = "student"
 	}
+	deviceID := strings.TrimSpace(r.URL.Query().Get("deviceId"))
+	if deviceID == "" {
+		deviceID = role + "-" + time.Now().Format("150405.000")
+	}
+	name := strings.TrimSpace(r.URL.Query().Get("name"))
+	if name == "" {
+		if role == "teacher" {
+			name = "教师端"
+		} else {
+			name = "学生端"
+		}
+	}
 
 	upgrader := websocket.Upgrader{CheckOrigin: func(*http.Request) bool { return true }}
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		return
 	}
-	client := &classroomClient{classID: classID, role: role, conn: conn, send: make(chan []byte, 16), done: make(chan struct{})}
+	now := time.Now().UnixMilli()
+	client := &classroomClient{
+		classID: classID, role: role, deviceID: deviceID, name: name,
+		connectedAt: now, lastSeenAt: now, conn: conn, send: make(chan []byte, 16), done: make(chan struct{}),
+	}
 	h.add(client)
 	h.broadcast(classID, classroomRealtimeEvent{Type: "classroom-presence", ClassID: classID, UpdatedAt: time.Now().UnixMilli()})
 
@@ -57,8 +98,10 @@ func (h *classroomHub) serveWS(w http.ResponseWriter, r *http.Request) {
 			h.broadcast(classID, classroomRealtimeEvent{Type: "classroom-presence", ClassID: classID, UpdatedAt: time.Now().UnixMilli()})
 		}()
 		for {
-			if _, _, err := conn.ReadMessage(); err != nil {
+			if _, message, err := conn.ReadMessage(); err != nil {
 				return
+			} else {
+				h.touch(client, message)
 			}
 		}
 	}()
@@ -72,6 +115,31 @@ func (h *classroomHub) serveWS(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	}
+}
+
+func (h *classroomHub) touch(client *classroomClient, message []byte) {
+	now := time.Now().UnixMilli()
+	var receipt struct {
+		Type      string `json:"type"`
+		NodeID    string `json:"nodeId"`
+		UpdatedAt int64  `json:"updatedAt"`
+	}
+	_ = json.Unmarshal(message, &receipt)
+	h.mu.Lock()
+	client.lastSeenAt = now
+	nodeID := client.receivedNodeID
+	if receipt.Type == "receipt" && strings.TrimSpace(receipt.NodeID) != "" {
+		client.receivedNodeID = strings.ToUpper(strings.TrimSpace(receipt.NodeID))
+		client.receivedUpdateAt = receipt.UpdatedAt
+		if client.receivedUpdateAt == 0 {
+			client.receivedUpdateAt = now
+		}
+		nodeID = client.receivedNodeID
+	}
+	h.mu.Unlock()
+	if receipt.Type == "receipt" {
+		h.broadcast(client.classID, classroomRealtimeEvent{Type: "classroom-presence", ClassID: client.classID, NodeID: nodeID, UpdatedAt: now})
 	}
 }
 
@@ -112,6 +180,41 @@ func (h *classroomHub) broadcast(classID string, event classroomRealtimeEvent) {
 		default:
 		}
 	}
+}
+
+func (h *classroomHub) presence(classID string) classroomPresence {
+	classID = normalizeClassID(classID)
+	h.mu.RLock()
+	devicesByID := map[string]classroomPresenceDevice{}
+	for client := range h.classes[classID] {
+		key := client.role + "::" + client.deviceID
+		device := classroomPresenceDevice{
+			DeviceID: client.deviceID, Name: client.name, Role: client.role,
+			ConnectedAt: client.connectedAt, LastSeenAt: client.lastSeenAt,
+			ReceivedNodeID: client.receivedNodeID, ReceivedUpdateAt: client.receivedUpdateAt,
+		}
+		if existing, ok := devicesByID[key]; !ok || device.LastSeenAt > existing.LastSeenAt {
+			devicesByID[key] = device
+		}
+	}
+	h.mu.RUnlock()
+
+	presence := classroomPresence{ClassID: classID, Devices: make([]classroomPresenceDevice, 0, len(devicesByID)), UpdatedAt: time.Now().UnixMilli()}
+	for _, device := range devicesByID {
+		presence.Devices = append(presence.Devices, device)
+		if device.Role == "teacher" {
+			presence.Teachers++
+		} else {
+			presence.Students++
+		}
+	}
+	sort.Slice(presence.Devices, func(i, j int) bool {
+		if presence.Devices[i].Role != presence.Devices[j].Role {
+			return presence.Devices[i].Role < presence.Devices[j].Role
+		}
+		return presence.Devices[i].Name < presence.Devices[j].Name
+	})
+	return presence
 }
 
 func normalizeClassID(classID string) string {

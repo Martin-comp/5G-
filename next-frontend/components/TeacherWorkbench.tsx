@@ -43,6 +43,8 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
   const [reviewComment, setReviewComment] = useState('');
   const [reviewState, setReviewState] = useState<'idle' | 'saving'>('idle');
   const [reviewMessage, setReviewMessage] = useState('');
+  const [demoResetState, setDemoResetState] = useState<'idle' | 'saving'>('idle');
+  const [demoResetMessage, setDemoResetMessage] = useState('');
 
   useEffect(() => {
     setSelectedStudentId('');
@@ -232,6 +234,21 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
     }
   }
 
+  async function resetDemoStates() {
+    if (demoResetState === 'saving') return;
+    setDemoResetState('saving');
+    setDemoResetMessage('');
+    try {
+      const summary = await textbookApi.resetDemoStudents(readClassroomId());
+      setDemoResetMessage(`已重置 ${summary.resetStudents} 个演示账号，并生成 ${summary.seededRecords} 条可验收记录。`);
+      window.dispatchEvent(new CustomEvent(CLASSROOM_REALTIME_EVENT, { detail: { type: 'demo-reset' } }));
+    } catch {
+      setDemoResetMessage('演示状态重置失败，请确认后端和 PostgreSQL 已连接。');
+    } finally {
+      setDemoResetState('idle');
+    }
+  }
+
   return (
     <div className="teacher-workbench">
       <section className="panel teacher-workbench-head">
@@ -244,6 +261,12 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
           <span>{classroomLive ? '课堂进行中' : '课堂未同步'}</span>
           <strong>{classroomLive ? activeSession?.nodeId : '可开始备课'}</strong>
         </div>
+      </section>
+
+      <section className="teacher-demo-reset" aria-label="演示账号状态">
+        <div><strong>三种演示学情</strong><span>student01 从零开始 · student02 退回修改 · student03 完整成果</span></div>
+        {demoResetMessage ? <p aria-live="polite">{demoResetMessage}</p> : null}
+        <button disabled={demoResetState === 'saving'} onClick={() => void resetDemoStates()} type="button">{demoResetState === 'saving' ? '正在重置…' : '重置演示状态'}</button>
       </section>
 
       {activeNode ? <section className="panel teacher-recent-class">
@@ -362,6 +385,7 @@ export function TeacherWorkbench({ projectId, onNavigate }: { projectId: string;
                 <div><dt>正式测试</dt><dd>{selectedRecord.formalTestAttempts ? `${selectedRecord.firstScore} / ${selectedRecord.bestScore} / ${selectedRecord.latestScore}` : '尚未完成'}</dd></div>
                 <div><dt>错误知识点</dt><dd>{selectedRecord.wrongKnowledgePoints.join('、') || '暂无记录'}</dd></div>
                 <div><dt>学习产出</dt><dd>{selectedRecord.studentOutput || '尚未提交'}</dd></div>
+                <div><dt>产出版本</dt><dd>{selectedRecord.outputVersions?.length ? `v${selectedRecord.outputVersions.length} · ${selectedRecord.outputVersions.length} 个快照已保留` : '尚未形成正式版本'}</dd></div>
                 <div><dt>审核意见</dt><dd>{selectedRecord.reviewComment || '暂无意见'}</dd></div>
               </dl>
               <div className={`teacher-workbench-review ${selectedRecord.reviewStatus === '需修改' ? 'is-returned' : selectedRecord.reviewStatus === '已认证' ? 'is-certified' : ''}`}>

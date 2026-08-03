@@ -16,9 +16,13 @@ build/
 .turbo/
 .vercel/
 .netlify/
+*.tsbuildinfo
 
 # Packaged preview artifacts
 *.zip
+
+# Independent research project assets
+/research_topic/
 *.tar
 *.tar.gz
 

@@ -31,7 +31,7 @@ function defaultNodeId(projectId: string) {
 
 const relationTypes = ['全部关系', ...new Set(graphRelations.map((relation) => relation.type))];
 
-export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavigate: Navigate }) {
+export function GraphPage({ projectId, onNavigate, audience = 'student' }: { projectId: string; onNavigate: Navigate; audience?: 'student' | 'teacher' }) {
   const project = projects.find((item) => item.id === projectId) ?? projects[3];
   const [selectedNodeId, setSelectedNodeId] = useState(() => defaultNodeId(project.id));
   const [graphMode, setGraphMode] = useState<'neighborhood' | 'overview'>('neighborhood');
@@ -77,7 +77,7 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
           <h2>{project.id} {project.title}</h2>
           <p>图谱把任务节点、资源卡、学习活动、课堂端侧和评价产出放在同一条可追踪路径里。当前选中的项目会随左侧项目链切换，不再固定显示 P4。</p>
         </div>
-        <button className="secondary-action" onClick={() => onNavigate('task')} type="button">进入学生学习页</button>
+        <button className="secondary-action" onClick={() => onNavigate('task')} type="button">{audience === 'teacher' ? '返回教师工作台' : '进入学生学习页'}</button>
       </section>
 
       <section className="panel p4-graph-stage">
@@ -109,7 +109,7 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
             <article><strong>评价产出</strong><span>{selectedNode.output}</span></article>
             <article><strong>节点状态</strong><span>{selectedNode.status}</span></article>
           </div>
-          <NodeEndpointLinks nodeId={nodeExperience?.nodeId ?? (project.id === 'P4' ? 'P4T2-N04' : projectExperience?.nodeId)} projectId={project.id} />
+          <NodeEndpointLinks audience={audience} nodeId={nodeExperience?.nodeId ?? (project.id === 'P4' ? 'P4T2-N04' : projectExperience?.nodeId)} projectId={project.id} />
           {(project.id === 'P1' || project.id === 'P2') && <div className="p4-detail-block graph-learning-backflow">
             <h4>学习结果回流</h4>
             {learningBackflow ? <div className="graph-backflow-grid"><span>阶段 <b>{learningBackflow.completedSteps.length}/6</b></span><span>微练习 <b>{learningBackflow.practiceScore}分</b></span><span>尝试 <b>{learningBackflow.practiceAttempts}次</b></span><span>状态 <b>{learningBackflow.reviewStatus || '学习中'}</b></span>{learningBackflow.wrongKnowledgePoints.length ? <p>历史错误点：{learningBackflow.wrongKnowledgePoints.join('、')}</p> : null}</div> : <p>完成学生自学后，这里会回流阶段进度、微练习成绩、错误知识点和审核状态。</p>}
@@ -138,10 +138,10 @@ export function GraphPage({ projectId, onNavigate }: { projectId: string; onNavi
   );
 }
 
-function NodeEndpointLinks({ nodeId, projectId }: { nodeId?: string; projectId: string }) {
+function NodeEndpointLinks({ nodeId, projectId, audience }: { nodeId?: string; projectId: string; audience: 'student' | 'teacher' }) {
   if (!nodeId) return <div className="p4-endpoint-links empty"><span>本项目样章正在补充端侧页面。</span></div>;
   return <div className="p4-endpoint-links" aria-label="节点四端学习闭环入口">
-    <Link href={`/learn/${nodeId}`}>学生自学</Link>
+    <Link href={audience === 'teacher' ? `/teacher/sessions/${nodeId}` : `/learn/${nodeId}`}>{audience === 'teacher' ? '节点授课' : '学生自学'}</Link>
     <Link href={`/classroom/${nodeId}`}>课堂跟随</Link>
     <Link href={`/teacher/sessions/${nodeId}`}>教师端</Link>
     <Link href={`/game?project=${projectId}`}>卡牌互动</Link>

@@ -8,11 +8,13 @@ import {
   type ClassroomDiscussionMessageDTO,
   type ClassroomExitDTO,
   type ClassroomGroupResponseDTO,
+  type ClassroomPresenceDTO,
   type ClassroomPollResultsDTO,
   type ClassroomSessionStateDTO,
   type ClassroomSubmissionDTO,
   type ClassroomToolStateDTO,
   type AIStudyInsightDTO,
+  type ResourceGovernanceDTO,
   type SelfStudyAnalyticsDTO,
   type SelfStudyProgressDTO
 } from '@/lib/api';
@@ -24,12 +26,13 @@ import { NodeActivityBoard } from './NodeActivityBoard';
 import { readAuthName } from './AuthGate';
 
 type GenericExperienceMode = 'learn' | 'classroom' | 'teacher' | 'present';
-type TeacherWorkspaceTab = 'script' | 'insight' | 'review';
+type TeacherWorkspaceTab = 'script' | 'insight' | 'review' | 'resources';
 
 const teacherWorkspaceTabs: { id: TeacherWorkspaceTab; label: string; note: string }[] = [
   { id: 'script', label: '讲稿', note: '备课与课堂同步' },
   { id: 'insight', label: '学情', note: '班级表现与薄弱点' },
-  { id: 'review', label: '批阅', note: '学习产出与课堂作答' }
+  { id: 'review', label: '批阅', note: '学习产出与课堂作答' },
+  { id: 'resources', label: '资源', note: '来源、权利与质量检查' }
 ];
 
 const modeCopy: Record<GenericExperienceMode, { eyebrow: string; hint: string }> = {
@@ -67,15 +70,70 @@ function genericToolPrompt(nodeId: string, tool: GenericToolKey) {
   return { prompt: '限时 5 分钟完成本页任务并提交课堂作答。', options: [] };
 }
 
+type TeachingPackPage = {
+  title: string;
+  duration: string;
+  script: string;
+  classroomTask: string;
+  studentAction: string;
+};
+
+function teachingPackFor(nodeId: string): TeachingPackPage[] {
+  const node = getLearningNodeExperience(nodeId)!;
+  const evidenceNames = node.evidence.slice(0, 3).map((item) => item.label).join('、');
+  const stepNames = node.steps.slice(0, 4).map((item) => item.title).join('→');
+  const outputNames = node.outputs.slice(0, 2).join('、');
+  const correction = node.evidence.find((item) => item.status !== '已达标')?.target
+    ?? node.practice.find((item) => item.answer)?.answer
+    ?? '结论必须同时说明证据、边界和限制条件。';
+  return [
+    {
+      title: '案例导入', duration: '2 分钟',
+      script: node.teacherScript[0] ?? node.caseIntro,
+      classroomTask: `从案例中找出需要解决的“${node.title}”问题。`,
+      studentAction: '听讲并标记场景、对象和任务边界。'
+    },
+    {
+      title: '证据读取', duration: '4 分钟',
+      script: node.teacherScript[1] ?? `读取${evidenceNames}等关键证据，分清当前值、目标值和来源。`,
+      classroomTask: `标注${evidenceNames || '关键证据'}的值与判断作用。`,
+      studentAction: '选择能支撑判断的证据并说明来源。'
+    },
+    {
+      title: '流程判断', duration: '5 分钟',
+      script: node.teacherScript[2] ?? `按${stepNames}建立从现象到结论的判断链。`,
+      classroomTask: `将“${stepNames}”按正确因果关系排序。`,
+      studentAction: '完成流程排序，并提交一条证据链。'
+    },
+    {
+      title: '纠偏讲评', duration: '3 分钟',
+      script: `对照常见错误进行纠偏：${correction}`,
+      classroomTask: '对比“看似正确”与“可验证”的两种结论。',
+      studentAction: '修正原判断，补全缺失证据或限制条件。'
+    },
+    {
+      title: '形成产出', duration: '2 分钟',
+      script: `按“结论+证据+边界”形成${outputNames || '本节产出'}，并保留可追溯记录。`,
+      classroomTask: '用一句话形成可审核、可修改的职业结论。',
+      studentAction: '提交课堂作答，等待教师讲评与认证。'
+    }
+  ];
+}
+
 export function GenericNodeExperience({ nodeId, mode }: { nodeId: string; mode: GenericExperienceMode }) {
   const node = getLearningNodeExperience(nodeId);
-  if (!node) return <NodeUnavailable nodeId={nodeId} />;
+  if (!node) return <NodeUnavailable mode={mode} nodeId={nodeId} />;
   if (mode === 'present') return <GenericPresent nodeId={nodeId} />;
+  const projectHome = mode === 'teacher'
+    ? `/teacher?project=${node.projectId}`
+    : node.projectId === 'P1' || node.projectId === 'P2'
+      ? `/student/projects/${node.projectId}`
+      : `/graph?project=${node.projectId}`;
 
   return (
     <main className={`node-experience generic-node-experience ${mode === 'classroom' && (node.projectId === 'P1' || node.projectId === 'P2') ? 'with-listening-bar' : ''}`}>
       <header className="node-topbar">
-        <Link className="node-brand" href={`/course?project=${node.projectId}`}>
+        <Link className="node-brand" href={projectHome}>
           <span>5G</span><strong>5G网络优化（高级）</strong><em>数字教材</em>
         </Link>
         <nav aria-label="节点端侧导航">
@@ -93,7 +151,7 @@ export function GenericNodeExperience({ nodeId, mode }: { nodeId: string; mode: 
         </div>
         <aside><strong>{node.projectId} · {node.taskId}</strong><span>{node.subtitle}</span></aside>
       </section>
-      <NodeTaskPath mode={mode} nodeId={nodeId} />
+      {(mode !== 'learn' || (node.projectId !== 'P1' && node.projectId !== 'P2')) && <NodeTaskPath mode={mode} nodeId={nodeId} />}
       {mode === 'learn' && <GenericLearn nodeId={nodeId} />}
       {mode === 'classroom' && <GenericClassroom nodeId={nodeId} />}
       {mode === 'teacher' && <GenericTeacher nodeId={nodeId} />}
@@ -120,17 +178,20 @@ function GenericLearn({ nodeId }: { nodeId: string }) {
 
 function GenericClassroom({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
+  const teachingPack = teachingPackFor(nodeId);
   const [session, setSession] = useState<Pick<ClassroomSessionStateDTO, 'slideId' | 'synced' | 'practicePushed' | 'reviewMode' | 'updatedAt'>>({ slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0 });
   const [locallyExited, setLocallyExited] = useState(false);
   const [joinedSyncAt, setJoinedSyncAt] = useState('');
   const [showExitNotice, setShowExitNotice] = useState(false);
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
+  const [resources, setResources] = useState<ResourceGovernanceDTO[]>([]);
   const [evidence, setEvidence] = useState(node.evidence.slice(0, 2).map((item) => item.label));
   const [answer, setAnswer] = useState(`我选择${node.evidence.slice(0, 2).map((item) => item.label).join('、')}作为依据，${node.headline}`);
   const [status, setStatus] = useState('');
-  const slideTotal = Math.max(node.teacherScript.length, 1);
+  const slideTotal = teachingPack.length;
   const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), slideTotal);
-  const currentScript = node.teacherScript[slideNumber - 1] ?? node.headline;
+  const currentPage = teachingPack[slideNumber - 1];
+  const currentScript = currentPage.script;
   const joinedCurrentSync = Boolean(session.updatedAt) && joinedSyncAt === String(session.updatedAt);
   const classroomActive = session.synced && !locallyExited && joinedCurrentSync;
   const hasClassroomAccess = classroomActive || locallyExited;
@@ -143,7 +204,11 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
 
   useEffect(() => {
     let alive = true;
-    const refresh = (joinRealtimeSession = false) => Promise.all([textbookApi.classroomSession(nodeId), textbookApi.classroomTools(nodeId)]).then(([nextSession, nextTools]) => {
+    const refresh = (joinRealtimeSession = false) => Promise.all([
+      textbookApi.classroomSession(nodeId),
+      textbookApi.classroomTools(nodeId),
+      textbookApi.resourceGovernance(node.projectId)
+    ]).then(([nextSession, nextTools, nextResources]) => {
       if (!alive) return;
       setSession(nextSession);
       const pausedAt = window.sessionStorage.getItem('dgbook-paused-classroom-sync');
@@ -158,6 +223,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
         setLocallyExited(Boolean(nextSession.updatedAt) && pausedAt === syncAt);
       }
       setToolState(nextTools);
+      setResources(nextResources);
     }).catch(() => undefined);
     void refresh();
     const onRealtime = (event: Event) => {
@@ -167,7 +233,7 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
     window.addEventListener(CLASSROOM_REALTIME_EVENT, onRealtime);
     const timer = window.setInterval(refresh, 15000);
     return () => { alive = false; window.removeEventListener(CLASSROOM_REALTIME_EVENT, onRealtime); window.clearInterval(timer); };
-  }, [nodeId]);
+  }, [node.projectId, nodeId]);
 
   async function submit() {
     setStatus('正在提交...');
@@ -200,12 +266,13 @@ function GenericClassroom({ nodeId }: { nodeId: string }) {
   return <>
     <section className="node-section classroom-sync-panel">
       <div className="classroom-sync-head"><div><p className="eyebrow">课堂同步</p><h3>{classroomActive ? `正在跟随教师讲解 · 第 ${slideNumber} / ${slideTotal} 页` : locallyExited ? (showExitNotice ? '已退出本次听讲' : '当前内容回看') : '等待教师同步当前页'}</h3><p>{classroomActive ? currentScript : locallyExited ? '当前页面不会再接收教师控制或课堂作业推送。' : '教师同步后，学生端才会进入本节点的课堂内容与任务。'}</p></div><div className="classroom-sync-actions">{classroomActive ? <><span className="is-live">已同步</span><button onClick={leaveListening} type="button">退出听讲</button></> : showExitNotice ? <span>已退出</span> : !locallyExited ? <span>待同步</span> : null}</div></div>
-      {classroomActive ? <div className="classroom-guided-slide"><strong>教师当前讲解</strong><p>{currentScript}</p><div>{node.teacherScript.map((_, index) => <i className={index + 1 === slideNumber ? 'active' : ''} key={index}>{index + 1}</i>)}</div></div> : locallyExited ? <div className="classroom-exited-message"><strong>你已退出本次听讲</strong><span>当前内容仍可浏览；教师再次同步后会自动恢复跟随。</span></div> : <div className="classroom-locked-message"><strong>当前为受控听讲模式</strong><span>请等待教师在授课控制台同步本页。同步后可跟随讲解，教师推送练习后才能作答。</span></div>}
+      {classroomActive ? <div className="classroom-guided-slide"><strong>{currentPage.title} · 教师当前讲解</strong><p>{currentScript}</p><dl><div><dt>课堂任务</dt><dd>{currentPage.classroomTask}</dd></div><div><dt>我的动作</dt><dd>{currentPage.studentAction}</dd></div></dl><div>{teachingPack.map((item, index) => <i className={index + 1 === slideNumber ? 'active' : ''} key={item.title}>{index + 1}</i>)}</div></div> : locallyExited ? <div className="classroom-exited-message"><strong>你已退出本次听讲</strong><span>当前内容仍可浏览；教师再次同步后会自动恢复跟随。</span></div> : <div className="classroom-locked-message"><strong>当前为受控听讲模式</strong><span>请等待教师在授课控制台同步本页。同步后可跟随讲解，教师推送练习后才能作答。</span></div>}
       {classroomActive && session.practicePushed && <div className="classroom-practice-live"><strong>教师已推送练习</strong><span>请选取证据并提交本页结论。</span></div>}
       {classroomActive && toolState.activeTool && <><div className="classroom-tool-live"><strong>课堂工具已开启：{genericToolLabels[toolState.activeTool as GenericToolKey] ?? '课堂工具'}</strong><span>{toolState.prompt}</span></div><GenericClassroomLiveTool nodeId={nodeId} toolState={toolState} /></>}
       {classroomActive && session.reviewMode && <div className="classroom-tool-live review"><strong>教师正在讲评</strong><span>请对照自己的依据是否完整、结论是否有边界。</span></div>}
     </section>
     {hasClassroomAccess ? <>
+      {(node.projectId === 'P1' || node.projectId === 'P2') && <LearningMaterialCanvas audience="student" nodeId={nodeId} resources={resources.filter((item) => item.nodeId === nodeId)} />}
       {(node.projectId === 'P1' || node.projectId === 'P2') ? <NodeActivityBoard audience="student" enabled={classroomActive && session.practicePushed} nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}
       {classroomActive && session.practicePushed ? <section className="node-section generic-classroom-task">
         <article className="node-card"><p className="eyebrow">课堂小任务</p><h3>选择依据，形成一句判断</h3><div className="practice-list">{node.practice.map((item, index) => <div key={item.question}><b>{index + 1}</b><strong>{item.question}</strong><span>参考方向：{item.answer}</span></div>)}</div></article>
@@ -302,6 +369,7 @@ function formatGenericSeconds(value: number) {
 
 function GenericTeacher({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
+  const teachingPack = teachingPackFor(nodeId);
   const [session, setSession] = useState<ClassroomSessionStateDTO>({ classId: '通信2301班', nodeId, slideId: '1', synced: false, practicePushed: false, reviewMode: false, updatedAt: 0, updatedBy: 'teacher' });
   const [classroomId, setClassroomId] = useState('通信2301班');
   const [selfStudyAnalytics, setSelfStudyAnalytics] = useState<SelfStudyAnalyticsDTO | null>(null);
@@ -311,17 +379,21 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   const [messages, setMessages] = useState<ClassroomDiscussionMessageDTO[]>([]);
   const [groups, setGroups] = useState<ClassroomGroupResponseDTO[]>([]);
   const [exits, setExits] = useState<ClassroomExitDTO[]>([]);
+  const [presence, setPresence] = useState<ClassroomPresenceDTO | null>(null);
+  const [resources, setResources] = useState<ResourceGovernanceDTO[]>([]);
   const [draftSlideId, setDraftSlideId] = useState('1');
   const [draftInitialized, setDraftInitialized] = useState(false);
   const [workspaceTab, setWorkspaceTab] = useState<TeacherWorkspaceTab>('script');
-  const slideTotal = Math.max(node.teacherScript.length, 1);
+  const slideTotal = teachingPack.length;
   const slideNumber = Math.min(Math.max(Number(draftSlideId) || 1, 1), slideTotal);
-  const currentScript = node.teacherScript[slideNumber - 1] ?? node.headline;
+  const currentPage = teachingPack[slideNumber - 1];
+  const currentScript = currentPage.script;
   const pendingReviews = selfStudyAnalytics?.cards.filter((item) => item.reviewStatus === '待审核').length ?? 0;
   const workspaceNotes: Record<TeacherWorkspaceTab, string> = {
     script: `当前第 ${slideNumber}/${slideTotal} 段`,
     insight: `${selfStudyAnalytics?.students ?? 0} 名学生有记录`,
-    review: pendingReviews ? `${pendingReviews} 份待批阅` : '暂无待批阅产出'
+    review: pendingReviews ? `${pendingReviews} 份待批阅` : '暂无待批阅产出',
+    resources: `${resources.filter((item) => item.completeness === '通过' && item.availability === '可用' && item.visualStatus === '通过').length}/${resources.length} 项通过`
   };
 
   useEffect(() => {
@@ -329,9 +401,10 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
     let alive = true;
     async function refresh() {
       try {
-        const [nextSession, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups, nextSelfStudy, nextExits] = await Promise.all([
+        const [nextSession, nextSubmissions, nextTools, nextPoll, nextMessages, nextGroups, nextSelfStudy, nextExits, nextPresence, nextResources] = await Promise.all([
           textbookApi.classroomSession(nodeId), textbookApi.classroomSubmissions(nodeId),
-          textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId), textbookApi.selfStudyAnalytics(nodeId), textbookApi.classroomExits(nodeId)
+          textbookApi.classroomTools(nodeId), textbookApi.classroomPoll(nodeId), textbookApi.classroomDiscussion(nodeId), textbookApi.classroomGroups(nodeId), textbookApi.selfStudyAnalytics(nodeId), textbookApi.classroomExits(nodeId),
+          textbookApi.classroomPresence(), textbookApi.resourceGovernance(node.projectId)
         ]);
         if (!alive) return;
         setSession(nextSession);
@@ -339,7 +412,7 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
           setDraftSlideId(nextSession.slideId || '1');
           setDraftInitialized(true);
         }
-        setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits);
+        setSubmissions(nextSubmissions); setToolState(nextTools); setPoll(nextPoll); setMessages(nextMessages); setGroups(nextGroups); setSelfStudyAnalytics(nextSelfStudy); setExits(nextExits); setPresence(nextPresence); setResources(nextResources);
       } catch { /* Keep the template visible while the service wakes. */ }
     }
     void refresh();
@@ -380,42 +453,308 @@ function GenericTeacher({ nodeId }: { nodeId: string }) {
   }
 
   return <>
-    <section className="generic-teacher-top panel"><div><p className="eyebrow">教师授课控制台</p><h2>{node.taskId} · {node.title}</h2><p>{node.headline}</p></div><div><span>班级：{classroomId}</span><strong className={session.synced ? 'is-live' : ''}>学生端：{session.synced ? '已同步' : '待同步'}</strong></div></section>
-    <nav className="generic-teacher-workspace-tabs" aria-label="教师工作区">
-      {teacherWorkspaceTabs.map((tab) => <button className={workspaceTab === tab.id ? 'active' : ''} key={tab.id} onClick={() => setWorkspaceTab(tab.id)} type="button"><strong>{tab.label}{tab.id === 'review' && pendingReviews > 0 ? <em>{pendingReviews}</em> : null}</strong><span>{workspaceNotes[tab.id]}</span><small>{tab.note}</small></button>)}
-    </nav>
-    <section className="generic-teacher-grid">
+    <section className="generic-teacher-top panel"><div><p className="eyebrow">教师授课控制台</p><h2>{node.taskId} · {node.title}</h2><p>{node.headline}</p></div><div><span>班级：{classroomId}</span><span>已连接学生设备：{presence?.devices.filter((device) => device.role === 'student').length ?? 0} 台</span><strong className={session.synced ? 'is-live' : ''}>学生端：{session.synced ? '已同步' : '待同步'}</strong></div></section>
+    <section className="generic-teacher-grid teacher-session-console">
+      <TeacherSessionOutline nodeId={nodeId} />
       <article className="panel generic-teacher-stage">
-        {workspaceTab === 'script' && <>
-          <div className="teacher-workspace-heading"><div><p className="eyebrow">课堂讲稿</p><h3>{node.headline}</h3></div><span>当前第 {slideNumber} / {slideTotal} 段</span></div>
-          <div className="teacher-current-script"><small>同步后学生助教将播报本段</small><strong>{currentScript}</strong></div>
-          <div className="teacher-script-list">{node.teacherScript.map((item, index) => <article className={index + 1 === slideNumber ? 'active' : ''} key={item}><b>{index + 1}</b><p>{item}</p></article>)}</div>
-          <TeacherEvidenceCanvas nodeId={nodeId} />
-        </>}
-        {workspaceTab === 'insight' && <TeacherLearningOverview analytics={selfStudyAnalytics} classroomSubmissions={submissions.length} onOpenReview={() => setWorkspaceTab('review')} />}
-        {workspaceTab === 'review' && <><SelfStudyInsightPanel analytics={selfStudyAnalytics} embedded nodeId={nodeId} />{node.projectId === 'P1' || node.projectId === 'P2' ? <NodeActivityBoard audience="teacher" nodeId={nodeId} /> : <EvidencePanel nodeId={nodeId} />}</>}
+        <div className="teacher-workspace-heading"><div><p className="eyebrow">共同课堂 · 当前教材页</p><h3>{node.headline}</h3></div><span>当前第 {slideNumber} / {slideTotal} 页</span></div>
+        <div className="teacher-current-script"><small>同步后学生端将进入本段，听讲助教播报同一内容</small><strong>{currentScript}</strong></div>
+        {(node.projectId === 'P1' || node.projectId === 'P2') && <LearningMaterialCanvas audience="teacher" nodeId={nodeId} resources={resources.filter((item) => item.nodeId === nodeId)} />}
+        <div className="teacher-teaching-pack" aria-label="五页授课包">{teachingPack.map((item, index) => <article className={index + 1 === slideNumber ? 'active' : ''} key={item.title}><header><b>{index + 1}</b><div><strong>{item.title}</strong><span>{item.duration}</span></div></header><p>{item.script}</p><dl><div><dt>课堂任务</dt><dd>{item.classroomTask}</dd></div><div><dt>学生动作</dt><dd>{item.studentAction}</dd></div></dl><button onClick={() => setDraftSlideId(String(index + 1))} type="button">{index + 1 === slideNumber ? '当前预览' : '预览本页'}</button></article>)}</div>
+        <TeacherEvidenceCanvas nodeId={nodeId} />
       </article>
       <aside className="panel generic-teacher-side">
-        <h3>课堂控制</h3>
+        <section className="teacher-private-inspector">
+          <header><div><p className="eyebrow">教师私有</p><h3>授课与学情检查器</h3></div><span>{workspaceNotes[workspaceTab]}</span></header>
+          <nav aria-label="教师检查器视图">
+            {teacherWorkspaceTabs.map((tab) => <button className={workspaceTab === tab.id ? 'active' : ''} key={tab.id} onClick={() => setWorkspaceTab(tab.id)} type="button"><strong>{tab.label}{tab.id === 'review' && pendingReviews > 0 ? <em>{pendingReviews}</em> : null}</strong><small>{tab.note}</small></button>)}
+          </nav>
+          {workspaceTab === 'script' && <TeacherScriptInspector currentPage={currentPage} nextPageTitle={teachingPack[slideNumber]?.title} nodeId={nodeId} />}
+          {workspaceTab === 'insight' && <TeacherInsightInspector analytics={selfStudyAnalytics} classroomSubmissions={submissions.length} onOpenReview={() => setWorkspaceTab('review')} />}
+          {workspaceTab === 'review' && <TeacherReviewInspector analytics={selfStudyAnalytics} nodeId={nodeId} />}
+          {workspaceTab === 'resources' && <TeacherResourceGovernance items={resources.filter((item) => item.nodeId === nodeId)} onChange={(saved) => setResources((current) => current.map((item) => item.id === saved.id ? saved : item))} />}
+        </section>
+        <section className="teacher-classroom-controls">
+          <div><h3>课堂控制</h3><span>{session.synced ? `已同步第 ${session.slideId} 页` : '尚未同步学生端'}</span></div>
         <div className="teacher-slide-control"><span>预览 {slideNumber} / {slideTotal}{session.synced ? ` · 已同步第 ${session.slideId} 页` : ''}</span><button aria-label="上一讲解页" disabled={slideNumber === 1} onClick={() => changeSlide(-1)} type="button">上一页</button><button aria-label="下一讲解页" disabled={slideNumber === slideTotal} onClick={() => changeSlide(1)} type="button">下一页</button></div>
         <button className="secondary-action full" onClick={() => publish({ synced: true, slideId: draftSlideId, practicePushed: false, reviewMode: false })} type="button">同步当前页</button>
-        <button className="secondary-action full" onClick={() => publish({ synced: true, practicePushed: true })} type="button">{session.practicePushed ? '练习已推送' : '推送练习'}</button>
-        <button className="primary-action full" onClick={() => publish({ synced: true, reviewMode: true })} type="button">{session.reviewMode ? '正在讲评' : '开始讲评'}</button>
+        <Link className="secondary-action full route-action-link" href={`/present/${nodeId}`} target="_blank">打开课堂投屏预览</Link>
+        <TeacherDeviceReceipt nodeId={nodeId} presence={presence} syncedAt={session.synced ? session.updatedAt : 0} />
+        <button className="secondary-action full" onClick={() => publish({ synced: true, practicePushed: !session.practicePushed })} type="button">{session.practicePushed ? '结束练习' : '推送练习'}</button>
+        <button className="primary-action full" onClick={() => publish({ synced: true, reviewMode: !session.reviewMode })} type="button">{session.reviewMode ? '结束讲评' : '开始讲评'}</button>
         <div className="generic-tool-grid">{(Object.keys(genericToolLabels) as GenericToolKey[]).map((tool) => <button key={tool} className={toolState.activeTool === tool ? 'active' : ''} onClick={() => toggleTool(tool)} type="button">{genericToolLabels[tool]}</button>)}</div>
         <div className="generic-tool-status"><strong>{toolState.activeTool ? `已开启：${genericToolLabels[toolState.activeTool as GenericToolKey]}` : '互动工具待开启'}</strong><span>{toolState.prompt}</span></div>
         <GenericTeacherToolMonitor toolState={toolState} poll={poll} messages={messages} groups={groups} />
         <TeacherExitTips exits={exits} />
         <button className="text-action full" onClick={() => publish({ synced: false, practicePushed: false, reviewMode: false })} type="button">解除课堂控制</button>
         <Link className="secondary-action full route-action-link" href={`/game?project=${node.projectId}`}>进入卡牌互动</Link>
+        </section>
       </aside>
     </section>
     <section className="generic-teacher-data">
       <ProjectScoreSummary currentNodeId={nodeId} onOpenReview={() => setWorkspaceTab('review')} projectId={node.projectId} />
+      <TeacherEngagementPanel analytics={selfStudyAnalytics} />
+      <SelfStudyInsightPanel analytics={selfStudyAnalytics} nodeId={nodeId} />
       <article className="panel"><h3>学生学习证据</h3><strong>{selfStudyAnalytics?.students ?? 0} 名学生</strong>{selfStudyAnalytics?.students ? <p>{selfStudyAnalytics.completed} 人点亮节点，综合正确率 {selfStudyAnalytics.averageAccuracy}%。</p> : <p>学生开始自学后，这里会汇总进度、测试和学习产出。</p>}</article>
       <article className="panel"><h3>讲评优先级</h3>{selfStudyAnalytics?.typicalErrors.slice(0, 3).map((item) => <p key={item.label}><b>{item.level}</b>{item.label} · {item.count}次</p>)}{!selfStudyAnalytics?.typicalErrors.length && <p>出现错误知识点后，这里会生成讲评优先级。</p>}</article>
       <article className="panel"><h3>最新提交</h3>{submissions.length ? submissions.slice(0, 3).map((item) => <p key={item.id}><b>{item.studentName}</b>{item.conclusion || item.answer}</p>) : <p>暂未收到真实提交。</p>}</article>
     </section>
   </>;
+}
+
+function TeacherSessionOutline({ nodeId }: { nodeId: string }) {
+  const node = getLearningNodeExperience(nodeId)!;
+  const path = projectLearningPaths[node.projectId] ?? [{ nodeId, title: node.title }];
+  const taskPath = path.filter((item) => getLearningNodeExperience(item.nodeId)?.taskId === node.taskId);
+  const visiblePath = taskPath.length ? taskPath : path;
+  return <aside className="panel teacher-session-outline" aria-label="课时结构">
+    <div><span>{node.projectId}</span><strong>课时结构</strong><small>{node.taskId}</small></div>
+    <nav>
+      {visiblePath.map((item, index) => <Link className={item.nodeId === nodeId ? 'active' : ''} href={`/teacher/sessions/${item.nodeId}`} key={item.nodeId}>
+        <b>{index + 1}</b>
+        <span><strong>{item.title}</strong><small>{item.nodeId}</small></span>
+      </Link>)}
+    </nav>
+    <footer><strong>教学闭环</strong><span>讲稿、学情、批阅与成绩回流共用同一节点数据。</span></footer>
+  </aside>;
+}
+
+function TeacherScriptInspector({ currentPage, nextPageTitle, nodeId }: { currentPage: TeachingPackPage; nextPageTitle?: string; nodeId: string }) {
+  const node = getLearningNodeExperience(nodeId)!;
+  const evidence = node.evidence.slice(0, 2).map((item) => item.label).join('、');
+  const weakEvidence = node.evidence.find((item) => item.status !== '已达标');
+  return <div className="teacher-inspector-body teacher-script-inspector">
+    <article><span>讲</span><p>{currentPage.script}</p></article>
+    <article><span>问</span><div><strong>结合案例提问</strong><p>{node.practice[0]?.question ?? `如果现在就根据“${currentPage.title}”下结论，最可能遗漏哪个对象、范围或条件？`}</p></div></article>
+    <article><span>答</span><div><strong>典型答案</strong><p>本页应围绕“{currentPage.title}”完成：{currentPage.classroomTask}。判断时引用{evidence || '现场证据'}，只写当前材料能够直接支持的事实，并说明尚不能确认的边界。</p></div></article>
+    <article><span>错</span><div><strong>常见错误与追问</strong><ul><li>只给结论，没有标明证据来源和适用范围。</li><li>{weakEvidence?.target ?? '把单一现象直接当作完整结论。'}</li><li>追问：拿掉当前关键证据后，这个判断还成立吗？</li></ul></div></article>
+    <article><span>做</span><div><strong>学生动作</strong><p>{currentPage.studentAction}</p></div></article>
+    <footer><strong>过渡语</strong><p>本页完成标志：学生能用证据说明当前判断边界。{nextPageTitle ? `确认后进入“${nextPageTitle}”。` : '确认后形成本节点学习产出。'}</p></footer>
+  </div>;
+}
+
+function TeacherInsightInspector({
+  analytics,
+  classroomSubmissions,
+  onOpenReview
+}: {
+  analytics: SelfStudyAnalyticsDTO | null;
+  classroomSubmissions: number;
+  onOpenReview: () => void;
+}) {
+  const pendingReviews = analytics?.cards.filter((item) => item.reviewStatus === '待审核').length ?? 0;
+  return <div className="teacher-inspector-body teacher-insight-inspector">
+    <div className="teacher-inspector-metrics">
+      <article><strong>{analytics?.students ?? 0}</strong><span>产生记录</span></article>
+      <article><strong>{analytics?.averageAccuracy ?? 0}%</strong><span>综合正确率</span></article>
+      <article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要关注</span></article>
+      <article><strong>{classroomSubmissions}</strong><span>课堂提交</span></article>
+    </div>
+    <section><strong>能力薄弱点</strong>{analytics?.weakAbilities.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 人</b></span>)}{!analytics?.weakAbilities.length && <small>暂无真实薄弱点记录</small>}</section>
+    <section><strong>典型错误</strong>{analytics?.typicalErrors.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 次</b></span>)}{!analytics?.typicalErrors.length && <small>暂无真实错误记录</small>}</section>
+    {pendingReviews > 0 ? <button onClick={onOpenReview} type="button">查看 {pendingReviews} 份待批阅成果</button> : <p>当前没有待批阅成果，新提交会实时出现在检查器中。</p>}
+  </div>;
+}
+
+function TeacherEngagementPanel({ analytics }: { analytics: SelfStudyAnalyticsDTO | null }) {
+  const engagement = analytics?.engagement;
+  const maxActivity = Math.max(...(engagement?.sectionActivity.map((item) => item.count) ?? []), 1);
+  const eventLabels: Record<string, string> = {
+    'session-start': '开始学习',
+    'section-view': '查看阶段',
+    'section-complete': '完成阶段',
+    'exercise-pass': '练习通过',
+    'exercise-error': '练习答错',
+    'test-submit': '提交测试',
+    'output-submit': '提交产出'
+  };
+  return <article className="panel teacher-engagement-panel">
+    <header><div><p className="eyebrow">过程性数据</p><h3>学习参与度与停滞预警</h3></div><span>{engagement?.lastActivityAt ? `最近 ${new Date(engagement.lastActivityAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}` : '等待学生开始学习'}</span></header>
+    <div className="teacher-engagement-metrics">
+      <span><strong>{engagement?.totalEvents ?? 0}</strong>学习行为</span>
+      <span><strong>{engagement?.activeStudents ?? 0}</strong>活跃学生</span>
+      <span><strong>{engagement?.averageEventsPerStudent ?? 0}</strong>人均行为</span>
+      <span className={(engagement?.stalledStudents ?? 0) > 0 ? 'warning' : ''}><strong>{engagement?.stalledStudents ?? 0}</strong>可能停滞</span>
+    </div>
+    <section className="teacher-section-activity"><strong>阶段热度</strong>
+      {engagement?.sectionActivity.length ? engagement.sectionActivity.map((item) => <div key={item.label}><span>{sectionLabel(item.label as ResourceGovernanceDTO['linkedSection']) ?? item.label}</span><i><b style={{ width: `${item.count / maxActivity * 100}%` }} /></i><em>{item.count}</em></div>) : <p>学生查看或完成学习阶段后，这里会形成实时热度。</p>}
+    </section>
+    <div className="teacher-diagnosis-grid">
+      <section className="teacher-priority-students"><strong>重点学生</strong>
+        {engagement?.priorityStudents.length ? engagement.priorityStudents.slice(0, 4).map((item) => <article key={item.studentId}><span><b>{item.studentName}</b><small>{item.reasons.join(' · ')}</small></span><em className={`risk-${item.riskLevel}`}>{item.riskLevel} · {item.riskScore}</em><p>{item.suggestedAction}</p></article>) : <p>当前没有达到预警门槛的学生。</p>}
+      </section>
+      <section className="teacher-section-risks"><strong>阶段风险</strong>
+        {engagement?.sectionRisks.length ? engagement.sectionRisks.slice(0, 4).map((item) => <article key={item.sectionId}><span><b>{sectionLabel(item.sectionId as ResourceGovernanceDTO['linkedSection']) ?? item.sectionId}</b><small>查看 {item.views} · 完成 {item.completions} · 错误 {item.errors}</small></span><em className={`risk-${item.riskLevel}`}>{item.riskLevel}</em><i><b style={{ width: `${item.completionRate}%` }} /></i><small>{item.completionRate}% 完成</small></article>) : <p>当前阶段数据不足，暂不能判断风险。</p>}
+      </section>
+    </div>
+    <section className="teacher-resource-outcomes"><header><strong>资源使用与学习结果</strong><span>依据资源关联阶段的浏览、完成和错误记录</span></header>
+      {engagement?.resourceOutcomes.length ? <div>{engagement.resourceOutcomes.map((item) => <article key={item.resourceId}><span>{item.required ? '必学' : '拓展'} · {sectionLabel(item.sectionId as ResourceGovernanceDTO['linkedSection']) ?? item.sectionId}</span><strong>{item.title}</strong><div><b>{item.exposureCount}</b>次触达 <b>{item.completionRate}%</b>阶段完成</div><small>{item.signal}</small></article>)}</div> : <p>当前节点暂无可关联的资源使用记录。</p>}
+    </section>
+    <section className="teacher-focus-list"><strong>可执行讲评建议</strong>{engagement?.suggestedFocus.length ? engagement.suggestedFocus.map((item, index) => <span key={item}><b>{index + 1}</b>{item}</span>) : <p>学生数据进入后会自动生成讲评顺序。</p>}</section>
+    <section className="teacher-recent-events"><strong>最近学习动态</strong>
+      {engagement?.recentEvents.length ? engagement.recentEvents.slice(0, 5).map((item) => <span key={item.id}><b>{item.studentName}</b>{eventLabels[item.eventType] ?? item.eventType}{item.sectionId ? ` · ${sectionLabel(item.sectionId as ResourceGovernanceDTO['linkedSection'])}` : ''}<time>{new Date(item.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}</time></span>) : <p>暂无过程性行为记录。</p>}
+    </section>
+  </article>;
+}
+
+function TeacherReviewInspector({ analytics, nodeId }: { analytics: SelfStudyAnalyticsDTO | null; nodeId: string }) {
+  const [comments, setComments] = useState<Record<string, string>>({});
+  const [reviewingStudent, setReviewingStudent] = useState('');
+  const [message, setMessage] = useState('');
+  const pending = analytics?.cards.filter((item) => item.reviewStatus === '待审核') ?? [];
+
+  async function review(item: SelfStudyProgressDTO, status: '需修改' | '已认证') {
+    const comment = (comments[item.studentId] ?? item.reviewComment ?? '').trim();
+    if (status === '需修改' && !comment) {
+      setMessage('退回修改前请填写具体意见。');
+      return;
+    }
+    setReviewingStudent(item.studentId);
+    setMessage('');
+    try {
+      const saved = await textbookApi.reviewSelfStudyProgress({ nodeId, studentId: item.studentId, status, comment });
+      emitClassroomRealtime({ type: 'self-study-review', classId: saved.classId, nodeId: saved.nodeId, updatedAt: saved.updatedAt });
+      setMessage(`${item.studentName}的成果已${status === '已认证' ? '认证通过' : '退回修改'}，任务成绩与能力数据正在更新。`);
+    } catch {
+      setMessage('审核保存失败，请确认后端服务已连接。');
+    } finally {
+      setReviewingStudent('');
+    }
+  }
+
+  return <div className="teacher-inspector-body teacher-review-inspector">
+    <header><strong>{pending.length} 份待批阅成果</strong><span>审核结果实时回流学生端、任务成绩和能力数据</span></header>
+    {pending.slice(0, 3).map((item) => <article key={item.studentId}>
+      <div><strong>{item.studentName}</strong><span>能力数 {item.abilityScore} · 测试 {item.bestScore || item.practiceScore}</span></div>
+      <p>{item.studentOutput || '尚未填写学习产出'}</p>
+      <textarea maxLength={300} onChange={(event) => setComments((current) => ({ ...current, [item.studentId]: event.target.value }))} placeholder="填写退回意见或认证评语" value={comments[item.studentId] ?? item.reviewComment ?? ''} />
+      <div><button className="secondary" disabled={reviewingStudent === item.studentId} onClick={() => void review(item, '需修改')} type="button">退回修改</button><button disabled={reviewingStudent === item.studentId} onClick={() => void review(item, '已认证')} type="button">认证通过</button></div>
+    </article>)}
+    {!pending.length && <div className="teacher-review-empty"><strong>当前没有待批阅成果</strong><span>学生提交学习产出后会自动进入本队列。</span></div>}
+    {message && <p aria-live="polite">{message}</p>}
+  </div>;
+}
+
+function LearningMaterialCanvas({
+  nodeId,
+  audience,
+  resources = []
+}: {
+  nodeId: string;
+  audience: 'student' | 'teacher';
+  resources?: ResourceGovernanceDTO[];
+}) {
+  const node = getLearningNodeExperience(nodeId)!;
+  const availableResources = resources.filter((item) => item.availability === '可用');
+  return <section className={`learning-material-canvas ${audience}`} aria-label="当前节点图文教材">
+    <header><div><p className="eyebrow">图文教材 · {node.nodeId}</p><h3>{node.title}</h3></div><span>{audience === 'teacher' ? '共同课堂材料' : '当前页已接收'}</span></header>
+    <div className="material-scene"><strong>任务场景</strong><p>{node.caseIntro}</p></div>
+    <div className="material-step-flow">{node.steps.map((step, index) => <article key={step.title}><b>{index + 1}</b><div><strong>{step.title}</strong><span>{step.desc}</span></div></article>)}</div>
+    {availableResources.length > 0 && <section className="material-resource-links" aria-label="本页关联资源">
+      <header><strong>本页关联资源</strong><span>{availableResources.filter((item) => item.required).length} 项必学</span></header>
+      <div>{availableResources.map((item) => <article key={item.id}>
+        <span>{item.type} · {sectionLabel(item.linkedSection)}</span>
+        <strong>{item.title}</strong>
+        <p>{item.usage}</p>
+        <small>{item.required ? '必学资源' : '拓展资源'} · {item.source}</small>
+      </article>)}</div>
+    </section>}
+    <footer><strong>本页产出</strong><div>{node.outputs.map((item) => <span key={item}>{item}</span>)}</div></footer>
+  </section>;
+}
+
+function sectionLabel(section: ResourceGovernanceDTO['linkedSection']) {
+  return {
+    problem: '问题', visual: '看图', steps: '步骤', correction: '纠偏',
+    exercise: '练习', output: '产出', classroom: '课堂'
+  }[section];
+}
+
+function TeacherDeviceReceipt({
+  nodeId,
+  presence,
+  syncedAt
+}: {
+  nodeId: string;
+  presence: ClassroomPresenceDTO | null;
+  syncedAt: number;
+}) {
+  const students = presence?.devices.filter((device) => device.role === 'student') ?? [];
+  return <section className="teacher-device-receipt" aria-label="学生端接收状态">
+    <header><div><strong>设备接收状态</strong><span>WebSocket 实时连接</span></div><b>{students.length} 台在线</b></header>
+    {students.length ? <div>{students.map((device) => {
+      const isCurrent = device.receivedNodeId === nodeId;
+      const receivedSync = Boolean(syncedAt) && isCurrent && device.receivedUpdateAt >= syncedAt;
+      const state = receivedSync ? '已接收当前页' : isCurrent ? '已进入本节点' : '在线待加入';
+      return <article className={receivedSync ? 'received' : ''} key={device.deviceId}>
+        <i />
+        <span><strong>{device.name}</strong><small>{device.deviceId}</small></span>
+        <em>{state}</em>
+      </article>;
+    })}</div> : <p>暂无学生端在线。学生登录同一班级后会自动出现。</p>}
+  </section>;
+}
+
+function TeacherResourceGovernance({
+  items,
+  onChange
+}: {
+  items: ResourceGovernanceDTO[];
+  onChange: (saved: ResourceGovernanceDTO) => void;
+}) {
+  const [saving, setSaving] = useState('');
+  const [message, setMessage] = useState('');
+  const [usageDrafts, setUsageDrafts] = useState<Record<string, string>>({});
+
+  async function save(
+    item: ResourceGovernanceDTO,
+    patch: Partial<Pick<ResourceGovernanceDTO, 'usage' | 'linkedSection' | 'required' | 'completeness' | 'availability' | 'visualStatus'>>
+  ) {
+    setSaving(item.id);
+    setMessage('');
+    try {
+      const saved = await textbookApi.updateResourceGovernance({
+        id: item.id,
+        usage: patch.usage ?? item.usage,
+        linkedSection: patch.linkedSection ?? item.linkedSection,
+        required: patch.required ?? item.required,
+        completeness: patch.completeness ?? item.completeness,
+        availability: patch.availability ?? item.availability,
+        visualStatus: patch.visualStatus ?? item.visualStatus,
+        updatedBy: readAuthName() || '教师端'
+      });
+      onChange(saved);
+      setUsageDrafts((current) => ({ ...current, [item.id]: saved.usage }));
+      setMessage(`${saved.title}的审核状态已保存。`);
+    } catch {
+      setMessage('资源状态保存失败，请确认后端服务已连接。');
+    } finally {
+      setSaving('');
+    }
+  }
+
+  if (!items.length) return <div className="teacher-resource-empty"><strong>当前节点暂无治理条目</strong><span>P1/P2 教材资源会在这里显示来源、权利和质量状态。</span></div>;
+  return <div className="teacher-inspector-body teacher-resource-governance">
+    <header><strong>资源治理与内容编排</strong><span>检查来源和权利，并把素材定位到具体学习阶段</span></header>
+    {items.map((item) => <article key={item.id}>
+      <div><span>{item.type}</span><strong>{item.title}</strong></div>
+      <dl><div><dt>来源</dt><dd>{item.source}</dd></div><div><dt>权利</dt><dd>{item.rights}</dd></div></dl>
+      <div className="resource-link-controls">
+        <label>关联阶段<select disabled={saving === item.id} onChange={(event) => void save(item, { linkedSection: event.target.value as ResourceGovernanceDTO['linkedSection'] })} value={item.linkedSection}>
+          <option value="problem">问题</option><option value="visual">看图</option><option value="steps">步骤</option>
+          <option value="correction">纠偏</option><option value="exercise">练习</option><option value="output">产出</option><option value="classroom">课堂</option>
+        </select></label>
+        <button className={item.required ? 'passed' : ''} disabled={saving === item.id} onClick={() => void save(item, { required: !item.required })} type="button">{item.required ? '必学资源' : '拓展资源'}</button>
+      </div>
+      <label className="resource-usage-input">教学用途<textarea maxLength={160} onChange={(event) => setUsageDrafts((current) => ({ ...current, [item.id]: event.target.value }))} value={usageDrafts[item.id] ?? item.usage} /><button disabled={saving === item.id || !(usageDrafts[item.id] ?? item.usage).trim()} onClick={() => void save(item, { usage: usageDrafts[item.id] ?? item.usage })} type="button">保存用途</button></label>
+      <div className="resource-governance-actions">
+        <button className={item.completeness === '通过' ? 'passed' : ''} disabled={saving === item.id} onClick={() => void save(item, { completeness: item.completeness === '通过' ? '待补充' : '通过' })} type="button">完整性 · {item.completeness}</button>
+        <button className={item.availability === '可用' ? 'passed' : ''} disabled={saving === item.id} onClick={() => void save(item, { availability: item.availability === '可用' ? '不可用' : '可用' })} type="button">可用性 · {item.availability}</button>
+        <button className={item.visualStatus === '通过' ? 'passed' : ''} disabled={saving === item.id} onClick={() => void save(item, { visualStatus: item.visualStatus === '通过' ? '待复核' : '通过' })} type="button">视觉 · {item.visualStatus}</button>
+      </div>
+    </article>)}
+    {message && <p aria-live="polite">{message}</p>}
+  </div>;
 }
 
 function TeacherEvidenceCanvas({ nodeId }: { nodeId: string }) {
@@ -600,9 +939,11 @@ function SelfStudyInsightPanel({ analytics, nodeId, embedded = false }: { analyt
   }
 
   return <article className={`${embedded ? 'embedded' : 'panel generic-ai-learning-card'} generic-ai-insight-panel`}>
-    <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 综合分析</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生学习数据` : '等待学生保存学习进度'}</h3></div><span>分析依据：进度、正确率、重试、用时、能力数</span></div>
+    <div className="ai-learning-head"><div><p className="eyebrow">AI 学情卡 · 综合分析</p><h3>{analytics?.students ? `${analytics.students} 名学生已产生学习数据` : '等待学生保存学习进度'}</h3></div><span>分析依据：进度、正确率、行为、阶段风险与资源成效</span></div>
     <div className="ai-learning-metrics"><article><strong>{analytics?.averageAbility ?? 0}</strong><span>平均能力数</span></article><article><strong>{analytics?.averageAccuracy ?? 0}%</strong><span>综合正确率</span></article><article><strong>{analytics?.completed ?? 0}</strong><span>点亮本节点</span></article><article><strong>{analytics?.totalRetries ?? 0}</strong><span>累计重试</span></article><article><strong>{formatStudyDuration(analytics?.averageDurationSeconds ?? 0)}</strong><span>平均学习用时</span></article><article><strong>{analytics?.needsSupport ?? 0}</strong><span>需要支持</span></article></div>
     {(analytics?.typicalErrors?.length || analytics?.weakAbilities?.length) ? <div className="ai-learning-breakdown"><article><strong>典型错误</strong>{analytics?.typicalErrors?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 次</b></span>)}</article><article><strong>能力短板</strong>{analytics?.weakAbilities?.slice(0, 3).map((item) => <span key={item.label}>{item.label}<b>{item.count} 人</b></span>)}</article></div> : null}
+    {analytics?.engagement?.priorityStudents.length ? <div className="ai-priority-strip"><strong>系统识别的重点学生</strong>{analytics.engagement.priorityStudents.slice(0, 3).map((item) => <span key={item.studentId}><b>{item.studentName}</b><em>{item.riskLevel}风险 {item.riskScore}</em><small>{item.suggestedAction}</small></span>)}</div> : null}
+    {analytics?.engagement?.suggestedFocus.length ? <div className="ai-focus-strip"><strong>生成讲评前的规则依据</strong>{analytics.engagement.suggestedFocus.map((item, index) => <span key={item}><b>{index + 1}</b>{item}</span>)}</div> : null}
     {cards.length ? <>
       <div className="ai-student-filters">
         <input aria-label="搜索学生" onChange={(event) => setStudentQuery(event.target.value)} placeholder="搜索学生姓名" value={studentQuery} />
@@ -636,7 +977,8 @@ function GenericTeacherToolMonitor({
 
 function GenericPresent({ nodeId }: { nodeId: string }) {
   const node = getLearningNodeExperience(nodeId)!;
-  const [session, setSession] = useState({ synced: false, practicePushed: false, reviewMode: false });
+  const teachingPack = teachingPackFor(nodeId);
+  const [session, setSession] = useState({ slideId: '1', synced: false, practicePushed: false, reviewMode: false });
   const [toolState, setToolState] = useState<ClassroomToolStateDTO>(() => defaultGenericToolState(nodeId));
   useEffect(() => {
     let alive = true;
@@ -651,7 +993,9 @@ function GenericPresent({ nodeId }: { nodeId: string }) {
     const timer = window.setInterval(refresh, 15000);
     return () => { alive = false; window.removeEventListener(CLASSROOM_REALTIME_EVENT, onRealtime); window.clearInterval(timer); };
   }, [nodeId]);
-  return <main className="node-present-page generic-present-page"><header className="present-top"><span>{node.nodeId} · {node.title}</span><strong>{session.synced ? '课堂同步中' : '投屏待命'}</strong></header><section className="present-slide-focus"><p>{modeCopy.present.eyebrow}</p><h1>{node.headline}</h1>{session.practicePushed && <em>练习已推送到学生端</em>}{session.reviewMode && <em>正在讲评学生提交</em>}</section><EvidencePanel nodeId={nodeId} />{toolState.activeTool && <GenericPresentTool nodeId={nodeId} toolState={toolState} />}<section className="present-review-card">{node.outputs.map((item) => <span key={item}>{item}</span>)}</section><footer className="present-conclusion">{node.subtitle}</footer></main>;
+  const slideNumber = Math.min(Math.max(Number(session.slideId) || 1, 1), teachingPack.length);
+  const currentPage = teachingPack[slideNumber - 1];
+  return <main className="node-present-page generic-present-page"><header className="present-top"><span>{node.nodeId} · {node.title}</span><strong>{session.synced ? `课堂同步中 · ${slideNumber}/${teachingPack.length}` : '投屏待命'}</strong></header><section className="present-slide-focus"><p>{currentPage.title} · {currentPage.duration}</p><h1>{currentPage.script}</h1><div className="present-teaching-task"><span><b>课堂任务</b>{currentPage.classroomTask}</span><span><b>学生动作</b>{currentPage.studentAction}</span></div>{session.practicePushed && <em>练习已推送到学生端</em>}{session.reviewMode && <em>正在讲评学生提交</em>}</section><EvidencePanel nodeId={nodeId} />{toolState.activeTool && <GenericPresentTool nodeId={nodeId} toolState={toolState} />}<section className="present-review-card">{node.outputs.map((item) => <span key={item}>{item}</span>)}</section><footer className="present-conclusion">{node.subtitle}</footer></main>;
 }
 
 function GenericPresentTool({ nodeId, toolState }: { nodeId: string; toolState: ClassroomToolStateDTO }) {
@@ -719,8 +1063,8 @@ function EvidencePanel({ nodeId }: { nodeId: string }) {
   return <section className="node-section generic-evidence-panel"><div className="section-heading"><h3>关键证据</h3><span>每项指标都要回到场景与判断边界。</span></div><div className="node-evidence-grid">{node.evidence.map((item) => <article key={item.label}><strong>{item.label}</strong><b>{item.value}</b><span>{item.target}</span><em>{item.status}</em></article>)}</div></section>;
 }
 
-function NodeUnavailable({ nodeId }: { nodeId: string }) {
-  return <main className="node-experience"><section className="node-hero"><div><p className="eyebrow">数字教材节点</p><h1>节点正在建设中</h1><p>{nodeId} 还没有对应的深度学习数据。</p></div><aside><strong>返回项目链</strong><Link className="node-primary-link" href="/course">返回课程</Link></aside></section></main>;
+function NodeUnavailable({ nodeId, mode }: { nodeId: string; mode: GenericExperienceMode }) {
+  return <main className="node-experience"><section className="node-hero"><div><p className="eyebrow">数字教材节点</p><h1>节点正在建设中</h1><p>{nodeId} 还没有对应的深度学习数据。</p></div><aside><strong>返回端侧首页</strong><Link className="node-primary-link" href={mode === 'teacher' ? '/teacher?project=P1' : '/student'}>返回工作台</Link></aside></section></main>;
 }
 
 function getGenericStudentId() {

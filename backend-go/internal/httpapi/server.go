@@ -38,6 +38,7 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /api/classroom/session", s.updateClassroomSession)
 	s.mux.HandleFunc("GET /api/classroom/active", s.activeClassroomSession)
 	s.mux.HandleFunc("GET /api/classroom/ws", s.classroomWebSocket)
+	s.mux.HandleFunc("GET /api/classroom/presence", s.classroomPresence)
 	s.mux.HandleFunc("GET /api/classroom/tools", s.classroomTools)
 	s.mux.HandleFunc("POST /api/classroom/tools", s.updateClassroomTools)
 	s.mux.HandleFunc("GET /api/classroom/submissions", s.classroomSubmissions)
@@ -49,7 +50,10 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("GET /api/self-study/progress", s.selfStudyProgress)
 	s.mux.HandleFunc("POST /api/self-study/progress", s.updateSelfStudyProgress)
 	s.mux.HandleFunc("POST /api/self-study/review", s.reviewSelfStudyProgress)
+	s.mux.HandleFunc("POST /api/demo/reset", s.resetDemoStudents)
 	s.mux.HandleFunc("GET /api/self-study/analytics", s.selfStudyAnalytics)
+	s.mux.HandleFunc("GET /api/self-study/events", s.selfStudyEvents)
+	s.mux.HandleFunc("POST /api/self-study/events", s.createSelfStudyEvent)
 	s.mux.HandleFunc("GET /api/classroom/poll", s.classroomPoll)
 	s.mux.HandleFunc("POST /api/classroom/poll", s.createClassroomPollResponse)
 	s.mux.HandleFunc("GET /api/classroom/discussion", s.classroomDiscussion)
@@ -60,6 +64,8 @@ func (s *Server) routes() {
 	s.mux.HandleFunc("POST /api/ai/chat", s.aiChat)
 	s.mux.HandleFunc("POST /api/ai/study-insight", s.aiStudyInsight)
 	s.mux.HandleFunc("POST /api/tts", s.textToSpeech)
+	s.mux.HandleFunc("GET /api/resources/governance", s.resourceGovernance)
+	s.mux.HandleFunc("POST /api/resources/governance", s.updateResourceGovernance)
 }
 
 func (s *Server) health(w http.ResponseWriter, r *http.Request) {
@@ -164,6 +170,32 @@ func (s *Server) classroomWebSocket(w http.ResponseWriter, r *http.Request) {
 	s.hub.serveWS(w, r)
 }
 
+func (s *Server) classroomPresence(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, s.hub.presence(r.URL.Query().Get("classId")))
+}
+
+func (s *Server) resourceGovernance(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.ResourceGovernanceData(r.URL.Query().Get("project")))
+}
+
+func (s *Server) updateResourceGovernance(w http.ResponseWriter, r *http.Request) {
+	var request data.ResourceGovernanceUpdateRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	item, err := data.UpdateResourceGovernance(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(normalizeClassID(r.URL.Query().Get("classId")), classroomRealtimeEvent{
+		Type: "resource-governance", ClassID: normalizeClassID(r.URL.Query().Get("classId")),
+		NodeID: item.NodeID, UpdatedAt: item.UpdatedAt,
+	})
+	writeJSON(w, http.StatusOK, item)
+}
+
 func (s *Server) classroomTools(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, data.ClassroomTools(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
 }
@@ -260,6 +292,27 @@ func (s *Server) selfStudyAnalytics(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, data.SelfStudyAnalyticsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
 }
 
+func (s *Server) selfStudyEvents(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, http.StatusOK, data.LearningEventsData(r.URL.Query().Get("classId"), r.URL.Query().Get("nodeId")))
+}
+
+func (s *Server) createSelfStudyEvent(w http.ResponseWriter, r *http.Request) {
+	var request data.LearningEventRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	event, err := data.CreateLearningEvent(request)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	s.hub.broadcast(event.ClassID, classroomRealtimeEvent{
+		Type: "learning-event", ClassID: event.ClassID, NodeID: event.NodeID, UpdatedAt: event.CreatedAt,
+	})
+	writeJSON(w, http.StatusCreated, event)
+}
+
 func (s *Server) reviewSelfStudyProgress(w http.ResponseWriter, r *http.Request) {
 	var request data.SelfStudyReviewRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -273,6 +326,23 @@ func (s *Server) reviewSelfStudyProgress(w http.ResponseWriter, r *http.Request)
 	}
 	s.hub.broadcast(progress.ClassID, classroomRealtimeEvent{Type: "self-study-review", ClassID: progress.ClassID, NodeID: progress.NodeID, UpdatedAt: progress.UpdatedAt})
 	writeJSON(w, http.StatusOK, progress)
+}
+
+func (s *Server) resetDemoStudents(w http.ResponseWriter, r *http.Request) {
+	var request struct {
+		ClassID string `json:"classId"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid json body")
+		return
+	}
+	summary, err := data.ResetDemoStudents(request.ClassID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	s.hub.broadcast(summary.ClassID, classroomRealtimeEvent{Type: "demo-reset", ClassID: summary.ClassID, UpdatedAt: summary.UpdatedAt})
+	writeJSON(w, http.StatusOK, summary)
 }
 
 func (s *Server) classroomPoll(w http.ResponseWriter, r *http.Request) {

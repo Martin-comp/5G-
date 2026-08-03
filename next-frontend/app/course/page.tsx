@@ -1,6 +1,6 @@
 import { AuthGate } from '@/components/AuthGate';
-import { DigitalTextbookApp } from '@/components/DigitalTextbookApp';
+import { LegacyRouteRedirect } from '@/components/LegacyRouteRedirect';
 
 export default function CoursePage() {
-  return <AuthGate role={['student', 'teacher']}><DigitalTextbookApp initialView="course" /></AuthGate>;
+  return <AuthGate role={['student', 'teacher']}><LegacyRouteRedirect kind="course" /></AuthGate>;
 }

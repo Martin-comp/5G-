@@ -3,11 +3,11 @@
 import { Canvas } from '@react-three/fiber';
 import { Float, OrbitControls } from '@react-three/drei';
 
-function AbilityCore({ score }: { score: number }) {
+function AbilityCore({ score, paused }: { score: number; paused: boolean }) {
   const intensity = Math.max(0.2, score / 100);
   const coreColor = score >= 80 ? '#15a78d' : score >= 45 ? '#3e9fb4' : '#a8c9c2';
 
-  return <Float speed={1.25} rotationIntensity={0.22} floatIntensity={0.38}>
+  return <Float speed={paused ? 0 : 1.25} rotationIntensity={paused ? 0 : 0.22} floatIntensity={paused ? 0 : 0.38}>
     <group rotation={[0.35, 0.2, 0]}>
       <mesh>
         <icosahedronGeometry args={[0.76, 2]} />
@@ -29,14 +29,14 @@ function AbilityCore({ score }: { score: number }) {
   </Float>;
 }
 
-export function SelfStudyAbilityModel({ score }: { score: number }) {
+export function SelfStudyAbilityModel({ score, paused = false }: { score: number; paused?: boolean }) {
   return <div className="self-study-ability-model" aria-label={`Three.js 能力数模型，当前 ${score} 分`}>
     <Canvas camera={{ position: [0, 0, 4.25], fov: 42 }} dpr={[1, 1.5]}>
       <ambientLight intensity={1.2} />
       <pointLight position={[3, 3, 3]} intensity={18} color="#9bf1dd" />
       <pointLight position={[-3, -2, 2]} intensity={8} color="#b7dff0" />
-      <AbilityCore score={score} />
-      <OrbitControls enablePan={false} enableZoom={false} autoRotate autoRotateSpeed={0.75} />
+      <AbilityCore paused={paused} score={score} />
+      <OrbitControls enablePan={false} enableZoom={false} autoRotate={!paused} autoRotateSpeed={0.75} />
     </Canvas>
   </div>;
 }

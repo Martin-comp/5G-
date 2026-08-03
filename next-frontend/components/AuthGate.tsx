@@ -148,7 +148,10 @@ export function AuthGate({ role, children }: { role: AuthRequirement; children: 
   if (!allowedRoles.includes(currentRole as AuthRole)) {
     const preferredRole = allowedRoles[0];
     const roleText = formatRoles(allowedRoles);
-    const next = encodeURIComponent(pathname || (preferredRole === 'teacher' ? '/teacher?project=P1' : '/student'));
+    const requestedPath = typeof window === 'undefined'
+      ? pathname
+      : `${window.location.pathname}${window.location.search}`;
+    const next = encodeURIComponent(requestedPath || (preferredRole === 'teacher' ? '/teacher?project=P1' : '/student'));
     return (
       <main className="role-auth-page">
         <section>

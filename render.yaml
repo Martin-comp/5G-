@@ -6,6 +6,8 @@ services:
     buildCommand: go build -o server ./cmd/server
     startCommand: ./server
     envVars:
+      - key: DATABASE_URL
+        sync: false
       - key: DEEPSEEK_API_KEY
         sync: false
       - key: DEEPSEEK_BASE_URL
@@ -18,3 +20,13 @@ services:
         value: /api/ai/hint
       - key: OPENMAIC_API_KEY
         sync: false
+      - key: TTS_API_KEY
+        sync: false
+      - key: TTS_BASE_URL
+        value: https://api.openai.com/v1
+      - key: TTS_MODEL
+        value: tts-1
+      - key: TTS_VOICE
+        value: onyx
+      - key: TTS_FORMAT
+        value: mp3

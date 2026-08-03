@@ -1,6 +1,5 @@
 import { AuthGate } from '@/components/AuthGate';
-import { GenericNodeExperience } from '@/components/GenericNodeExperience';
-import { P4NodeExperience } from '@/components/P4NodeExperience';
+import { RoleAwareLearnExperience } from '@/components/RoleAwareLearnExperience';
 import { learningNodeExperiences, p4NodeExperience } from '@/lib/textbook-data';
 
 export const dynamicParams = false;
@@ -11,6 +10,5 @@ export function generateStaticParams() {
 
 export default async function LearnNodePage({ params }: { params: Promise<{ nodeId: string }> }) {
   const { nodeId } = await params;
-  if (nodeId !== p4NodeExperience.nodeId) return <AuthGate role={['student', 'teacher']}><GenericNodeExperience nodeId={nodeId} mode="learn" /></AuthGate>;
-  return <AuthGate role={['student', 'teacher']}><P4NodeExperience mode="learn" /></AuthGate>;
+  return <AuthGate role={['student', 'teacher']}><RoleAwareLearnExperience isP4={nodeId === p4NodeExperience.nodeId} nodeId={nodeId} /></AuthGate>;
 }

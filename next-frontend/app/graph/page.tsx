@@ -1,6 +1,6 @@
 import { AuthGate } from '@/components/AuthGate';
-import { DigitalTextbookApp } from '@/components/DigitalTextbookApp';
+import { GraphPortal } from '@/components/GraphPortal';
 
 export default function GraphPage() {
-  return <AuthGate role={['student', 'teacher']}><DigitalTextbookApp initialView="graph" /></AuthGate>;
+  return <AuthGate role={['student', 'teacher']}><GraphPortal /></AuthGate>;
 }

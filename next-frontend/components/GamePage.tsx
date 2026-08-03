@@ -846,12 +846,16 @@ export function GamePage({ projectId, onNavigate }: { projectId: string; onNavig
             <div>
               <span>已锁定</span>
               <strong>{lockedPickIds.length} 张</strong>
-              <p>{lockedPickIds.length ? lockedPickIds.map((id) => deckGame.cards.find((card) => card.id === id)?.title).filter(Boolean).join(' / ') : '还没有进入下一轮。'}</p>
+              <p>{lockedPickIds.length
+                ? lockedPickIds.map((id) => deckGame.cards.find((card) => card.id === id)?.title).filter(Boolean).join(' / ')
+                : isDeckFinished ? '本局未选择卡牌。' : '还没有进入下一轮。'}</p>
             </div>
             <div>
               <span>本轮暂选</span>
               <strong>{roundPickIds.length} 张</strong>
-              <p>{roundPickIds.length ? roundPickIds.map((id) => deckGame.cards.find((card) => card.id === id)?.title).filter(Boolean).join(' / ') : '本轮可以不选。'}</p>
+              <p>{roundPickIds.length
+                ? roundPickIds.map((id) => deckGame.cards.find((card) => card.id === id)?.title).filter(Boolean).join(' / ')
+                : isDeckFinished ? '四轮选择均已锁定。' : '本轮可以不选。'}</p>
             </div>
             <div className={isDeckFinished ? 'complete' : ''}>
               <span>状态</span>

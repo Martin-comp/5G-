@@ -53,6 +53,8 @@ export function StudentHome() {
 
   useEffect(() => {
     setStudentName(readAuthName() || '同学');
+    const requested = new URLSearchParams(window.location.search).get('project')?.toUpperCase();
+    if (requested === 'P1' || requested === 'P2') setProjectId(requested);
   }, []);
 
   useEffect(() => {
@@ -99,15 +101,15 @@ export function StudentHome() {
   return (
     <main className="student-home">
       <header className="student-home-topbar">
-        <div><span className="student-home-logo">5G</span><div><strong>5G网络优化数字教材</strong><small>学生学习工作台</small></div></div>
-        <nav><Link href={`/course?project=${projectId}`}>课程</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><AuthBadge /></nav>
+        <div><Link className="student-home-logo" href={`/student?project=${projectId}`}>5G</Link><div><strong>5G网络优化数字教材</strong><small>学生学习工作台</small></div></div>
+        <nav><Link href={`/student?project=${projectId}`}>学习首页</Link><Link href={`/student/projects/${projectId}`}>项目任务</Link><Link href={`/student/projects/${projectId}/portfolio`}>成果包</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><AuthBadge /></nav>
       </header>
 
       <div className="student-home-shell">
         <section className="student-home-heading">
           <div><p className="eyebrow">{studentName} · 我的学习首页</p><h1>继续完成当前学习任务</h1><p>系统根据已保存的阶段、练习、测试和产出记录定位下一步。</p></div>
           <div className="student-project-switch" aria-label="选择学习项目">
-            {['P1', 'P2'].map((id) => <button className={projectId === id ? 'active' : ''} key={id} onClick={() => setProjectId(id)} type="button">{id}</button>)}
+            {['P1', 'P2'].map((id) => <Link className={projectId === id ? 'active' : ''} href={`/student?project=${id}`} key={id}>{id}</Link>)}
           </div>
         </section>
 
@@ -121,7 +123,7 @@ export function StudentHome() {
               <article><span>完成标准</span><strong>六阶段完成、练习通过、正式测试并提交产出</strong></article>
               <article><span>下一步</span><strong>{projectCompleted ? '回顾已完成节点或进入课堂' : currentRecord?.completedSteps?.length ? `继续第 ${Math.min(6, currentRecord.completedSteps.length + 1)} 阶段` : '从问题阶段开始'}</strong></article>
             </div>
-            {currentNode ? <Link className="primary-action" href={`/learn/${currentNode.nodeId}`}>{projectCompleted ? '回顾学习' : '继续自学'}</Link> : null}
+            <div className="student-current-actions">{currentNode ? <Link className="primary-action" href={`/learn/${currentNode.nodeId}`}>{projectCompleted ? '回顾学习' : '继续自学'}</Link> : null}<Link className="secondary-action" href={`/student/projects/${projectId}`}>查看完整任务链</Link></div>
           </div>
           <div className="student-current-progress">
             <div><strong>{Math.round(completedNodes / Math.max(path.length, 1) * 100)}%</strong><span>项目节点进度</span></div>

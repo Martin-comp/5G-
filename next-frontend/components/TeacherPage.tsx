@@ -43,18 +43,6 @@ const panelTabs: { key: TeacherPanelTab; label: string }[] = [
   { key: 'answer', label: '典型答案' }
 ];
 
-const commonMistakes = [
-  { label: '把覆盖达标当成体验闭环', count: 18, level: '高' },
-  { label: '忽略切换失败集中区', count: 14, level: '中' },
-  { label: '未关联短掉线日志', count: 10, level: '低' }
-];
-
-const priorityItems = [
-  { level: '高', title: '切换成功率未达标原因', count: 18 },
-  { level: '中', title: '重建次数异常', count: 14 },
-  { level: '低', title: '短掉线日志判读', count: 10 }
-];
-
 const toolButtons: {
   key: 'poll' | 'discussion' | 'group' | 'timer';
   label: string;
@@ -95,11 +83,11 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
   const slideHydrated = useRef(false);
   const page = p4TeacherSlides.find((item) => item.id === activeSlide) ?? p4TeacherSlides[2];
   const progress = useMemo(() => `${activeSlide} / ${p4TeacherSlides.length}`, [activeSlide]);
-  const commonMistakeItems = analytics?.commonMistakes ?? commonMistakes;
-  const priorityItemList = analytics?.priorityItems ?? priorityItems.map((item) => ({ label: item.title, count: item.count, level: item.level }));
-  const submitted = analytics?.submitted ?? 36;
-  const totalStudents = analytics?.totalStudents ?? 42;
-  const submitRate = analytics?.submitRate ?? '85.7%';
+  const commonMistakeItems = analytics?.commonMistakes ?? [];
+  const priorityItemList = analytics?.priorityItems ?? [];
+  const submitted = analytics?.submitted ?? 0;
+  const totalStudents = analytics?.totalStudents ?? 0;
+  const submitRate = analytics?.submitRate ?? '0.0%';
 
   useEffect(() => {
     setClassroomId(readClassroomId());
@@ -151,7 +139,7 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
         setGroupResponses(nextGroups);
         setPortfolio(nextPortfolio);
       } catch {
-        // Keep the demo fallback visible when the backend is waking up.
+        // Keep the explicit empty state while the backend is waking up.
       }
     }
     void refreshDashboard();
@@ -313,7 +301,7 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
             <strong>{submitted}</strong>
             <span>/ {totalStudents}人</span>
           </div>
-          <p>提交率 {submitRate}，{analytics ? `平均分 ${analytics.averageScore}，需重点讲评 ${analytics.needsReview} 人。` : '仍有 6 人未完成本页证据标注。'}</p>
+          <p>{analytics && analytics.submitted > 0 ? `提交率 ${submitRate}，平均分 ${analytics.averageScore}，需重点讲评 ${analytics.needsReview} 人。` : '尚未收到本页学生提交。'}</p>
         </article>
 
         <article className="panel teacher-error-list">
@@ -325,6 +313,7 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
               <em>{item.count}人</em>
             </div>
           ))}
+          {commonMistakeItems.length === 0 ? <p>产生真实作答后，系统将自动归纳典型错误。</p> : null}
         </article>
 
         <article className="panel teacher-priority-list">
@@ -336,12 +325,13 @@ function P4TeacherConsole({ onNavigate }: { onNavigate: Navigate }) {
               <em>{item.count}人</em>
             </div>
           ))}
+          {priorityItemList.length === 0 ? <p>当前无可排序的讲评项。</p> : null}
         </article>
 
         <article className="panel teacher-submission-stream">
           <h3>最新学生提交</h3>
           {submissions.length === 0 ? (
-            <p>暂无真实提交，当前显示样张统计。学生在课堂跟随页提交后，这里会自动刷新。</p>
+            <p>暂无学生提交。学生在课堂跟随页提交后，这里会自动刷新。</p>
           ) : submissions.slice(0, 3).map((item) => (
             <div key={item.id}>
               <strong>{item.studentName}</strong>
@@ -424,7 +414,7 @@ function TeacherToolMonitor({
     return (
       <div className="teacher-live-monitor">
         <strong>投票实时结果</strong>
-        <span>{poll?.submitted ?? 0}/42 人已作答</span>
+        <span>{poll?.submitted ?? 0} 人已作答</span>
         <p>{leading?.count ? `当前最多：${leading.label}（${leading.count}票）` : '等待第一位同学作答。'}</p>
       </div>
     );

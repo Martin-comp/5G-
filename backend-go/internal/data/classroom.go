@@ -228,26 +228,50 @@ type SelfStudyAbility struct {
 	Status string `json:"status"`
 }
 
+type SelfStudyOutputVersion struct {
+	Version       int    `json:"version"`
+	StudentOutput string `json:"studentOutput"`
+	SubmittedAt   int64  `json:"submittedAt"`
+	ReviewStatus  string `json:"reviewStatus"`
+	ReviewComment string `json:"reviewComment"`
+	ReviewedAt    int64  `json:"reviewedAt"`
+}
+
+type SelfStudyTestAttempt struct {
+	Attempt              int                `json:"attempt"`
+	VersionID            string             `json:"versionId"`
+	SubmittedAt          int64              `json:"submittedAt"`
+	ElapsedSeconds       int                `json:"elapsedSeconds"`
+	Score                int                `json:"score"`
+	SingleAnswer         string             `json:"singleAnswer"`
+	Sequence             []string           `json:"sequence"`
+	Evidence             []string           `json:"evidence"`
+	Conclusion           []string           `json:"conclusion"`
+	WrongKnowledgePoints []string           `json:"wrongKnowledgePoints"`
+	Diagnosis            []SelfStudyAbility `json:"diagnosis"`
+}
+
 type SelfStudyProgressUpdateRequest struct {
-	ClassID              string   `json:"classId"`
-	NodeID               string   `json:"nodeId"`
-	StudentID            string   `json:"studentId"`
-	StudentName          string   `json:"studentName"`
-	CompletedSteps       []string `json:"completedSteps"`
-	StartedAt            int64    `json:"startedAt"`
-	TimeSpentSeconds     int      `json:"timeSpentSeconds"`
-	PracticeAttempts     int      `json:"practiceAttempts"`
-	PracticeScore        int      `json:"practiceScore"`
-	WrongKnowledgePoints []string `json:"wrongKnowledgePoints"`
-	ReviewStatus         string   `json:"reviewStatus"`
-	FormalTestAttempts   int      `json:"formalTestAttempts"`
-	FirstScore           int      `json:"firstScore"`
-	BestScore            int      `json:"bestScore"`
-	LatestScore          int      `json:"latestScore"`
-	TestCompletedAt      int64    `json:"testCompletedAt"`
-	StudentOutput        string   `json:"studentOutput"`
-	OutputSubmittedAt    int64    `json:"outputSubmittedAt"`
-	ReviewComment        string   `json:"reviewComment"`
+	ClassID              string                `json:"classId"`
+	NodeID               string                `json:"nodeId"`
+	StudentID            string                `json:"studentId"`
+	StudentName          string                `json:"studentName"`
+	CompletedSteps       []string              `json:"completedSteps"`
+	StartedAt            int64                 `json:"startedAt"`
+	TimeSpentSeconds     int                   `json:"timeSpentSeconds"`
+	PracticeAttempts     int                   `json:"practiceAttempts"`
+	PracticeScore        int                   `json:"practiceScore"`
+	WrongKnowledgePoints []string              `json:"wrongKnowledgePoints"`
+	ReviewStatus         string                `json:"reviewStatus"`
+	FormalTestAttempts   int                   `json:"formalTestAttempts"`
+	FirstScore           int                   `json:"firstScore"`
+	BestScore            int                   `json:"bestScore"`
+	LatestScore          int                   `json:"latestScore"`
+	TestCompletedAt      int64                 `json:"testCompletedAt"`
+	StudentOutput        string                `json:"studentOutput"`
+	OutputSubmittedAt    int64                 `json:"outputSubmittedAt"`
+	ReviewComment        string                `json:"reviewComment"`
+	FormalTestSubmission *SelfStudyTestAttempt `json:"formalTestSubmission,omitempty"`
 }
 
 type SelfStudyReviewRequest struct {
@@ -258,30 +282,40 @@ type SelfStudyReviewRequest struct {
 	Comment   string `json:"comment"`
 }
 
+type DemoResetSummary struct {
+	ClassID          string `json:"classId"`
+	ResetStudents    int    `json:"resetStudents"`
+	SeededRecords    int    `json:"seededRecords"`
+	CompletedRecords int    `json:"completedRecords"`
+	UpdatedAt        int64  `json:"updatedAt"`
+}
+
 type SelfStudyProgress struct {
-	ClassID              string             `json:"classId"`
-	NodeID               string             `json:"nodeId"`
-	StudentID            string             `json:"studentId"`
-	StudentName          string             `json:"studentName"`
-	CompletedSteps       []string           `json:"completedSteps"`
-	AbilityScore         int                `json:"abilityScore"`
-	Abilities            []SelfStudyAbility `json:"abilities"`
-	StartedAt            int64              `json:"startedAt"`
-	TimeSpentSeconds     int                `json:"timeSpentSeconds"`
-	PracticeAttempts     int                `json:"practiceAttempts"`
-	PracticeScore        int                `json:"practiceScore"`
-	WrongKnowledgePoints []string           `json:"wrongKnowledgePoints"`
-	ReviewStatus         string             `json:"reviewStatus"`
-	FormalTestAttempts   int                `json:"formalTestAttempts"`
-	FirstScore           int                `json:"firstScore"`
-	BestScore            int                `json:"bestScore"`
-	LatestScore          int                `json:"latestScore"`
-	TestCompletedAt      int64              `json:"testCompletedAt"`
-	StudentOutput        string             `json:"studentOutput"`
-	OutputSubmittedAt    int64              `json:"outputSubmittedAt"`
-	ReviewComment        string             `json:"reviewComment"`
-	CertifiedAt          int64              `json:"certifiedAt"`
-	UpdatedAt            int64              `json:"updatedAt"`
+	ClassID              string                   `json:"classId"`
+	NodeID               string                   `json:"nodeId"`
+	StudentID            string                   `json:"studentId"`
+	StudentName          string                   `json:"studentName"`
+	CompletedSteps       []string                 `json:"completedSteps"`
+	AbilityScore         int                      `json:"abilityScore"`
+	Abilities            []SelfStudyAbility       `json:"abilities"`
+	StartedAt            int64                    `json:"startedAt"`
+	TimeSpentSeconds     int                      `json:"timeSpentSeconds"`
+	PracticeAttempts     int                      `json:"practiceAttempts"`
+	PracticeScore        int                      `json:"practiceScore"`
+	WrongKnowledgePoints []string                 `json:"wrongKnowledgePoints"`
+	ReviewStatus         string                   `json:"reviewStatus"`
+	FormalTestAttempts   int                      `json:"formalTestAttempts"`
+	FirstScore           int                      `json:"firstScore"`
+	BestScore            int                      `json:"bestScore"`
+	LatestScore          int                      `json:"latestScore"`
+	TestCompletedAt      int64                    `json:"testCompletedAt"`
+	StudentOutput        string                   `json:"studentOutput"`
+	OutputSubmittedAt    int64                    `json:"outputSubmittedAt"`
+	ReviewComment        string                   `json:"reviewComment"`
+	CertifiedAt          int64                    `json:"certifiedAt"`
+	OutputVersions       []SelfStudyOutputVersion `json:"outputVersions"`
+	FormalTestVersions   []SelfStudyTestAttempt   `json:"formalTestVersions"`
+	UpdatedAt            int64                    `json:"updatedAt"`
 }
 
 type SelfStudyAnalytics struct {
@@ -296,6 +330,7 @@ type SelfStudyAnalytics struct {
 	NeedsSupport           int                      `json:"needsSupport"`
 	TypicalErrors          []ClassroomAnalyticsItem `json:"typicalErrors"`
 	WeakAbilities          []ClassroomAnalyticsItem `json:"weakAbilities"`
+	Engagement             LearningEngagement       `json:"engagement"`
 	Cards                  []SelfStudyProgress      `json:"cards"`
 	UpdatedAt              int64                    `json:"updatedAt"`
 }
@@ -697,7 +732,19 @@ func ClassroomAnalyticsData(classID, nodeID string) ClassroomAnalytics {
 	nodeID = normalizeClassroomNodeID(nodeID)
 	items := ClassroomSubmissions(classID, nodeID)
 	if len(items) == 0 {
-		return demoClassroomAnalytics(classID, nodeID)
+		return ClassroomAnalytics{
+			ClassID:        classID,
+			NodeID:         nodeID,
+			TotalStudents:  0,
+			Submitted:      0,
+			SubmitRate:     "0.0%",
+			AverageScore:   0,
+			NeedsReview:    0,
+			CommonMistakes: []ClassroomAnalyticsItem{},
+			PriorityItems:  []ClassroomAnalyticsItem{},
+			SuggestedFocus: []string{},
+			UpdatedAt:      time.Now().UnixMilli(),
+		}
 	}
 
 	totalStudents := 42
@@ -887,6 +934,30 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	if request.FormalTestAttempts >= existing.FormalTestAttempts && request.FormalTestAttempts > 0 {
 		latestScore = request.LatestScore
 	}
+	formalTestVersions := append([]SelfStudyTestAttempt(nil), existing.FormalTestVersions...)
+	if request.FormalTestSubmission != nil && request.FormalTestAttempts > existing.FormalTestAttempts {
+		submission := *request.FormalTestSubmission
+		if strings.TrimSpace(submission.VersionID) == "" {
+			return SelfStudyProgress{}, fmt.Errorf("formal test versionId is required")
+		}
+		if submission.Score < 0 || submission.Score > 100 {
+			return SelfStudyProgress{}, fmt.Errorf("formal test score must be between 0 and 100")
+		}
+		submission.Attempt = len(formalTestVersions) + 1
+		if submission.SubmittedAt <= 0 {
+			submission.SubmittedAt = time.Now().UnixMilli()
+		}
+		if submission.ElapsedSeconds < 0 {
+			submission.ElapsedSeconds = 0
+		}
+		submission.VersionID = strings.TrimSpace(submission.VersionID)
+		submission.SingleAnswer = strings.TrimSpace(submission.SingleAnswer)
+		submission.Sequence = cleanStringList(submission.Sequence)
+		submission.Evidence = cleanStringList(submission.Evidence)
+		submission.Conclusion = cleanStringList(submission.Conclusion)
+		submission.WrongKnowledgePoints = cleanStringList(submission.WrongKnowledgePoints)
+		formalTestVersions = append(formalTestVersions, submission)
+	}
 	testCompletedAt := request.TestCompletedAt
 	if testCompletedAt < existing.TestCompletedAt {
 		testCompletedAt = existing.TestCompletedAt
@@ -909,6 +980,15 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 	isResubmission := existing.ReviewStatus == "需修改" &&
 		reviewStatus == "待审核" &&
 		request.OutputSubmittedAt > existing.OutputSubmittedAt
+	outputVersions := append([]SelfStudyOutputVersion(nil), existing.OutputVersions...)
+	if request.OutputSubmittedAt > existing.OutputSubmittedAt && studentOutput != "" {
+		outputVersions = append(outputVersions, SelfStudyOutputVersion{
+			Version:       len(outputVersions) + 1,
+			StudentOutput: studentOutput,
+			SubmittedAt:   request.OutputSubmittedAt,
+			ReviewStatus:  reviewStatus,
+		})
+	}
 	reviewComment := strings.TrimSpace(request.ReviewComment)
 	if isResubmission {
 		reviewComment = ""
@@ -929,7 +1009,8 @@ func UpdateSelfStudyProgress(request SelfStudyProgressUpdateRequest) (SelfStudyP
 		FirstScore: firstScore, BestScore: bestScore, LatestScore: latestScore,
 		TestCompletedAt: testCompletedAt, StudentOutput: studentOutput,
 		OutputSubmittedAt: outputSubmittedAt, ReviewComment: reviewComment,
-		CertifiedAt: certifiedAt, UpdatedAt: time.Now().UnixMilli(),
+		CertifiedAt: certifiedAt, OutputVersions: outputVersions,
+		FormalTestVersions: formalTestVersions, UpdatedAt: time.Now().UnixMilli(),
 	}
 	if store := currentPostgres(); store != nil {
 		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
@@ -963,10 +1044,17 @@ func ReviewSelfStudyProgress(request SelfStudyReviewRequest) (SelfStudyProgress,
 	progress.ReviewStatus = status
 	progress.ReviewComment = strings.TrimSpace(request.Comment)
 	progress.CertifiedAt = 0
+	reviewedAt := time.Now().UnixMilli()
 	if status == "已认证" {
-		progress.CertifiedAt = time.Now().UnixMilli()
+		progress.CertifiedAt = reviewedAt
 	}
-	progress.UpdatedAt = time.Now().UnixMilli()
+	if len(progress.OutputVersions) > 0 {
+		latest := len(progress.OutputVersions) - 1
+		progress.OutputVersions[latest].ReviewStatus = status
+		progress.OutputVersions[latest].ReviewComment = progress.ReviewComment
+		progress.OutputVersions[latest].ReviewedAt = reviewedAt
+	}
+	progress.UpdatedAt = reviewedAt
 	if store := currentPostgres(); store != nil {
 		if err := store.saveSelfStudy(context.Background(), progress); err != nil {
 			return SelfStudyProgress{}, fmt.Errorf("save self-study review: %w", err)
@@ -976,6 +1064,115 @@ func ReviewSelfStudyProgress(request SelfStudyReviewRequest) (SelfStudyProgress,
 	classroomMemory.selfStudy[selfStudyKey(classID, nodeID, studentID)] = progress
 	classroomMemory.Unlock()
 	return progress, nil
+}
+
+func ResetDemoStudents(classID string) (DemoResetSummary, error) {
+	classID = normalizeClassroomID(classID)
+	demoStudents := map[string]struct{}{"student01": {}, "student02": {}, "student03": {}}
+	if store := currentPostgres(); store != nil {
+		if err := store.deleteDemoStudentData(context.Background(), classID, []string{"student01", "student02", "student03"}); err != nil {
+			return DemoResetSummary{}, fmt.Errorf("reset demo students: %w", err)
+		}
+	}
+	classroomMemory.Lock()
+	for key, progress := range classroomMemory.selfStudy {
+		if progress.ClassID == classID {
+			if _, ok := demoStudents[progress.StudentID]; ok {
+				delete(classroomMemory.selfStudy, key)
+			}
+		}
+	}
+	classroomMemory.Unlock()
+
+	now := time.Now().UnixMilli()
+	returned, err := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+		ClassID: classID, NodeID: "P1T1-N01", StudentID: "student02", StudentName: "陈同学",
+		CompletedSteps: []string{"problem", "visual", "steps", "correction", "exercise", "output"},
+		StartedAt:      now - 900000, TimeSpentSeconds: 720, PracticeAttempts: 2, PracticeScore: 100,
+		WrongKnowledgePoints: []string{"证据来源", "判断边界"}, FormalTestAttempts: 1,
+		FirstScore: 72, BestScore: 72, LatestScore: 72, TestCompletedAt: now - 300000,
+		FormalTestSubmission: &SelfStudyTestAttempt{
+			VersionID: "FORM-P1T1-N01-2026.08-v1-A1", SubmittedAt: now - 300000, ElapsedSeconds: 680, Score: 72,
+			SingleAnswer: "记录站址与机房位置", Sequence: []string{"确认对象", "采集照片", "补充日志"},
+			Evidence: []string{"现场照片"}, Conclusion: []string{"任务对象", "关键证据"},
+			WrongKnowledgePoints: []string{"证据来源", "判断边界"},
+		},
+		StudentOutput: "已记录站址、楼层和机房边界，待补充照片与日志来源。", OutputSubmittedAt: now - 240000,
+	})
+	if err != nil {
+		return DemoResetSummary{}, err
+	}
+	if _, err := ReviewSelfStudyProgress(SelfStudyReviewRequest{
+		ClassID: classID, NodeID: returned.NodeID, StudentID: returned.StudentID,
+		Status: "需修改", Comment: "请补充照片编号、日志来源和采集时间，再说明判断边界。",
+	}); err != nil {
+		return DemoResetSummary{}, err
+	}
+
+	nodeIDs := []string{
+		"P1T1-N01", "P1T1-N02", "P1T1-N03", "P1T1-N04",
+		"P1T2-N01", "P1T2-N02", "P1T2-N03", "P1T2-N04",
+		"P1T3-N01", "P1T3-N02", "P1T3-N03", "P1T3-N04",
+	}
+	for index, nodeID := range nodeIDs {
+		score := 88 + index%4*3
+		outputSubmittedAt := now - int64(1800000-index*30000)
+		progress, updateErr := UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+			ClassID: classID, NodeID: nodeID, StudentID: "student03", StudentName: "王同学",
+			CompletedSteps: []string{"problem", "visual", "steps", "correction", "exercise", "output"},
+			StartedAt:      now - int64(7200000-index*120000), TimeSpentSeconds: 840 + index*30,
+			PracticeAttempts: 1, PracticeScore: 100, FormalTestAttempts: 1,
+			FirstScore: score, BestScore: score, LatestScore: score, TestCompletedAt: now - int64(3600000-index*60000),
+			FormalTestSubmission: &SelfStudyTestAttempt{
+				VersionID: fmt.Sprintf("FORM-%s-2026.08-v1-A1", nodeID), SubmittedAt: now - int64(3600000-index*60000),
+				ElapsedSeconds: 540 + index*10, Score: score, SingleAnswer: "按任务边界读取并核验对象",
+				Sequence: []string{"明确对象", "读取证据", "执行判断", "形成记录"},
+				Evidence: []string{"现场照片", "采集日志"}, Conclusion: []string{"任务对象", "关键证据", "判断边界", "后续动作"},
+			},
+			StudentOutput:     fmt.Sprintf("%s 已形成可追溯的现场对象、证据来源与职业判断记录。", nodeID),
+			OutputSubmittedAt: outputSubmittedAt,
+		})
+		if updateErr != nil {
+			return DemoResetSummary{}, updateErr
+		}
+		if nodeID == "P1T1-N02" {
+			if _, reviewErr := ReviewSelfStudyProgress(SelfStudyReviewRequest{
+				ClassID: classID, NodeID: nodeID, StudentID: progress.StudentID,
+				Status: "需修改", Comment: "补拍设备柜位与端口同框照片，并标明日志来源。",
+			}); reviewErr != nil {
+				return DemoResetSummary{}, reviewErr
+			}
+			progress, updateErr = UpdateSelfStudyProgress(SelfStudyProgressUpdateRequest{
+				ClassID: classID, NodeID: nodeID, StudentID: progress.StudentID, StudentName: progress.StudentName,
+				CompletedSteps: progress.CompletedSteps, StartedAt: progress.StartedAt, TimeSpentSeconds: progress.TimeSpentSeconds,
+				PracticeAttempts: progress.PracticeAttempts, PracticeScore: progress.PracticeScore,
+				WrongKnowledgePoints: progress.WrongKnowledgePoints, ReviewStatus: "待审核",
+				FormalTestAttempts: progress.FormalTestAttempts, FirstScore: progress.FirstScore, BestScore: progress.BestScore,
+				LatestScore: progress.LatestScore, TestCompletedAt: progress.TestCompletedAt,
+				StudentOutput:     nodeID + " 已补充设备柜位、端口同框照片与日志来源，证据缺口已关闭。",
+				OutputSubmittedAt: outputSubmittedAt + 15000,
+			})
+			if updateErr != nil {
+				return DemoResetSummary{}, updateErr
+			}
+		}
+		if _, reviewErr := ReviewSelfStudyProgress(SelfStudyReviewRequest{
+			ClassID: classID, NodeID: nodeID, StudentID: progress.StudentID,
+			Status: "已认证", Comment: func() string {
+				if nodeID == "P1T1-N02" {
+					return "v2 已关闭设备位置与日志来源缺口，证据链完整。"
+				}
+				return "证据完整、结论有边界，已认证为项目成果证据。"
+			}(),
+		}); reviewErr != nil {
+			return DemoResetSummary{}, reviewErr
+		}
+	}
+
+	return DemoResetSummary{
+		ClassID: classID, ResetStudents: 3, SeededRecords: len(nodeIDs) + 1,
+		CompletedRecords: len(nodeIDs), UpdatedAt: time.Now().UnixMilli(),
+	}, nil
 }
 
 func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
@@ -1075,7 +1272,8 @@ func SelfStudyAnalyticsData(classID, nodeID string) SelfStudyAnalytics {
 		ClassID: classID, NodeID: nodeID, Students: len(studentIDs), Completed: completed,
 		AverageAbility: average, AverageAccuracy: accuracy, AverageDurationSeconds: averageDuration,
 		TotalRetries: retries, NeedsSupport: needsSupport, TypicalErrors: analyticsItemsFromCounts(errorCounts),
-		WeakAbilities: analyticsItemsFromCounts(weakAbilityCounts), Cards: cards, UpdatedAt: time.Now().UnixMilli(),
+		WeakAbilities: analyticsItemsFromCounts(weakAbilityCounts), Engagement: LearningEngagementWithProgress(classID, nodeID, cards),
+		Cards: cards, UpdatedAt: time.Now().UnixMilli(),
 	}
 }
 
@@ -1107,30 +1305,6 @@ func classroomToolsLocked(classID, nodeID string) ClassroomToolState {
 		Prompt:       "请围绕移动路径、指标证据和验收结论完成讨论。",
 		PollOptions:  []string{"静止点覆盖不足", "移动路径切换过程", "终端单点故障"},
 		UpdatedAt:    0,
-	}
-}
-
-func demoClassroomAnalytics(classID, nodeID string) ClassroomAnalytics {
-	return ClassroomAnalytics{
-		ClassID:       classID,
-		NodeID:        nodeID,
-		TotalStudents: 42,
-		Submitted:     36,
-		SubmitRate:    "85.7%",
-		AverageScore:  76,
-		NeedsReview:   6,
-		CommonMistakes: []ClassroomAnalyticsItem{
-			{Label: "把覆盖达标当成体验闭环", Count: 18, Level: "高"},
-			{Label: "忽略切换失败集中区", Count: 14, Level: "中"},
-			{Label: "未关联短掉线日志", Count: 10, Level: "低"},
-		},
-		PriorityItems: []ClassroomAnalyticsItem{
-			{Label: "切换成功率未达标原因", Count: 18, Level: "高"},
-			{Label: "重建次数异常", Count: 14, Level: "中"},
-			{Label: "短掉线日志判读", Count: 10, Level: "低"},
-		},
-		SuggestedFocus: []string{"先讲覆盖改善与体验闭环的差别。", "再定位 A-B 边界和食堂入口的移动性证据。"},
-		UpdatedAt:      time.Now().UnixMilli(),
 	}
 }
 
@@ -1229,6 +1403,16 @@ func mergeUniqueStrings(groups ...[]string) []string {
 		}
 	}
 	return merged
+}
+
+func cleanStringList(values []string) []string {
+	cleaned := make([]string, 0, len(values))
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			cleaned = append(cleaned, value)
+		}
+	}
+	return cleaned
 }
 
 func displayStudentName(value string) string {

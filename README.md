@@ -1,13 +1,34 @@
-# 5G网络优化数字教材工程原型
+# 5G网络优化数字教材
 
-当前项目包含两个部分：
+可部署的学生端、教师端与课堂协同样章。项目由 Next.js 前端和 Go API 组成，PostgreSQL 用于保存学习记录、测评、产出版本、教师审核和课堂状态。
 
-- `next-frontend/`：React + Next.js 前端工程版。
-- `backend-go/`：Go 标准库 Mock API 服务。
+## 当前能力
 
-## 前端
+- P1、P2 顺序学习样章：问题、看图、步骤、纠偏、练习、产出六阶段，节点依次解锁。
+- 正式测试：限时作答、最多三次、不可变答卷版本、首次/最高/最近成绩。
+- 学习产出与成果包：提交、退回修改、认证通过和历史版本追溯。
+- 教师工作台：真实学习进度、正确率、学习时长、错误知识点、AI 学情建议与批阅闭环。
+- 课堂受控：教师显式同步当前页，在线学生加入听讲，支持退出提示、推送练习和实时回流。
+- P4 创新样例：保留 Pixel.js 方向的四轮卡牌构筑互动、AI 助教与云端 TTS 讲评。
+- 能力图谱、资源治理、公开生产流和交付包页面。
 
-运行：
+## 目录
+
+- `next-frontend/`：Next.js 16 + React 前端。
+- `backend-go/`：Go API、WebSocket 课堂通道与 PostgreSQL 存储。
+- `DEPLOY.md`：Render + Netlify 公网部署步骤。
+
+## 本地运行
+
+需要 Node.js 20+、npm 和 Go 1.22+。
+
+```bash
+cd backend-go
+cp .env.example .env
+go run ./cmd/server
+```
+
+新开一个终端：
 
 ```bash
 cd next-frontend
@@ -16,77 +37,33 @@ cp .env.example .env.local
 npm run dev
 ```
 
-打开：
+打开 [http://localhost:3000/login](http://localhost:3000/login)。演示账号为 `student01`、`student02`、`student03` 和 `teacher01`，密码均为 `123456`。师生需填写相同班级编号。
 
-```text
-http://localhost:3000/course
-```
-
-已完成：
-
-- 白底青绿色数字教材风格。
-- 真实 Next.js 路由：`/course`、`/project`、`/task`、`/graph`、`/teacher`、`/demo-guide`。
-- P1-P6 项目上下文联动。
-- 课程首页、项目页、学生学习页、图谱页、教师页均可按项目切换。
-- P4 保留深度样章，其他项目显示可扩展概览。
-- API client：`next-frontend/lib/api.ts`。
-- 顶部后端连接状态：自动检测 `GET /api/health`，显示“后端已连接”或“本地演示数据”。
-
-## 后端
-
-需要安装 Go 1.22+。
-
-运行：
-
-```bash
-cd backend-go
-cp .env.example .env
-go run ./cmd/server
-```
-
-默认地址：
-
-```text
-http://localhost:8080
-```
-
-接口：
-
-```text
-GET  /api/health
-GET  /api/course/overview
-GET  /api/projects/P1
-GET  /api/projects/P4
-GET  /api/tasks/P4T2-N04
-GET  /api/graph/course?project=P2
-GET  /api/teacher/suggestions?project=P4
-POST /api/submissions
-```
-
-## 联调说明
-
-前端目前仍使用本地静态数据，保证没有 Go 环境也能演示。后续逐页切 API 时使用：
-
-```text
-next-frontend/lib/api.ts
-next-frontend/.env.example
-```
-
-复制环境变量：
+## 验证
 
 ```bash
 cd next-frontend
-cp .env.example .env.local
+npm run lint
+npm run build
 ```
 
-## 老师反馈方向
+```bash
+cd backend-go
+go test ./...
+```
 
-已新增 P4-T2/N04 的 Pixel.js 方向互动样章：路线节点点击、移动性证据选择、闯关反馈。
+主要验收入口：
 
-OpenMAIC 已预留真实接入：
+- `/student?project=P1`：学生学习首页。
+- `/student/projects/P1`：项目任务链。
+- `/learn/P1T1-N01`：节点六阶段自学。
+- `/teacher?project=P1`：教师学情工作台。
+- `/teacher/sessions/P1T1-N01`：教师授课控制台。
+- `/graph?project=P1`：课程能力图谱。
+- `/game?project=P4`：P4 卡牌互动样例。
 
-- 前端 `.env.local`：`NEXT_PUBLIC_OPENMAIC_URL=http://localhost:3001`
-- 后端 `.env`：`OPENMAIC_API_BASE=http://localhost:3001`
-- 后端接口：`POST /api/ai/hint`
+## 环境变量
 
-未配置真实 OpenMAIC 时，页面仍可用本地规则助教演示；配置后 `/game` 会出现真实助教入口和嵌入预览。
+后端的完整模板在 `backend-go/.env.example`，主要包括 `DATABASE_URL`、DeepSeek/OpenMAIC 配置和 TTS 配置。前端通过 `NEXT_PUBLIC_API_BASE_URL` 连接 API。不要把真实 API key 提交到 Git。
+
+`DATABASE_URL` 留空时后端使用内存模式，适合本地界面验证；公网部署必须配置 PostgreSQL，才能在服务重启后保留历史记录。

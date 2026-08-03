@@ -1,6 +1,6 @@
 import { AuthGate } from '@/components/AuthGate';
-import { DigitalTextbookApp } from '@/components/DigitalTextbookApp';
+import { TeacherPortal } from '@/components/TeacherPortal';
 
 export default function TeacherPage() {
-  return <AuthGate role="teacher"><DigitalTextbookApp initialView="teacher" /></AuthGate>;
+  return <AuthGate role="teacher"><TeacherPortal /></AuthGate>;
 }

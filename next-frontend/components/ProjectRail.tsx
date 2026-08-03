@@ -1,9 +1,10 @@
 'use client';
 
 import { projects } from '@/lib/textbook-data';
-import type { Navigate } from './types';
 
-export function ProjectRail({ activeProjectId, onProjectSelect }: { activeProjectId: string; onProjectSelect: (projectId: string) => void; onNavigate: Navigate }) {
+export function ProjectRail({ activeProjectId, onProjectSelect }: { activeProjectId: string; onProjectSelect: (projectId: string) => void }) {
+  const activeProject = projects.find((project) => project.id === activeProjectId) ?? projects[0];
+
   return (
     <aside className="project-rail" aria-label="课程项目链">
       <h2>课程项目链</h2>
@@ -19,8 +20,8 @@ export function ProjectRail({ activeProjectId, onProjectSelect }: { activeProjec
         ))}
       </div>
       <div className="rail-tip">
-        <strong>演示主线</strong>
-        <p>课程首页 → 项目四 → P4-T2 → N04学习 → 图谱 → 教师端</p>
+        <strong>{activeProject.id} 学习主线</strong>
+        <p>课程首页 → {activeProject.id} {activeProject.title} → 项目任务 → 节点学习 → 能力图谱 → 教师端</p>
       </div>
     </aside>
   );

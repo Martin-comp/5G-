@@ -60,7 +60,7 @@ export function P4NodeExperience({ mode }: { mode: ExperienceMode }) {
   return (
     <main className={`node-experience node-${mode}`}>
       <header className="node-topbar">
-        <Link className="node-brand" href="/course?project=P4">
+        <Link className="node-brand" href={mode === 'teacher' ? '/teacher?project=P4' : '/graph?project=P4'}>
           <span>5G</span>
           <strong>5G网络优化（高级）</strong>
           <em>数字教材</em>
@@ -645,6 +645,7 @@ function TeacherBody() {
       <aside className="teacher-session-side">
         <h3>课堂控制</h3>
         <Link href={`/classroom/${data.nodeId}`}>同步学生跟随页</Link>
+        <Link href={`/present/${data.nodeId}`} target="_blank">打开课堂投屏预览</Link>
         <Link href="/game/?project=P4">进入互动闯关</Link>
         <div className="teacher-side-block">
           <strong>评价产出</strong>

@@ -71,6 +71,47 @@ export type ClassroomSessionStateDTO = {
   updatedBy: string;
 };
 
+export type ClassroomPresenceDeviceDTO = {
+  deviceId: string;
+  name: string;
+  role: 'student' | 'teacher';
+  connectedAt: number;
+  lastSeenAt: number;
+  receivedNodeId: string;
+  receivedUpdateAt: number;
+};
+
+export type ClassroomPresenceDTO = {
+  classId: string;
+  students: number;
+  teachers: number;
+  devices: ClassroomPresenceDeviceDTO[];
+  updatedAt: number;
+};
+
+export type ResourceGovernanceDTO = {
+  id: string;
+  projectId: string;
+  nodeId: string;
+  title: string;
+  type: string;
+  source: string;
+  rights: string;
+  usage: string;
+  linkedSection: 'problem' | 'visual' | 'steps' | 'correction' | 'exercise' | 'output' | 'classroom';
+  required: boolean;
+  completeness: '待补充' | '通过';
+  availability: '不可用' | '可用';
+  visualStatus: '待复核' | '通过';
+  updatedAt: number;
+  updatedBy: string;
+};
+
+export type ResourceGovernanceUpdatePayload = Pick<
+  ResourceGovernanceDTO,
+  'id' | 'usage' | 'linkedSection' | 'required' | 'completeness' | 'availability' | 'visualStatus'
+> & { updatedBy: string };
+
 export type ClassroomToolStateDTO = {
   classId: string;
   nodeId: string;
@@ -162,6 +203,29 @@ export type SelfStudyAbilityDTO = {
 	status: string;
 };
 
+export type SelfStudyOutputVersionDTO = {
+	version: number;
+	studentOutput: string;
+	submittedAt: number;
+	reviewStatus: string;
+	reviewComment: string;
+	reviewedAt: number;
+};
+
+export type SelfStudyTestAttemptDTO = {
+	attempt: number;
+	versionId: string;
+	submittedAt: number;
+	elapsedSeconds: number;
+	score: number;
+	singleAnswer: string;
+	sequence: string[];
+	evidence: string[];
+	conclusion: string[];
+	wrongKnowledgePoints: string[];
+	diagnosis: SelfStudyAbilityDTO[];
+};
+
 export type SelfStudyProgressPayload = {
 	classId?: string;
 	nodeId: string;
@@ -182,6 +246,7 @@ export type SelfStudyProgressPayload = {
 	studentOutput?: string;
 	outputSubmittedAt?: number;
 	reviewComment?: string;
+	formalTestSubmission?: Omit<SelfStudyTestAttemptDTO, 'attempt'>;
 };
 
 export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
@@ -203,6 +268,8 @@ export type SelfStudyProgressDTO = SelfStudyProgressPayload & {
 	outputSubmittedAt: number;
 	reviewComment: string;
 	certifiedAt: number;
+	outputVersions: SelfStudyOutputVersionDTO[];
+	formalTestVersions: SelfStudyTestAttemptDTO[];
 	updatedAt: number;
 };
 
@@ -212,6 +279,80 @@ export type SelfStudyReviewPayload = {
 	studentId: string;
 	status: '需修改' | '已认证';
 	comment: string;
+};
+
+export type DemoResetSummaryDTO = {
+	classId: string;
+	resetStudents: number;
+	seededRecords: number;
+	completedRecords: number;
+	updatedAt: number;
+};
+
+export type LearningEventPayload = {
+	classId?: string;
+	nodeId: string;
+	studentId: string;
+	studentName: string;
+	eventType: 'session-start' | 'section-view' | 'section-complete' | 'exercise-pass' | 'exercise-error' | 'test-submit' | 'output-submit';
+	sectionId?: 'problem' | 'visual' | 'steps' | 'correction' | 'exercise' | 'output';
+	value?: string;
+	durationSeconds?: number;
+};
+
+export type LearningEventDTO = LearningEventPayload & {
+	classId: string;
+	id: string;
+	sectionId: string;
+	value: string;
+	durationSeconds: number;
+	createdAt: number;
+};
+
+export type LearningEngagementDTO = {
+	totalEvents: number;
+	activeStudents: number;
+	averageEventsPerStudent: number;
+	stalledStudents: number;
+	sectionActivity: ClassroomAnalyticsItemDTO[];
+	sectionRisks: LearningSectionRiskDTO[];
+	priorityStudents: LearningPriorityStudentDTO[];
+	resourceOutcomes: ResourceLearningOutcomeDTO[];
+	suggestedFocus: string[];
+	recentEvents: LearningEventDTO[];
+	lastActivityAt: number;
+};
+
+export type LearningSectionRiskDTO = {
+	sectionId: string;
+	views: number;
+	completions: number;
+	errors: number;
+	completionRate: number;
+	riskLevel: '高' | '中' | '低';
+	suggestedAction: string;
+};
+
+export type LearningPriorityStudentDTO = {
+	studentId: string;
+	studentName: string;
+	riskScore: number;
+	riskLevel: '高' | '中' | '低';
+	latestSection: string;
+	reasons: string[];
+	suggestedAction: string;
+};
+
+export type ResourceLearningOutcomeDTO = {
+	resourceId: string;
+	title: string;
+	sectionId: string;
+	required: boolean;
+	exposureCount: number;
+	completionCount: number;
+	errorCount: number;
+	completionRate: number;
+	signal: string;
 };
 
 export type SelfStudyAnalyticsDTO = {
@@ -226,6 +367,7 @@ export type SelfStudyAnalyticsDTO = {
 	needsSupport: number;
 	typicalErrors: ClassroomAnalyticsItemDTO[];
 	weakAbilities: ClassroomAnalyticsItemDTO[];
+	engagement: LearningEngagementDTO;
 	cards: SelfStudyProgressDTO[];
 	updatedAt: number;
 };
@@ -402,6 +544,7 @@ export const textbookApi = {
   }),
   classroomSession: (nodeId = 'P4T2-N04', classId = readClassroomId()) => requestJSON<ClassroomSessionStateDTO>(`/api/classroom/session?${classroomQuery(nodeId, classId)}`),
   activeClassroomSession: (classId = readClassroomId()) => requestJSON<ClassroomSessionStateDTO>(`/api/classroom/active?classId=${encodeURIComponent(classId)}`),
+  classroomPresence: (classId = readClassroomId()) => requestJSON<ClassroomPresenceDTO>(`/api/classroom/presence?classId=${encodeURIComponent(classId)}`),
   updateClassroomSession: (payload: ClassroomSessionStateDTO) => requestJSON<ClassroomSessionStateDTO>('/api/classroom/session', {
     method: 'POST',
     body: JSON.stringify(withClassroomId(payload))
@@ -433,7 +576,16 @@ export const textbookApi = {
     method: 'POST',
     body: JSON.stringify(withClassroomId(payload))
   }),
+  resetDemoStudents: (classId = readClassroomId()) => requestJSON<DemoResetSummaryDTO>('/api/demo/reset', {
+    method: 'POST',
+    body: JSON.stringify({ classId })
+  }),
   selfStudyAnalytics: (nodeId: string, classId = readClassroomId()) => requestJSON<SelfStudyAnalyticsDTO>(`/api/self-study/analytics?classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}`),
+  learningEvents: (nodeId: string, classId = readClassroomId()) => requestJSON<LearningEventDTO[]>(`/api/self-study/events?classId=${encodeURIComponent(classId)}&nodeId=${encodeURIComponent(nodeId)}`),
+  createLearningEvent: (payload: LearningEventPayload) => requestJSON<LearningEventDTO>('/api/self-study/events', {
+    method: 'POST',
+    body: JSON.stringify(withClassroomId(payload))
+  }),
 	generateStudyInsight: (payload: AIStudyInsightPayload) => requestJSON<AIStudyInsightDTO>('/api/ai/study-insight', {
 		method: 'POST',
 		body: JSON.stringify(withClassroomId(payload))
@@ -452,6 +604,11 @@ export const textbookApi = {
   submitClassroomGroup: (payload: ClassroomGroupResponsePayload) => requestJSON<ClassroomGroupResponseDTO>('/api/classroom/groups', {
     method: 'POST',
     body: JSON.stringify(withClassroomId(payload))
+  }),
+  resourceGovernance: (projectId: string) => requestJSON<ResourceGovernanceDTO[]>(`/api/resources/governance?project=${encodeURIComponent(projectId)}`),
+  updateResourceGovernance: (payload: ResourceGovernanceUpdatePayload) => requestJSON<ResourceGovernanceDTO>(`/api/resources/governance?classId=${encodeURIComponent(readClassroomId())}`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
   }),
   aiHint: (payload: AIHintPayload) => requestJSON<AIHintResult>('/api/ai/hint', {
     method: 'POST',

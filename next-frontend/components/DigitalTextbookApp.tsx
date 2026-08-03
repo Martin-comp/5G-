@@ -47,6 +47,8 @@ export function DigitalTextbookApp({ initialView = 'course' }: { initialView?: V
 
   function selectProject(projectId: string) {
     setSelectedProjectId(projectId);
+    setSelectedTask(projectId === 'P4' ? 'N04' : '');
+    setAnswer('');
     const nextView = view;
     setView(nextView);
     router.push(routeFor(nextView, projectId));
@@ -62,14 +64,14 @@ export function DigitalTextbookApp({ initialView = 'course' }: { initialView?: V
     <main className={`digital-shell view-${view}`}>
       <TopNav view={view} onNavigate={navigate} />
       <section className="app-layout">
-        <ProjectRail activeProjectId={selectedProjectId} onProjectSelect={selectProject} onNavigate={navigate} />
+        <ProjectRail activeProjectId={selectedProjectId} onProjectSelect={selectProject} />
         <section className="workspace" aria-live="polite">
           {view === 'course' && <CourseHome projectId={selectedProjectId} onNavigate={navigate} />}
           {view === 'project' && <ProjectPage projectId={selectedProjectId} selectedTask={selectedTask} onSelectTask={setSelectedTask} onNavigate={navigate} />}
           {view === 'task' && <StudentTaskPage projectId={selectedProjectId} answer={answer} setAnswer={setAnswer} onProjectSelect={selectStudentProject} onNavigate={navigate} />}
           {view === 'graph' && <GraphPage projectId={selectedProjectId} onNavigate={navigate} />}
           {view === 'teacher' && <TeacherPage projectId={selectedProjectId} onNavigate={navigate} />}
-          {view === 'game' && <GamePage projectId={selectedProjectId} onNavigate={navigate} />}
+          {view === 'game' && <GamePage key={selectedProjectId} projectId={selectedProjectId} onNavigate={navigate} />}
         </section>
         <ContextPanel projectId={selectedProjectId} />
       </section>
