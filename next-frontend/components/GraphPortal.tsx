@@ -47,6 +47,7 @@ export function GraphPortal() {
           {firstNodeId ? <Link href={`/teacher/sessions/${firstNodeId}`}>授课台</Link> : null}
         </>}
         <Link className="active" href={`/graph?project=${projectId}`}>能力图谱</Link>
+        <Link href={`/game?project=${projectId}`}>卡牌互动</Link>
         <AuthBadge />
       </nav>
     </header>

@@ -71,7 +71,7 @@ function useProjectRecords(projectId: string) {
 function ProjectHeader({ projectId, label }: { projectId: string; label: string }) {
   return <header className="project-journey-topbar">
     <div><Link className="project-journey-logo" href={`/student?project=${projectId}`}>5G</Link><div><strong>5G网络优化数字教材</strong><small>{label}</small></div></div>
-    <nav><Link href={`/student?project=${projectId}`}>学习首页</Link><Link href={`/student/projects/${projectId}`}>项目任务</Link><Link href={`/student/projects/${projectId}/portfolio`}>成果包</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><AuthBadge /></nav>
+    <nav><Link href={`/student?project=${projectId}`}>学习首页</Link><Link href={`/student/projects/${projectId}`}>项目任务</Link><Link href={`/student/projects/${projectId}/portfolio`}>成果包</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><Link href={`/game?project=${projectId}`}>卡牌互动</Link><AuthBadge /></nav>
   </header>;
 }
 

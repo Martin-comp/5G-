@@ -103,7 +103,7 @@ export function StudentHome() {
     <main className="student-home">
       <header className="student-home-topbar">
         <div><Link className="student-home-logo" href={`/student?project=${projectId}`}>5G</Link><div><strong>5G网络优化数字教材</strong><small>学生学习工作台</small></div></div>
-        <nav><Link href={`/student?project=${projectId}`}>学习首页</Link><Link href={`/student/projects/${projectId}`}>项目任务</Link><Link href={`/student/projects/${projectId}/portfolio`}>成果包</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><AuthBadge /></nav>
+        <nav><Link href={`/student?project=${projectId}`}>学习首页</Link><Link href={`/student/projects/${projectId}`}>项目任务</Link><Link href={`/student/projects/${projectId}/portfolio`}>成果包</Link><Link href={`/graph?project=${projectId}`}>能力图谱</Link><Link href={`/game?project=${projectId}`}>卡牌互动</Link><AuthBadge /></nav>
       </header>
 
       <div className="student-home-shell">
